@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://du3of3w2rc627"]
+
+[ext_resource type="Texture2D" uid="uid://droydlne31ftk" path="res://assets/sprites/SkyBG.png" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://cfehe3264ugnm" path="res://scenes/main.gd" id="2_game_ui"]
+[ext_resource type="Texture2D" uid="uid://cr3fbegnit3ir" path="res://assets/sprites/VendingMachine.png" id="3_jyhfs"]
+[ext_resource type="Texture2D" uid="uid://h05jvecmk4ak" path="res://assets/sprites/Ground.png" id="4_tbgi4"]
+
+[node name="Main" type="Node2D" unique_id=1474638925]
+script = ExtResource("2_game_ui")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1170520359]
+
+[node name="BGM_player" type="AudioStreamPlayer" parent="." unique_id=1339204917]
+
+[node name="World" type="Node2D" parent="." unique_id=427354301]
+
+[node name="WallPaper" type="Sprite2D" parent="World" unique_id=1312683523]
+texture = ExtResource("1_o5qli")
+
+[node name="VendingMachine" type="Sprite2D" parent="World" unique_id=1654094394]
+visible = false
+position = Vector2(-286.99997, 155)
+scale = Vector2(0.2595368, 0.25555557)
+texture = ExtResource("3_jyhfs")
+
+[node name="Sprite2D" type="Sprite2D" parent="World" unique_id=1480223985]
+position = Vector2(-2, 351)
+texture = ExtResource("4_tbgi4")
+
+[node name="IncomeSources" type="Node2D" parent="." unique_id=367292550]
+
+[node name="UI" type="Node2D" parent="." unique_id=1528669206]

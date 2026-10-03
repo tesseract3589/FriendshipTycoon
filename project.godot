@@ -11,8 +11,16 @@ config_version=5
 [application]
 
 config/name="FriendshipHouseTycoon"
+run/main_scene="uid://du3of3w2rc627"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="res://icon.svg"
+
+[autoload]
+
+EconomyManager="*res://autoload/EconomyManager.gd"
+IncomeManager="*res://autoload/IncomeManager.gd"
+ButtonManager="*res://autoload/ButtonManager.gd"
+PrestigeManager="*res://autoload/PrestigeManager.gd"
 
 [display]
 
