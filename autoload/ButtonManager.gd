@@ -2,8 +2,7 @@ extends Node
 
 
 @export var buttons: Array[ButtonData] = [
-	preload("res://data/open_hall_button.tres"),
-	preload("res://data/promotion_button.tres")
+	preload("res://data/vending_machine_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 
@@ -71,10 +70,6 @@ func is_unlocked(button_data: ButtonData) -> bool:
 			return _check_upgrade_condition(condition)
 
 
-		UnlockCondition.Type.LEVEL:
-			return _check_level_condition(condition)
-
-
 	return false
 
 
@@ -112,21 +107,6 @@ func _check_upgrade_condition(
 	# 아직 실제 검사를 할 수 없다.
 
 	return false
-
-
-# ============================================================
-# LEVEL CONDITION
-# ============================================================
-
-func _check_level_condition(
-	condition: UnlockCondition
-) -> bool:
-
-	# 현재 프로젝트에는 LevelManager가 없으므로
-	# 아직 실제 검사를 할 수 없다.
-
-	return false
-
 
 # ============================================================
 # PURCHASE

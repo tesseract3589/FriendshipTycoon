@@ -6,9 +6,10 @@ extends Node
 signal income_changed()
 signal source_multiplier_changed(source_id: String)
 signal source_activation_changed(source_id: String, is_active: bool)
+signal source_timer_changed(source_id: String, seconds_remaining: float)
 
 
-@export var sources: Array[IncomeSourceData] = [preload("res://data/starter_income.tres")]
+@export var sources: Array[IncomeSourceData] = [preload("res://data/vending_machine_income.tres")]
 
 
 # 플레이 중 Source multiplier
@@ -16,6 +17,7 @@ var source_multipliers: Dictionary = {}
 
 # 플레이 중 활성화된 Source 저장
 var source_active: Dictionary = {}
+var source_time_remaining: Dictionary = {}
 
 
 func _ready() -> void:
@@ -25,11 +27,13 @@ func _ready() -> void:
 func reset_runtime_state() -> void:
 	source_multipliers.clear()
 	source_active.clear()
+	source_time_remaining.clear()
 	for source in sources:
 		if source == null or source.id.is_empty():
 			continue
 		source_multipliers[source.id] = source.multiplier
 		source_active[source.id] = false
+		source_time_remaining[source.id] = 0.0
 	income_changed.emit()
 
 
@@ -42,9 +46,24 @@ func activate_source(source_id: String) -> void:
 	if source_active[source_id]:
 		return
 	source_active[source_id] = true
+	var source := get_source(source_id)
+	if source != null:
+		source_time_remaining[source_id] = _get_production_time(source)
 
 	source_activation_changed.emit(source_id, true)
+	source_timer_changed.emit(source_id, source_time_remaining.get(source_id, 0.0))
 	income_changed.emit()
+
+
+func get_source_time_remaining(source_id: String) -> float:
+	return source_time_remaining.get(source_id, 0.0)
+
+
+func _get_production_time(source: IncomeSourceData) -> float:
+	var production_time := source.base_time * source.time_multiplier
+	if production_time <= 0.0 or not is_finite(production_time):
+		return 0.0
+	return production_time
 
 
 # 특정 source의 multiplier를 불러옴
@@ -84,7 +103,7 @@ func get_source_income(source_id: String) -> float:
 	if source == null:
 		return 0.0
 
-	var production_time := source.base_time * source.time_multiplier
+	var production_time := _get_production_time(source)
 	if production_time <= 0.0 or not is_finite(production_time):
 		return 0.0
 	return source.base_income / production_time * get_source_multiplier(source_id) * EconomyManager.get_global_multiplier()
@@ -118,12 +137,23 @@ func get_total_income_per_second() -> float:
 
 
 func _process(delta: float) -> void:
+	for source in sources:
+		if source == null or not source_active.get(source.id, false):
+			continue
 
-	var income := get_total_income_per_second()
+		var production_time := _get_production_time(source)
+		if production_time <= 0.0:
+			continue
 
-	if income <= 0:
-		return
+		var remaining: float = source_time_remaining.get(source.id, production_time)
+		remaining -= delta
+		while remaining <= 0.0:
+			EconomyManager.add_money(
+				source.base_income
+				* get_source_multiplier(source.id)
+				* EconomyManager.get_global_multiplier()
+			)
+			remaining += production_time
 
-	EconomyManager.add_money(
-		income * delta
-	)
+		source_time_remaining[source.id] = remaining
+		source_timer_changed.emit(source.id, remaining)

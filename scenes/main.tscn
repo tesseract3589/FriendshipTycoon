@@ -2,7 +2,6 @@
 
 [ext_resource type="Texture2D" uid="uid://droydlne31ftk" path="res://assets/sprites/SkyBG.png" id="1_o5qli"]
 [ext_resource type="Script" uid="uid://cfehe3264ugnm" path="res://scenes/main.gd" id="2_game_ui"]
-[ext_resource type="Texture2D" uid="uid://cr3fbegnit3ir" path="res://assets/sprites/VendingMachine.png" id="3_jyhfs"]
 [ext_resource type="Texture2D" uid="uid://h05jvecmk4ak" path="res://assets/sprites/Ground.png" id="4_tbgi4"]
 
 [node name="Main" type="Node2D" unique_id=1474638925]
@@ -17,16 +16,43 @@ script = ExtResource("2_game_ui")
 [node name="WallPaper" type="Sprite2D" parent="World" unique_id=1312683523]
 texture = ExtResource("1_o5qli")
 
-[node name="VendingMachine" type="Sprite2D" parent="World" unique_id=1654094394]
-visible = false
-position = Vector2(-286.99997, 155)
-scale = Vector2(0.2595368, 0.25555557)
-texture = ExtResource("3_jyhfs")
-
 [node name="Sprite2D" type="Sprite2D" parent="World" unique_id=1480223985]
 position = Vector2(-2, 351)
 texture = ExtResource("4_tbgi4")
 
-[node name="IncomeSources" type="Node2D" parent="." unique_id=367292550]
+[node name="IncomeSourceViews" type="Node2D" parent="World" unique_id=532151006]
 
-[node name="UI" type="Node2D" parent="." unique_id=1528669206]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=255123894]
+
+[node name="Panel" type="PanelContainer" parent="HUD" unique_id=1662022879]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 364.0
+offset_bottom = 390.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HUD/Panel" unique_id=1903679919]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TitleLabel" type="Label" parent="HUD/Panel/VBoxContainer" unique_id=2104162315]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "우정회관 키우기"
+
+[node name="MoneyLabel" type="Label" parent="HUD/Panel/VBoxContainer" unique_id=1528647643]
+unique_name_in_owner = true
+layout_mode = 2
+text = "자금: 0원"
+
+[node name="IncomeLabel" type="Label" parent="HUD/Panel/VBoxContainer" unique_id=819494443]
+unique_name_in_owner = true
+layout_mode = 2
+text = "수입: 0원 / 초"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HUD/Panel/VBoxContainer" unique_id=1415646655]
+custom_minimum_size = Vector2(300, 220)
+layout_mode = 2
+
+[node name="PurchaseButtonList" type="VBoxContainer" parent="HUD/Panel/VBoxContainer/ScrollContainer" unique_id=1683895957]
+layout_mode = 2
+size_flags_horizontal = 3

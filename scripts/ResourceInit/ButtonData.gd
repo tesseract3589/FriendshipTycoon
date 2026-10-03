@@ -9,6 +9,7 @@ enum EffectType {
 
 @export var id: String = ""
 @export var button_name: String = ""
+@export var description: String = ""
 @export var price: float = 0.0
 
 @export_category("Purchased")

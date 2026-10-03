@@ -5,6 +5,12 @@ extends Resource
 @export var id: String = ""
 @export var source_name: String = ""
 
+@export_category("Display")
+@export var display_texture: Texture2D
+@export var display_position: Vector2 = Vector2.ZERO
+@export var display_scale: Vector2 = Vector2.ONE
+@export var timer_offset: Vector2 = Vector2(0.0, -110.0)
+
 # 생산량 (생산량 = base_income * multiplier)
 @export_category("Income")
 @export var base_income: float = 0.0

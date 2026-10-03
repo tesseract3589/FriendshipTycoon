@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/IncomeSourceView.gd" id="1_script"]
+
+[node name="IncomeSourceView" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+visible = false
+
+[node name="TimerLabel" type="Label" parent="."]
+visible = false
+offset_right = 120.0
+offset_bottom = 30.0
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1

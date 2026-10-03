@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="IncomeSourceData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ResourceInit/IncomeSourceData.gd" id="1_source"]
+[ext_resource type="Texture2D" uid="uid://cr3fbegnit3ir" path="res://assets/sprites/VendingMachine.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_source")
+id = "vending_machine"
+source_name = "자판기"
+display_texture = ExtResource("2_texture")
+display_position = Vector2(-287.0, 155.0)
+display_scale = Vector2(0.259537, 0.255556)
+timer_offset = Vector2(-60.0, -110.0)
+base_income = 10.0
+multiplier = 1.0
+base_time = 5.0
+time_multiplier = 1.0
