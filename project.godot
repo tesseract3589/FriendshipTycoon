@@ -13,7 +13,7 @@ config_version=5
 config/name="FriendshipHouseTycoon"
 run/main_scene="uid://du3of3w2rc627"
 config/features=PackedStringArray("4.7", "Mobile")
-config/icon="res://icon.svg"
+config/icon="uid://50a8kaq5wchw"
 
 [autoload]
 
@@ -21,6 +21,7 @@ EconomyManager="*res://autoload/EconomyManager.gd"
 IncomeManager="*res://autoload/IncomeManager.gd"
 ButtonManager="*res://autoload/ButtonManager.gd"
 PrestigeManager="*res://autoload/PrestigeManager.gd"
+TooltipManager="*res://autoload/TooltipManager.gd"
 
 [display]
 

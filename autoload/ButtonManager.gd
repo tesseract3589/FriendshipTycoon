@@ -2,7 +2,7 @@ extends Node
 
 
 @export var buttons: Array[ButtonData] = [
-	preload("res://data/vending_machine_button.tres")
+	preload("res://data/buttons/vending_machine_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 

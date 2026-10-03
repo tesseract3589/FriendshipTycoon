@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://du3of3w2rc627"]
 
-[ext_resource type="Texture2D" uid="uid://droydlne31ftk" path="res://assets/sprites/SkyBG.png" id="1_o5qli"]
 [ext_resource type="Script" uid="uid://cfehe3264ugnm" path="res://scenes/main.gd" id="2_game_ui"]
+[ext_resource type="Texture2D" uid="uid://daxxbbjn4oq6q" path="res://assets/sprites/SkyBG_gradation.png" id="2_jyhfs"]
 [ext_resource type="Texture2D" uid="uid://h05jvecmk4ak" path="res://assets/sprites/Ground.png" id="4_tbgi4"]
+[ext_resource type="Script" uid="uid://dubpdfstf6y8g" path="res://scenes/cloud_layer.gd" id="5_clouds"]
 
 [node name="Main" type="Node2D" unique_id=1474638925]
 script = ExtResource("2_game_ui")
@@ -14,13 +15,37 @@ script = ExtResource("2_game_ui")
 [node name="World" type="Node2D" parent="." unique_id=427354301]
 
 [node name="WallPaper" type="Sprite2D" parent="World" unique_id=1312683523]
-texture = ExtResource("1_o5qli")
+position = Vector2(0, -1940.9999)
+scale = Vector2(3.0003495, 4.38059)
+texture = ExtResource("2_jyhfs")
 
-[node name="Sprite2D" type="Sprite2D" parent="World" unique_id=1480223985]
-position = Vector2(-2, 351)
-texture = ExtResource("4_tbgi4")
+[node name="Clouds" type="Node2D" parent="World" unique_id=50892527]
+script = ExtResource("5_clouds")
 
 [node name="IncomeSourceViews" type="Node2D" parent="World" unique_id=532151006]
+z_index = 1
+
+[node name="Ground" type="Node2D" parent="World" unique_id=2056243215]
+
+[node name="Ground1" type="Sprite2D" parent="World/Ground" unique_id=1480223985]
+position = Vector2(0, 351)
+texture = ExtResource("4_tbgi4")
+
+[node name="Ground2" type="Sprite2D" parent="World/Ground" unique_id=158975585]
+position = Vector2(-1721, 351)
+texture = ExtResource("4_tbgi4")
+
+[node name="Ground3" type="Sprite2D" parent="World/Ground" unique_id=2033600064]
+position = Vector2(1717, 351)
+texture = ExtResource("4_tbgi4")
+
+[node name="Ground4" type="Sprite2D" parent="World/Ground" unique_id=1222739502]
+position = Vector2(3435, 351)
+texture = ExtResource("4_tbgi4")
+
+[node name="Ground5" type="Sprite2D" parent="World/Ground" unique_id=1755870870]
+position = Vector2(-3438, 351)
+texture = ExtResource("4_tbgi4")
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=255123894]
 

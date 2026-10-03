@@ -9,7 +9,7 @@ signal source_activation_changed(source_id: String, is_active: bool)
 signal source_timer_changed(source_id: String, seconds_remaining: float)
 
 
-@export var sources: Array[IncomeSourceData] = [preload("res://data/vending_machine_income.tres")]
+@export var sources: Array[IncomeSourceData] = [preload("res://data/IncomeSources/vending_machine_income.tres")]
 
 
 # 플레이 중 Source multiplier
@@ -18,6 +18,7 @@ var source_multipliers: Dictionary = {}
 # 플레이 중 활성화된 Source 저장
 var source_active: Dictionary = {}
 var source_time_remaining: Dictionary = {}
+var source_timer_display_keys: Dictionary = {}
 
 
 func _ready() -> void:
@@ -28,12 +29,14 @@ func reset_runtime_state() -> void:
 	source_multipliers.clear()
 	source_active.clear()
 	source_time_remaining.clear()
+	source_timer_display_keys.clear()
 	for source in sources:
 		if source == null or source.id.is_empty():
 			continue
 		source_multipliers[source.id] = source.multiplier
 		source_active[source.id] = false
 		source_time_remaining[source.id] = 0.0
+		source_timer_display_keys[source.id] = 0
 	income_changed.emit()
 
 
@@ -49,6 +52,7 @@ func activate_source(source_id: String) -> void:
 	var source := get_source(source_id)
 	if source != null:
 		source_time_remaining[source_id] = _get_production_time(source)
+		source_timer_display_keys[source_id] = _get_timer_display_key(source_time_remaining[source_id])
 
 	source_activation_changed.emit(source_id, true)
 	source_timer_changed.emit(source_id, source_time_remaining.get(source_id, 0.0))
@@ -64,6 +68,12 @@ func _get_production_time(source: IncomeSourceData) -> float:
 	if production_time <= 0.0 or not is_finite(production_time):
 		return 0.0
 	return production_time
+
+
+func _get_timer_display_key(seconds_remaining: float) -> int:
+	if seconds_remaining <= 1.0:
+		return roundi(seconds_remaining * 100.0)
+	return ceili(seconds_remaining) * 100
 
 
 # 특정 source의 multiplier를 불러옴
@@ -147,13 +157,18 @@ func _process(delta: float) -> void:
 
 		var remaining: float = source_time_remaining.get(source.id, production_time)
 		remaining -= delta
-		while remaining <= 0.0:
+		if remaining <= 0.0:
+			var completed_cycles := floori(-remaining / production_time) + 1
 			EconomyManager.add_money(
 				source.base_income
 				* get_source_multiplier(source.id)
 				* EconomyManager.get_global_multiplier()
+				* completed_cycles
 			)
-			remaining += production_time
+			remaining += production_time * completed_cycles
 
 		source_time_remaining[source.id] = remaining
-		source_timer_changed.emit(source.id, remaining)
+		var display_key := _get_timer_display_key(remaining)
+		if display_key != source_timer_display_keys.get(source.id, -1):
+			source_timer_display_keys[source.id] = display_key
+			source_timer_changed.emit(source.id, remaining)
