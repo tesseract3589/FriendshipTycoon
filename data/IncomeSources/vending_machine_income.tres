@@ -1,17 +1,14 @@
 [gd_resource type="Resource" script_class="IncomeSourceData" format=3 uid="uid://csp1c6tqpt5cy"]
 
 [ext_resource type="Script" uid="uid://b1edg5qvv4jec" path="res://scripts/ResourceInit/IncomeSourceData.gd" id="1_source"]
-[ext_resource type="Texture2D" uid="uid://cr3fbegnit3ir" path="res://assets/sprites/VendingMachine.png" id="2_texture"]
 
 [resource]
 script = ExtResource("1_source")
 id = "vending_machine"
 source_name = "자판기"
-display_texture = ExtResource("2_texture")
 display_position = Vector2(-287, 156)
 display_scale = Vector2(0.259537, 0.255556)
 timer_offset = Vector2(-60, -110)
-purchase_info_offset = Vector2(-60, 20)
-purchase_button_offset = Vector2(-60, 80)
 base_income = 10.0
+upgrade_cost_growth = 1.3
 base_time = 5.0

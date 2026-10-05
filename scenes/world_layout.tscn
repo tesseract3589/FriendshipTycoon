@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://dtvh8n4u7xuir"]
+
+[ext_resource type="Texture2D" uid="uid://cr3fbegnit3ir" path="res://assets/sprites/VendingMachine/VendingMachine.png" id="1_vending"]
+[ext_resource type="Texture2D" uid="uid://dbunu34dy352h" path="res://assets/sprites/VendingMachine/Trashbin.png" id="2_trashbin"]
+[ext_resource type="Texture2D" uid="uid://colj0w15lyqyf" path="res://assets/sprites/VendingMachine/Soldier.png" id="3_soldier"]
+[ext_resource type="Texture2D" uid="uid://h05jvecmk4ak" path="res://assets/sprites/Ground.png" id="4_ground"]
+[ext_resource type="Texture2D" uid="uid://yx2lpkq4kjlb" path="res://assets/sprites/Structures/BaseStone_Pebbles.png" id="5_syfu6"]
+
+[node name="WorldLayout" type="Node2D" unique_id=758915039]
+
+[node name="GroundReference" type="Sprite2D" parent="." unique_id=883505403]
+z_index = -1
+position = Vector2(0, 351)
+texture = ExtResource("4_ground")
+
+[node name="vending_machine" type="Sprite2D" parent="." unique_id=558576357]
+position = Vector2(-287, 156)
+scale = Vector2(0.259537, 0.255556)
+texture = ExtResource("1_vending")
+
+[node name="trashbin" type="Sprite2D" parent="." unique_id=1201013371]
+position = Vector2(-200, 201)
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_trashbin")
+
+[node name="vending_machine_soldier" type="Sprite2D" parent="." unique_id=1238742514]
+position = Vector2(-384, 174)
+texture = ExtResource("3_soldier")
+
+[node name="BaseStone" type="Sprite2D" parent="." unique_id=1264979766]
+position = Vector2(724.00006, 223)
+scale = Vector2(0.65816325, 1)
+texture = ExtResource("5_syfu6")

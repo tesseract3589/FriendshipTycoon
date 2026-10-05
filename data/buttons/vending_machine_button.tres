@@ -1,14 +1,13 @@
-[gd_resource type="Resource" script_class="ButtonData" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://yu0aa6utf80u"]
 
-[ext_resource type="Script" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
 
 [resource]
 script = ExtResource("1_button")
 id = "vending_machine"
-button_name = "자판기 구매"
-price = 0.0
-bought = false
-permanent_bought = false
+button_name = "자판기"
+show_world_purchase_button = true
+world_purchase_button_offset = Vector2(0, 80)
+world_purchase_info_offset = Vector2(-90, 8)
 effect_type = 0
 effect_target = "vending_machine"
-effect_value = 1.0

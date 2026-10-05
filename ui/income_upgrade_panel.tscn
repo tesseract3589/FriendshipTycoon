@@ -1,0 +1,76 @@
+[gd_scene format=3 uid="uid://dvctb8k52oj67"]
+
+[ext_resource type="Script" uid="uid://maxpv7aui6dm" path="res://ui/IncomeUpgradePanel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://cr0to6xx6aa7a" path="res://assets/sprites/Interfaces/Button_UI_Upgrade.png" id="2_button"]
+[ext_resource type="Texture2D" uid="uid://dppd8vvs4xiph" path="res://assets/sprites/Interfaces/Button_UI_Upgrade_Hover.png" id="3_ujaoq"]
+
+[node name="IncomeUpgradePanel" type="Control" unique_id=1678226588]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="OpenButton" type="TextureButton" parent="." unique_id=308053573]
+custom_minimum_size = Vector2(36, 36)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -114.0
+offset_top = -55.0
+offset_right = -24.0
+offset_bottom = 35.0
+grow_horizontal = 0
+grow_vertical = 2
+texture_normal = ExtResource("2_button")
+texture_hover = ExtResource("3_ujaoq")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=1495889168]
+visible = false
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -530.0
+offset_top = -204.0
+offset_right = -135.0
+offset_bottom = 200.0
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=2061442472]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin" unique_id=2132169108]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Panel/Margin/VBox" unique_id=360434281]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "수입원 업그레이드"
+horizontal_alignment = 1
+
+[node name="List" type="VBoxContainer" parent="Panel/Margin/VBox" unique_id=2040846195]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/VBox" unique_id=960377370]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+text = "닫기"

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://b4yi0kocgoxha"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" uid="uid://bajmnxw3dpxtw" path="res://data/conditions/vending_machine_soldier_unlock.tres" id="3_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "vending_machine_soldier"
+button_name = "자판기 관리병"
+price = 500.0
+unlock_condition = ExtResource("3_condition")
+show_world_purchase_button = true
+world_purchase_button_offset = Vector2(0, 20)
+world_purchase_info_offset = Vector2(-90, -60)
+click_dialogues = PackedStringArray("분리수거 같은 건 필요 없습니다", "음료 재고 이상 무", "이용 후 리뷰 남겨주십쇼", "우정회관의 시작은 자판기부터입니다")
+effect_type = 1
+effect_target = "vending_machine"
+effect_value = 2.0

@@ -1,0 +1,66 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/WorldClickDialogue.gd" id="1_dialogue"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_click_area"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_speech_bubble"]
+bg_color = Color(1, 1, 1, 1)
+border_color = Color(0, 0, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+content_margin_left = 10.0
+content_margin_top = 7.0
+content_margin_right = 10.0
+content_margin_bottom = 7.0
+
+[node name="WorldClickDialogue" type="Node2D"]
+script = ExtResource("1_dialogue")
+
+[node name="ClickArea" type="Area2D" parent="."]
+monitoring = false
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea"]
+shape = SubResource("RectangleShape2D_click_area")
+
+[node name="SpeechBubbleAnchor" type="Node2D" parent="."]
+
+[node name="SpeechBubble" type="PanelContainer" parent="SpeechBubbleAnchor"]
+visible = false
+z_index = 10
+mouse_filter = 2
+custom_minimum_size = Vector2(240, 0)
+custom_maximum_size = Vector2(240, 10000)
+theme_override_styles/panel = SubResource("StyleBoxFlat_speech_bubble")
+
+[node name="SpeechMargin" type="MarginContainer" parent="SpeechBubbleAnchor/SpeechBubble"]
+custom_minimum_size = Vector2(220, 0)
+
+[node name="SpeechLabel" type="Label" parent="SpeechBubbleAnchor/SpeechBubble/SpeechMargin"]
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+autowrap_mode = 3
+horizontal_alignment = 1
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="SpeechTail" type="Polygon2D" parent="SpeechBubbleAnchor"]
+visible = false
+z_index = 9
+color = Color(1, 1, 1, 1)
+
+[node name="SpeechTailOutline" type="Line2D" parent="SpeechBubbleAnchor"]
+visible = false
+z_index = 9
+width = 2.0
+default_color = Color(0, 0, 0, 1)
+
+[node name="SpeechTimer" type="Timer" parent="."]
+wait_time = 3.0
+one_shot = true

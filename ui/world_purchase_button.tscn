@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://4sal3kui4auc"]
+
+[ext_resource type="Script" uid="uid://bbuuq1dj680f5" path="res://ui/WorldPurchaseButton.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://d2gsxn3708ssk" path="res://assets/sprites/Interfaces/Button_buy.png" id="2_buy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qjjmb"]
+
+[node name="WorldPurchaseButton" type="Node2D" unique_id=1810645461]
+script = ExtResource("1_script")
+
+[node name="PurchasedSprite" type="Sprite2D" parent="." unique_id=85439543]
+visible = false
+
+[node name="PurchaseButton" type="TextureButton" parent="." unique_id=957552964]
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_buy")
+texture_pressed = ExtResource("2_buy")
+texture_hover = ExtResource("2_buy")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="." unique_id=590600223]
+offset_right = 180.0
+offset_bottom = 72.0
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HoverArea" type="Area2D" parent="." unique_id=666588965]
+visible = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HoverArea" unique_id=1616325158]
+shape = SubResource("RectangleShape2D_qjjmb")

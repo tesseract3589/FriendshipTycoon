@@ -1,58 +1,51 @@
 class_name IncomeSourceView
 extends Node2D
 
+const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+
 @export var source_data: IncomeSourceData
 
 @onready var sprite: Sprite2D = $Sprite
 @onready var hover_area: Area2D = $HoverArea
 @onready var hover_collision: CollisionShape2D = $HoverArea/CollisionShape2D
 @onready var timer_label: Label = $TimerLabel
-@onready var purchase_info_label: Label = $PurchaseInfoLabel
-@onready var purchase_button: TextureButton = $PurchaseButton
 
-var purchase_data: ButtonData
 var source_is_active: bool = false
 var _is_pointer_over_source: bool = false
+var _display_position: Vector2 = Vector2.ZERO
+var _display_scale: Vector2 = Vector2.ONE
 
 
-func setup(data: IncomeSourceData, source_purchase_data: ButtonData) -> void:
+func setup(data: IncomeSourceData, display_position: Vector2, display_scale: Vector2) -> void:
 	source_data = data
-	purchase_data = source_purchase_data
+	_display_position = display_position
+	_display_scale = display_scale
 
 
 func _ready() -> void:
 	if source_data == null:
 		return
 
-	sprite.texture = source_data.display_texture
-	sprite.position = source_data.display_position
-	sprite.scale = source_data.display_scale
-	hover_area.position = source_data.display_position
-	hover_area.scale = source_data.display_scale
+	sprite.position = _display_position
+	sprite.scale = _display_scale
+	hover_area.position = _display_position
+	hover_area.scale = _display_scale
 	hover_area.input_pickable = true
 	if source_data.display_texture != null:
 		var hover_shape := RectangleShape2D.new()
 		hover_shape.size = source_data.display_texture.get_size()
 		hover_collision.shape = hover_shape
-	timer_label.position = source_data.display_position + source_data.timer_offset
-	purchase_info_label.position = source_data.display_position + source_data.purchase_info_offset
-	purchase_button.position = source_data.display_position + source_data.purchase_button_offset
-	purchase_button.size = source_data.purchase_button_size
-	purchase_button.pressed.connect(_purchase_source)
+	timer_label.position = _display_position + source_data.timer_offset
 	_style_text_label(timer_label)
-	_style_text_label(purchase_info_label)
 	hover_area.mouse_entered.connect(_on_mouse_entered_source)
 	hover_area.mouse_exited.connect(_on_mouse_exited_source)
 	IncomeManager.source_activation_changed.connect(_on_source_activation_changed)
 	IncomeManager.source_timer_changed.connect(_on_source_timer_changed)
 	IncomeManager.source_multiplier_changed.connect(_on_source_multiplier_changed)
-	EconomyManager.money_changed.connect(_on_money_changed)
+	IncomeManager.source_speed_multiplier_changed.connect(_on_source_speed_multiplier_changed)
 	EconomyManager.multiplier_changed.connect(_on_multiplier_changed)
-	ButtonManager.button_state_changed.connect(_on_button_state_changed)
-	ButtonManager.button_purchased.connect(_on_button_purchased)
 	_set_active(IncomeManager.source_active.get(source_data.id, false))
 	_update_timer(IncomeManager.get_source_time_remaining(source_data.id))
-	_refresh_purchase_button()
 
 
 func _on_source_activation_changed(source_id: String, is_active: bool) -> void:
@@ -74,50 +67,34 @@ func _set_active(is_active: bool) -> void:
 	if not is_active:
 		_is_pointer_over_source = false
 		TooltipManager.hide_tooltip(source_data.id)
-	_refresh_purchase_button()
 
 
 func _update_timer(seconds_remaining: float) -> void:
 	if seconds_remaining <= 0.0:
 		timer_label.text = ""
 		return
-	if seconds_remaining > 1.0:
+	var production_time := IncomeManager.get_source_production_time(source_data.id)
+	if production_time < 0.1:
+		timer_label.text = "매 %.2f초" % production_time
+	elif seconds_remaining >= 10.0:
 		timer_label.text = "%ds" % ceili(seconds_remaining)
+	elif seconds_remaining >= 1.0:
+		timer_label.text = "%.1fs" % seconds_remaining
 	else:
 		timer_label.text = "%.2fs" % maxf(seconds_remaining, 0.01)
 
 
-func _refresh_purchase_button() -> void:
-	if purchase_data == null:
-		purchase_info_label.visible = false
-		purchase_button.visible = false
-		return
-	var can_show_purchase := not purchase_data.bought and not source_is_active
-	purchase_button.visible = can_show_purchase
-	purchase_info_label.visible = can_show_purchase
-	purchase_button.disabled = not ButtonManager.can_purchase(purchase_data)
-	purchase_info_label.text = _get_purchase_info()
-	purchase_info_label.modulate = Color.WHITE if not purchase_button.disabled else Color(0.65, 0.65, 0.65)
-
-
-func _get_purchase_info() -> String:
-	var item_name := source_data.source_name if source_data != null else purchase_data.button_name
-	if is_zero_approx(purchase_data.price):
-		return "%s\nfree" % item_name
-	return "%s\n%s원" % [item_name, _format_number(purchase_data.price)]
-
-
 func _get_source_info() -> String:
-	var production_time := source_data.base_time * source_data.time_multiplier
+	var production_time := IncomeManager.get_source_production_time(source_data.id)
 	var payout := (
-		source_data.base_income
+		(source_data.base_income + source_data.upgrade_income_per_level * (IncomeManager.get_source_level(source_data.id) - 1))
 		* IncomeManager.get_source_multiplier(source_data.id)
 		* EconomyManager.get_global_multiplier()
 	)
 	return source_data.tooltip_text \
 		.replace("{source_name}", source_data.source_name) \
-		.replace("{payout}", _format_number(payout)) \
-		.replace("{time}", _format_number(production_time))
+		.replace("{payout}", NUMBER_FORMATTER.format_number(payout)) \
+		.replace("{time}", NUMBER_FORMATTER.format_number(production_time))
 
 
 func _style_text_label(label: Label) -> void:
@@ -146,30 +123,10 @@ func _on_source_multiplier_changed(changed_source_id: String) -> void:
 		_refresh_tooltip()
 
 
+func _on_source_speed_multiplier_changed(changed_source_id: String) -> void:
+	if source_data != null and changed_source_id == source_data.id:
+		_refresh_tooltip()
+
+
 func _on_multiplier_changed() -> void:
 	_refresh_tooltip()
-
-
-func _format_number(value: float) -> String:
-	if is_equal_approx(value, roundf(value)):
-		return str(roundi(value))
-	return "%.2f" % value
-
-
-func _purchase_source() -> void:
-	if purchase_data != null:
-		ButtonManager.purchase(purchase_data)
-
-
-func _on_money_changed(_new_money: float) -> void:
-	_refresh_purchase_button()
-
-
-func _on_button_state_changed(changed_data: ButtonData) -> void:
-	if purchase_data != null and changed_data.id == purchase_data.id:
-		_refresh_purchase_button()
-
-
-func _on_button_purchased(purchased_data: ButtonData) -> void:
-	if purchase_data != null and purchased_data.id == purchase_data.id:
-		_refresh_purchase_button()

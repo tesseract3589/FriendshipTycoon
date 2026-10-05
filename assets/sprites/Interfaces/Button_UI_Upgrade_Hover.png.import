@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d2gsxn3708ssk"
-path="res://.godot/imported/Button_buy.png-c9da5180677c563eb8009b4ac71537d7.ctex"
+uid="uid://dppd8vvs4xiph"
+path="res://.godot/imported/Button_UI_Upgrade_Hover.png-e5eee26c9f79100a418ea46301740494.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/Button_buy.png"
-dest_files=["res://.godot/imported/Button_buy.png-c9da5180677c563eb8009b4ac71537d7.ctex"]
+source_file="res://assets/sprites/Interfaces/Button_UI_Upgrade_Hover.png"
+dest_files=["res://.godot/imported/Button_UI_Upgrade_Hover.png-e5eee26c9f79100a418ea46301740494.ctex"]
 
 [params]
 

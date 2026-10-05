@@ -4,13 +4,14 @@
 [ext_resource type="Texture2D" uid="uid://daxxbbjn4oq6q" path="res://assets/sprites/SkyBG_gradation.png" id="2_jyhfs"]
 [ext_resource type="Texture2D" uid="uid://h05jvecmk4ak" path="res://assets/sprites/Ground.png" id="4_tbgi4"]
 [ext_resource type="Script" uid="uid://dubpdfstf6y8g" path="res://scenes/cloud_layer.gd" id="5_clouds"]
+[ext_resource type="PackedScene" path="res://ui/developer_tools.tscn" id="6_developer_tools"]
+[ext_resource type="PackedScene" uid="uid://dvctb8k52oj67" path="res://ui/income_upgrade_panel.tscn" id="7_income_upgrade"]
+[ext_resource type="PackedScene" uid="uid://dtvh8n4u7xuir" path="res://scenes/world_layout.tscn" id="8_world_layout"]
 
 [node name="Main" type="Node2D" unique_id=1474638925]
 script = ExtResource("2_game_ui")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1170520359]
-
-[node name="BGM_player" type="AudioStreamPlayer" parent="." unique_id=1339204917]
 
 [node name="World" type="Node2D" parent="." unique_id=427354301]
 
@@ -24,6 +25,8 @@ script = ExtResource("5_clouds")
 
 [node name="IncomeSourceViews" type="Node2D" parent="World" unique_id=532151006]
 z_index = 1
+
+[node name="WorldLayout" parent="World" unique_id=782816586 instance=ExtResource("8_world_layout")]
 
 [node name="Ground" type="Node2D" parent="World" unique_id=2056243215]
 
@@ -52,8 +55,8 @@ texture = ExtResource("4_tbgi4")
 [node name="Panel" type="PanelContainer" parent="HUD" unique_id=1662022879]
 offset_left = 24.0
 offset_top = 24.0
-offset_right = 364.0
-offset_bottom = 390.0
+offset_right = 266.0
+offset_bottom = 169.0
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HUD/Panel" unique_id=1903679919]
 layout_mode = 2
@@ -67,17 +70,18 @@ text = "우정회관 키우기"
 [node name="MoneyLabel" type="Label" parent="HUD/Panel/VBoxContainer" unique_id=1528647643]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.88, 0.4, 1)
+theme_override_font_sizes/font_size = 38
 text = "자금: 0원"
 
 [node name="IncomeLabel" type="Label" parent="HUD/Panel/VBoxContainer" unique_id=819494443]
 unique_name_in_owner = true
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
 text = "수입: 0원 / 초"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="HUD/Panel/VBoxContainer" unique_id=1415646655]
-custom_minimum_size = Vector2(300, 220)
-layout_mode = 2
+[node name="DeveloperTools" parent="HUD" unique_id=1112298444 instance=ExtResource("6_developer_tools")]
+visible = false
+layout_mode = 3
 
-[node name="PurchaseButtonList" type="VBoxContainer" parent="HUD/Panel/VBoxContainer/ScrollContainer" unique_id=1683895957]
-layout_mode = 2
-size_flags_horizontal = 3
+[node name="IncomeUpgradePanel" parent="HUD" unique_id=1836911926 instance=ExtResource("7_income_upgrade")]

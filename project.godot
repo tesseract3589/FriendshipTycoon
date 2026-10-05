@@ -17,6 +17,7 @@ config/icon="uid://50a8kaq5wchw"
 
 [autoload]
 
+SoundManager="*res://autoload/SoundManager.gd"
 EconomyManager="*res://autoload/EconomyManager.gd"
 IncomeManager="*res://autoload/IncomeManager.gd"
 ButtonManager="*res://autoload/ButtonManager.gd"

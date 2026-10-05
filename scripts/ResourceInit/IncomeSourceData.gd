@@ -12,14 +12,14 @@ extends Resource
 # Tooltip template placeholders: {source_name}, {payout}, and {time}.
 @export_multiline var tooltip_text: String = "{payout}원/{time}s"
 @export var timer_offset: Vector2 = Vector2(0.0, -110.0)
-@export var purchase_info_offset: Vector2 = Vector2(-60.0, 80.0)
-@export var purchase_button_offset: Vector2 = Vector2(-60.0, 110.0)
-@export var purchase_button_size: Vector2 = Vector2(120.0, 78.0)
 
 # 생산량 (생산량 = base_income * multiplier)
 @export_category("Income")
 @export var base_income: float = 0.0
 @export var multiplier: float = 1.0
+@export var upgrade_income_per_level: float = 10.0
+@export var upgrade_base_cost: float = 10.0
+@export var upgrade_cost_growth: float = 1.3
 
 # 생산 시간 (time초당 ~원, income source마다 달라짐)
 @export_category("Time")

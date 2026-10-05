@@ -2,7 +2,9 @@ extends Node
 
 
 @export var buttons: Array[ButtonData] = [
-	preload("res://data/buttons/vending_machine_button.tres")
+	preload("res://data/buttons/vending_machine_button.tres"),
+	preload("res://data/buttons/trashbin_button.tres"),
+	preload("res://data/buttons/vending_machine_soldier_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 
@@ -14,6 +16,7 @@ signal button_state_changed(button_data: ButtonData)
 
 func _ready() -> void:
 	EconomyManager.money_changed.connect(_on_money_changed)
+	_apply_purchased_effects()
 	update_button_states()
 
 
@@ -66,10 +69,6 @@ func is_unlocked(button_data: ButtonData) -> bool:
 			return _check_button_condition(condition)
 
 
-		UnlockCondition.Type.UPGRADE:
-			return _check_upgrade_condition(condition)
-
-
 	return false
 
 
@@ -93,20 +92,6 @@ func _check_button_condition(
 		return false
 
 	return required_button.bought
-
-
-# ============================================================
-# UPGRADE CONDITION
-# ============================================================
-
-func _check_upgrade_condition(
-	condition: UnlockCondition
-) -> bool:
-
-	# 현재 프로젝트에는 UpgradeManager가 없으므로
-	# 아직 실제 검사를 할 수 없다.
-
-	return false
 
 # ============================================================
 # PURCHASE
@@ -180,6 +165,10 @@ func _apply_effect(button_data: ButtonData) -> void:
 			IncomeManager.multiply_source_multiplier(button_data.effect_target, button_data.effect_value)
 		ButtonData.EffectType.GLOBAL_MULTIPLIER:
 			EconomyManager.multiply_global_multiplier(button_data.effect_value)
+		ButtonData.EffectType.SOURCE_SPEED_MULTIPLIER:
+			IncomeManager.multiply_source_speed_multiplier(button_data.effect_target, button_data.effect_value)
+		ButtonData.EffectType.GLOBAL_TIME_MULTIPLIER:
+			EconomyManager.multiply_global_time_multiplier(button_data.effect_value)
 		_:
 			push_warning("ButtonManager: Unsupported effect type on button: " + button_data.id)
 
@@ -189,11 +178,16 @@ func reset_for_prestige() -> void:
 		if button_data == null:
 			continue
 		button_data.bought = button_data.permanent_bought
+	EconomyManager.set_global_time_multiplier(1.0)
 	IncomeManager.reset_runtime_state()
-	for button_data in buttons:
-		if button_data != null and button_data.permanent_bought:
-			_apply_effect(button_data)
+	_apply_purchased_effects()
 	update_button_states()
+
+
+func _apply_purchased_effects() -> void:
+	for button_data in buttons:
+		if button_data != null and button_data.bought:
+			_apply_effect(button_data)
 
 
 # ============================================================

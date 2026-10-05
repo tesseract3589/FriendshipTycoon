@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cr3fbegnit3ir"
-path="res://.godot/imported/VendingMachine.png-eec96690cacdc12dd25a9b47a487408d.ctex"
+uid="uid://cr0to6xx6aa7a"
+path="res://.godot/imported/Button_UI_Upgrade.png-85ed9d5fa4e8331e291ca53f4159e98a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/VendingMachine.png"
-dest_files=["res://.godot/imported/VendingMachine.png-eec96690cacdc12dd25a9b47a487408d.ctex"]
+source_file="res://assets/sprites/Interfaces/Button_UI_Upgrade.png"
+dest_files=["res://.godot/imported/Button_UI_Upgrade.png-85ed9d5fa4e8331e291ca53f4159e98a.ctex"]
 
 [params]
 

@@ -4,7 +4,6 @@ extends Resource
 enum Type {
 	MONEY,
 	UPGRADE,
-	LEVEL,
 	BUTTON
 }
 

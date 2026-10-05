@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://b83ajtbaxn1mp"]
+[gd_scene format=3 uid="uid://b83ajtbaxn1mp"]
 
 [ext_resource type="Script" uid="uid://so4030jbshn0" path="res://ui/IncomeSourceView.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/sprites/Button_buy.png" id="2_buy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tefeu"]
 
 [node name="IncomeSourceView" type="Node2D" unique_id=767859341]
 script = ExtResource("1_script")
@@ -9,11 +10,11 @@ script = ExtResource("1_script")
 [node name="Sprite" type="Sprite2D" parent="." unique_id=1088811373]
 visible = false
 
-[node name="HoverArea" type="Area2D" parent="." unique_id=3880821037]
+[node name="HoverArea" type="Area2D" parent="." unique_id=-414146259]
 visible = false
-input_pickable = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HoverArea" unique_id=2702059711]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HoverArea" unique_id=-1592907585]
+shape = SubResource("RectangleShape2D_tefeu")
 
 [node name="TimerLabel" type="Label" parent="." unique_id=2126843963]
 visible = false
@@ -21,18 +22,3 @@ offset_right = 120.0
 offset_bottom = 30.0
 theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
-
-[node name="PurchaseInfoLabel" type="Label" parent="." unique_id=4105734762]
-visible = false
-offset_right = 120.0
-offset_bottom = 52.0
-theme_override_font_sizes/font_size = 16
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="PurchaseButton" type="TextureButton" parent="." unique_id=2938914087]
-visible = false
-ignore_texture_size = true
-texture_normal = ExtResource("2_buy")
-stretch_mode = 4
-mouse_default_cursor_shape = 2
