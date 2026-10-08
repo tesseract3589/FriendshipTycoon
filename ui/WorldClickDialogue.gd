@@ -4,8 +4,6 @@ extends Node2D
 const SPEECH_BUBBLE_WIDTH: float = 240.0
 const SPEECH_BUBBLE_MIN_HEIGHT: float = 48.0
 
-@onready var click_area: Area2D = $ClickArea
-@onready var collision_shape: CollisionShape2D = $ClickArea/CollisionShape2D
 @onready var bubble_anchor: Node2D = $SpeechBubbleAnchor
 @onready var speech_bubble: PanelContainer = $SpeechBubbleAnchor/SpeechBubble
 @onready var speech_label: Label = $SpeechBubbleAnchor/SpeechBubble/SpeechMargin/SpeechLabel
@@ -14,47 +12,60 @@ const SPEECH_BUBBLE_MIN_HEIGHT: float = 48.0
 @onready var speech_timer: Timer = $SpeechTimer
 
 var button_data: ButtonData
+var hover_areas: Array[Area2D] = []
 var world_position: Vector2 = Vector2.ZERO
 var world_scale: Vector2 = Vector2.ONE
 var world_texture: Texture2D
 var _next_dialogue_index: int = 0
 
 
-func setup(data: ButtonData, layout_sprite: Sprite2D) -> void:
+func setup(data: ButtonData, layout_element: Node2D, object_hover_areas: Array[Area2D]) -> void:
 	button_data = data
-	world_position = layout_sprite.position
-	world_scale = layout_sprite.scale
-	world_texture = layout_sprite.texture
+	hover_areas = object_hover_areas
+	world_position = layout_element.global_position
+	var layout_sprite := layout_element as Sprite2D
+	if layout_sprite == null:
+		var visuals := layout_element.find_children("*", "Sprite2D", true, false)
+		if not visuals.is_empty():
+			layout_sprite = visuals[0] as Sprite2D
+	if layout_sprite != null:
+		world_position = layout_sprite.global_position
+		world_scale = layout_sprite.global_scale
+		world_texture = layout_sprite.texture
 
 
 func _ready() -> void:
-	if button_data == null or world_texture == null:
+	if button_data == null or world_texture == null or hover_areas.is_empty():
 		set_process_mode(Node.PROCESS_MODE_DISABLED)
 		return
-	click_area.position = world_position
-	click_area.scale = world_scale
-	var hit_shape := RectangleShape2D.new()
-	hit_shape.size = world_texture.get_size()
-	collision_shape.shape = hit_shape
 	bubble_anchor.position = world_position
-	click_area.input_event.connect(_on_click_area_input_event)
+	for area in hover_areas:
+		if area != null:
+			area.input_event.connect(_on_hover_area_input_event)
 	ButtonManager.button_purchased.connect(_on_button_purchased)
+	ButtonManager.button_state_changed.connect(_on_button_state_changed)
 	speech_timer.timeout.connect(_on_speech_timer_timeout)
-	_update_click_area()
+	_update_hover_area()
 
 
-func _update_click_area() -> void:
+func _update_hover_area() -> void:
 	var is_purchased := button_data != null and button_data.bought
-	click_area.monitoring = is_purchased
-	click_area.input_pickable = is_purchased
+	for area in hover_areas:
+		if area != null:
+			area.input_pickable = is_purchased
 
 
 func _on_button_purchased(purchased_data: ButtonData) -> void:
 	if button_data != null and purchased_data.id == button_data.id:
-		_update_click_area()
+		_update_hover_area()
 
 
-func _on_click_area_input_event(_viewport: Node, event: InputEvent, _shape_index: int) -> void:
+func _on_button_state_changed(changed_data: ButtonData) -> void:
+	if button_data != null and changed_data.id == button_data.id:
+		_update_hover_area()
+
+
+func _on_hover_area_input_event(_viewport: Node, event: InputEvent, _shape_index: int) -> void:
 	if not button_data.bought or not (event is InputEventMouseButton):
 		return
 	var mouse_button := event as InputEventMouseButton

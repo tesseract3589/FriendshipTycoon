@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="IncomeSourceData" format=3 uid="uid://b6bp13nuscs8p"]
+
+[ext_resource type="Script" uid="uid://b1edg5qvv4jec" path="res://scripts/ResourceInit/IncomeSourceData.gd" id="1_source"]
+
+[resource]
+script = ExtResource("1_source")
+id = "restaurant"
+source_name = "간부식당"
+display_position = Vector2(1109, 70)
+display_scale = Vector2(0.18932593, 0.2150614)
+timer_offset = Vector2(-60, -140)
+base_income = 10000.0
+upgrade_income_per_level = 5000.0
+upgrade_base_cost = 500.0
+base_time = 10.0

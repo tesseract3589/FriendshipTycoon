@@ -1,13 +1,14 @@
 [gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://b4yi0kocgoxha"]
 
 [ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
-[ext_resource type="Resource" uid="uid://bajmnxw3dpxtw" path="res://data/conditions/vending_machine_soldier_unlock.tres" id="3_condition"]
+[ext_resource type="Resource" uid="uid://bajmnxw3dpxtw" path="res://data/conditions/vending_machine/vending_machine_soldier_unlock.tres" id="3_condition"]
 
 [resource]
 script = ExtResource("1_button")
 id = "vending_machine_soldier"
 button_name = "자판기 관리병"
 price = 500.0
+tooltip_text = "자판기 수입 x 2"
 unlock_condition = ExtResource("3_condition")
 show_world_purchase_button = true
 world_purchase_button_offset = Vector2(0, 20)

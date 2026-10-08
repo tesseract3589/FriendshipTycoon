@@ -16,39 +16,52 @@ script = ExtResource("2_game_ui")
 [node name="World" type="Node2D" parent="." unique_id=427354301]
 
 [node name="WallPaper" type="Sprite2D" parent="World" unique_id=1312683523]
+z_index = -20
+z_as_relative = false
 position = Vector2(0, -1940.9999)
 scale = Vector2(3.0003495, 4.38059)
 texture = ExtResource("2_jyhfs")
+metadata/_edit_lock_ = true
 
 [node name="Clouds" type="Node2D" parent="World" unique_id=50892527]
+z_index = -20
+z_as_relative = false
 script = ExtResource("5_clouds")
 
 [node name="IncomeSourceViews" type="Node2D" parent="World" unique_id=532151006]
-z_index = 1
 
 [node name="WorldLayout" parent="World" unique_id=782816586 instance=ExtResource("8_world_layout")]
+metadata/_edit_lock_ = true
 
 [node name="Ground" type="Node2D" parent="World" unique_id=2056243215]
+z_index = 20
+z_as_relative = false
+metadata/_edit_lock_ = true
 
 [node name="Ground1" type="Sprite2D" parent="World/Ground" unique_id=1480223985]
 position = Vector2(0, 351)
 texture = ExtResource("4_tbgi4")
+metadata/_edit_lock_ = true
 
 [node name="Ground2" type="Sprite2D" parent="World/Ground" unique_id=158975585]
 position = Vector2(-1721, 351)
 texture = ExtResource("4_tbgi4")
+metadata/_edit_lock_ = true
 
 [node name="Ground3" type="Sprite2D" parent="World/Ground" unique_id=2033600064]
 position = Vector2(1717, 351)
 texture = ExtResource("4_tbgi4")
+metadata/_edit_lock_ = true
 
 [node name="Ground4" type="Sprite2D" parent="World/Ground" unique_id=1222739502]
 position = Vector2(3435, 351)
 texture = ExtResource("4_tbgi4")
+metadata/_edit_lock_ = true
 
 [node name="Ground5" type="Sprite2D" parent="World/Ground" unique_id=1755870870]
 position = Vector2(-3438, 351)
 texture = ExtResource("4_tbgi4")
+metadata/_edit_lock_ = true
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=255123894]
 
@@ -85,3 +98,24 @@ visible = false
 layout_mode = 3
 
 [node name="IncomeUpgradePanel" parent="HUD" unique_id=1836911926 instance=ExtResource("7_income_upgrade")]
+
+[node name="CameraTutorial" type="CenterContainer" parent="HUD" unique_id=1807127713]
+visible = false
+z_index = 100
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Label" type="Label" parent="HUD/CameraTutorial" unique_id=851752071]
+custom_minimum_size = Vector2(900, 100)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.07, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 48
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

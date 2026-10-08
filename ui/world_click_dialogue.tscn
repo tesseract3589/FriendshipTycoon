@@ -2,8 +2,6 @@
 
 [ext_resource type="Script" path="res://ui/WorldClickDialogue.gd" id="1_dialogue"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_click_area"]
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_speech_bubble"]
 bg_color = Color(1, 1, 1, 1)
 border_color = Color(0, 0, 0, 1)
@@ -23,18 +21,12 @@ content_margin_bottom = 7.0
 [node name="WorldClickDialogue" type="Node2D"]
 script = ExtResource("1_dialogue")
 
-[node name="ClickArea" type="Area2D" parent="."]
-monitoring = false
-input_pickable = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ClickArea"]
-shape = SubResource("RectangleShape2D_click_area")
-
 [node name="SpeechBubbleAnchor" type="Node2D" parent="."]
 
 [node name="SpeechBubble" type="PanelContainer" parent="SpeechBubbleAnchor"]
 visible = false
-z_index = 10
+z_as_relative = false
+z_index = 40
 mouse_filter = 2
 custom_minimum_size = Vector2(240, 0)
 custom_maximum_size = Vector2(240, 10000)
@@ -52,12 +44,14 @@ size_flags_vertical = 3
 
 [node name="SpeechTail" type="Polygon2D" parent="SpeechBubbleAnchor"]
 visible = false
-z_index = 9
+z_as_relative = false
+z_index = 39
 color = Color(1, 1, 1, 1)
 
 [node name="SpeechTailOutline" type="Line2D" parent="SpeechBubbleAnchor"]
 visible = false
-z_index = 9
+z_as_relative = false
+z_index = 39
 width = 2.0
 default_color = Color(0, 0, 0, 1)
 

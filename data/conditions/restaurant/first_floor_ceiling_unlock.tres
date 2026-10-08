@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="UnlockCondition" format=3]
+
+[ext_resource type="Script" uid="uid://texnmvmehxfy" path="res://scripts/ResourceInit/UnlockCondition.gd" id="1_unlock"]
+
+[resource]
+script = ExtResource("1_unlock")
+type = 2
+value = "wide_windows"

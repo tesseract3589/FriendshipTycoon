@@ -21,7 +21,9 @@ func _ready() -> void:
 	$Panel/Margin/VBox/CloseButton.pressed.connect(_toggle_panel)
 	IncomeManager.source_activation_changed.connect(_on_sources_changed)
 	IncomeManager.source_level_changed.connect(_on_level_changed)
+	IncomeManager.source_multiplier_changed.connect(_refresh_rows)
 	EconomyManager.money_changed.connect(_refresh_rows)
+	EconomyManager.multiplier_changed.connect(_refresh_rows)
 	_rebuild_rows()
 
 
@@ -90,7 +92,7 @@ func _refresh_rows(_value = null) -> void:
 func _refresh_row(row: HBoxContainer, source: IncomeSourceData) -> void:
 	row.set_meta("source_id", source.id)
 	var level := IncomeManager.get_source_level(source.id)
-	var payout := source.base_income + source.upgrade_income_per_level * (level - 1)
+	var payout := IncomeManager.get_source_cycle_payout(source.id)
 	var cost := IncomeManager.get_upgrade_cost(source.id)
 	row.get_node("Info").text = "%s  Lv.%d\n%s원 / 회 · 다음 업그레이드 %s원" % [source.source_name, level, NUMBER_FORMATTER.format_number(payout), NUMBER_FORMATTER.format_number(cost)]
 	var upgrade_button := row.get_node("Upgrade") as TextureButton

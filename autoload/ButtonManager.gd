@@ -2,9 +2,18 @@ extends Node
 
 
 @export var buttons: Array[ButtonData] = [
-	preload("res://data/buttons/vending_machine_button.tres"),
-	preload("res://data/buttons/trashbin_button.tres"),
-	preload("res://data/buttons/vending_machine_soldier_button.tres")
+	preload("res://data/buttons/vending_machine/vending_machine_button.tres"),
+	preload("res://data/buttons/vending_machine/trashbin_button.tres"),
+	preload("res://data/buttons/vending_machine/vending_machine_soldier_button.tres"),
+	preload("res://data/buttons/vending_machine/promo_sign_button.tres"),
+	preload("res://data/buttons/restaurant/hall_foundation_button.tres"),
+	preload("res://data/buttons/restaurant/first_floor_wall_button.tres"),
+	preload("res://data/buttons/restaurant/restaurant_button.tres"),
+	preload("res://data/buttons/restaurant/cook_soldier_button.tres"),
+	preload("res://data/buttons/restaurant/serving_desk_button.tres"),
+	preload("res://data/buttons/restaurant/dining_seats_button.tres"),
+	preload("res://data/buttons/restaurant/wide_windows_button.tres"),
+	preload("res://data/buttons/restaurant/first_floor_ceiling_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 
@@ -155,6 +164,8 @@ func purchase(
 
 
 func _apply_effect(button_data: ButtonData) -> void:
+	if button_data.effect_type == ButtonData.EffectType.NONE:
+		return
 	if not is_finite(button_data.effect_value) or button_data.effect_value <= 0.0:
 		push_warning("ButtonManager: Effect value must be finite and positive: " + button_data.id)
 		return

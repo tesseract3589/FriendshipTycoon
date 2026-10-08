@@ -11,7 +11,10 @@ signal source_timer_changed(source_id: String, seconds_remaining: float)
 signal source_level_changed(source_id: String, level: int)
 
 
-@export var sources: Array[IncomeSourceData] = [preload("res://data/IncomeSources/vending_machine_income.tres")]
+@export var sources: Array[IncomeSourceData] = [
+	preload("res://data/IncomeSources/vending_machine_income.tres"),
+	preload("res://data/IncomeSources/restaurant_income.tres")
+]
 
 
 # 플레이 중 Source multiplier
@@ -197,7 +200,14 @@ func get_source_income(source_id: String) -> float:
 	var production_time := _get_production_time(source)
 	if production_time <= 0.0 or not is_finite(production_time):
 		return 0.0
-	return _get_source_payout(source) / production_time * get_source_multiplier(source_id) * EconomyManager.get_global_multiplier()
+	return get_source_cycle_payout(source_id) / production_time
+
+
+func get_source_cycle_payout(source_id: String) -> float:
+	var source := get_source(source_id)
+	if source == null:
+		return 0.0
+	return _get_source_payout(source) * get_source_multiplier(source_id) * EconomyManager.get_global_multiplier()
 
 
 func _get_source_payout(source: IncomeSourceData) -> float:
@@ -245,10 +255,7 @@ func _process(delta: float) -> void:
 		if remaining <= 0.0:
 			var completed_cycles := floori(-remaining / production_time) + 1
 			EconomyManager.add_money(
-				_get_source_payout(source)
-				* get_source_multiplier(source.id)
-				* EconomyManager.get_global_multiplier()
-				* completed_cycles
+				get_source_cycle_payout(source.id) * completed_cycles
 			)
 			remaining += production_time * completed_cycles
 

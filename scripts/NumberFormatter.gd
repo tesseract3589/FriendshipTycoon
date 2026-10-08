@@ -37,9 +37,9 @@ static func _format_scientific(value: float) -> String:
 		exponent += 1
 	var mantissa_whole := floori(float(mantissa_milli) / 1000.0)
 	var mantissa_decimal := str(mantissa_milli % 1000).pad_zeros(3)
-	var sign := "-" if is_negative else ""
+	var sign_text := "-" if is_negative else ""
 	var exponent_sign := "+" if exponent >= 0 else "-"
-	return "%s%d.%se%s%d" % [sign, mantissa_whole, mantissa_decimal, exponent_sign, absi(exponent)]
+	return "%s%d.%se%s%d" % [sign_text, mantissa_whole, mantissa_decimal, exponent_sign, absi(exponent)]
 
 
 static func _group_digits(digits: String) -> String:

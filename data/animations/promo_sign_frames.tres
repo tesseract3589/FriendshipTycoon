@@ -1,0 +1,18 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://cstgvuh05j7qb"]
+
+[ext_resource type="Texture2D" uid="uid://b470cbap4hq5t" path="res://assets/sprites/VendingMachine/sign_LED.png" id="1_lit"]
+[ext_resource type="Texture2D" uid="uid://0n3byvcx1pif" path="res://assets/sprites/VendingMachine/sign_LED_unlit.png" id="2_unlit"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 0.5,
+"texture": ExtResource("1_lit")
+}, {
+"duration": 0.5,
+"texture": ExtResource("2_unlit")
+}],
+"loop": 1,
+"name": &"blink",
+"speed": 1.0
+}]

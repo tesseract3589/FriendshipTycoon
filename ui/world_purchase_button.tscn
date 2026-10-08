@@ -3,13 +3,10 @@
 [ext_resource type="Script" uid="uid://bbuuq1dj680f5" path="res://ui/WorldPurchaseButton.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://d2gsxn3708ssk" path="res://assets/sprites/Interfaces/Button_buy.png" id="2_buy"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_qjjmb"]
-
 [node name="WorldPurchaseButton" type="Node2D" unique_id=1810645461]
 script = ExtResource("1_script")
 
-[node name="PurchasedSprite" type="Sprite2D" parent="." unique_id=85439543]
-visible = false
+[node name="PurchasedSprite" type="Node2D" parent="." unique_id=85439543]
 
 [node name="PurchaseButton" type="TextureButton" parent="." unique_id=957552964]
 mouse_default_cursor_shape = 2
@@ -25,9 +22,3 @@ offset_bottom = 72.0
 theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 vertical_alignment = 1
-
-[node name="HoverArea" type="Area2D" parent="." unique_id=666588965]
-visible = false
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HoverArea" unique_id=1616325158]
-shape = SubResource("RectangleShape2D_qjjmb")

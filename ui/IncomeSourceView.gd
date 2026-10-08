@@ -36,6 +36,8 @@ func _ready() -> void:
 		hover_shape.size = source_data.display_texture.get_size()
 		hover_collision.shape = hover_shape
 	timer_label.position = _display_position + source_data.timer_offset
+	timer_label.z_as_relative = false
+	timer_label.z_index = 40
 	_style_text_label(timer_label)
 	hover_area.mouse_entered.connect(_on_mouse_entered_source)
 	hover_area.mouse_exited.connect(_on_mouse_exited_source)
@@ -86,11 +88,7 @@ func _update_timer(seconds_remaining: float) -> void:
 
 func _get_source_info() -> String:
 	var production_time := IncomeManager.get_source_production_time(source_data.id)
-	var payout := (
-		(source_data.base_income + source_data.upgrade_income_per_level * (IncomeManager.get_source_level(source_data.id) - 1))
-		* IncomeManager.get_source_multiplier(source_data.id)
-		* EconomyManager.get_global_multiplier()
-	)
+	var payout := IncomeManager.get_source_cycle_payout(source_data.id)
 	return source_data.tooltip_text \
 		.replace("{source_name}", source_data.source_name) \
 		.replace("{payout}", NUMBER_FORMATTER.format_number(payout)) \

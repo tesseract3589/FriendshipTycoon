@@ -4,13 +4,13 @@ const CLOUD_TEXTURES: Array[Texture2D] = [
 	preload("res://assets/sprites/Cloud1.png"),
 	preload("res://assets/sprites/Cloud2.png"),
 ]
-const CLOUD_COUNT: int = 7
+const CLOUD_COUNT: int = 14
 const MIN_SCALE: float = 0.22
 const MAX_SCALE: float = 0.32
 const MIN_SPEED: float = 8.0
 const MAX_SPEED: float = 18.0
-const MIN_HEIGHT: float = -360.0
-const MAX_HEIGHT: float = -110.0
+const MIN_HEIGHT: float = -1300.0
+const MAX_HEIGHT: float = -300.0
 const SCREEN_MARGIN: float = 500.0
 
 @onready var camera: Camera2D = get_node("../../Camera2D")

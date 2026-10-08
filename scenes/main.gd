@@ -17,8 +17,15 @@ const GROUND_BOTTOM_SCREEN_MARGIN: float = 24.0
 @onready var income_source_views: Node2D = $World/IncomeSourceViews
 @onready var world_layout: Node2D = $World/WorldLayout
 @onready var developer_tools: DeveloperToolsPanel = $HUD/DeveloperTools
+@onready var camera_tutorial: Control = $HUD/CameraTutorial
+@onready var camera_tutorial_label: Label = $HUD/CameraTutorial/Label
 
 var _dragging_camera: bool = false
+var _touch_points: Dictionary = {}
+var _pinch_zoom_enabled: bool = false
+var _last_pinch_distance: float = 0.0
+var _camera_tutorial_dismissed: bool = false
+var _world_hover_areas: Dictionary = {}
 
 
 func _ready() -> void:
@@ -27,7 +34,10 @@ func _ready() -> void:
 	IncomeManager.source_activation_changed.connect(_on_source_activation_changed)
 	EconomyManager.money_changed.connect(_refresh_finances)
 	IncomeManager.income_changed.connect(_refresh_finances)
-	world_layout.visible = false
+	ButtonManager.button_purchased.connect(_on_button_purchased)
+	world_layout.visible = true
+	_prepare_world_hover_areas()
+	_hide_world_layout_sprites()
 	_create_income_source_views()
 	_create_world_purchase_buttons()
 	_create_world_click_dialogues()
@@ -40,12 +50,25 @@ func _on_viewport_size_changed() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventScreenTouch:
+		_handle_screen_touch(event as InputEventScreenTouch)
+		return
+	if event is InputEventScreenDrag:
+		_handle_screen_drag(event as InputEventScreenDrag)
+		return
+	if (
+		event.device == InputEvent.DEVICE_ID_EMULATION
+		and _touch_points.size() >= 2
+	):
+		return
+
 	if event is InputEventMouseButton:
 		var mouse_button := event as InputEventMouseButton
 		if mouse_button.button_index == MOUSE_BUTTON_LEFT:
 			var was_dragging := _dragging_camera
 			_dragging_camera = mouse_button.pressed and _is_pointer_over_world()
-			if _dragging_camera or was_dragging:
+			# Let world Area2D click handlers receive presses; consume only the drag release.
+			if not mouse_button.pressed and was_dragging:
 				get_viewport().set_input_as_handled()
 		elif mouse_button.pressed and mouse_button.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
 			if _is_pointer_over_world():
@@ -53,9 +76,53 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and _dragging_camera:
 		var mouse_motion := event as InputEventMouseMotion
+		if not mouse_motion.relative.is_zero_approx():
+			_dismiss_camera_tutorial()
 		camera.global_position -= mouse_motion.relative / camera.zoom
 		_clamp_camera_position()
 		get_viewport().set_input_as_handled()
+
+
+func _handle_screen_touch(event: InputEventScreenTouch) -> void:
+	if event.pressed:
+		_dismiss_camera_tutorial()
+		_touch_points[event.index] = event.position
+		if _touch_points.size() == 2:
+			_pinch_zoom_enabled = _is_pointer_over_world()
+			_last_pinch_distance = _get_pinch_distance()
+			_dragging_camera = false
+	else:
+		_touch_points.erase(event.index)
+		if _touch_points.size() < 2:
+			_pinch_zoom_enabled = false
+			_last_pinch_distance = 0.0
+
+
+func _handle_screen_drag(event: InputEventScreenDrag) -> void:
+	if not _touch_points.has(event.index):
+		return
+	_touch_points[event.index] = event.position
+	if not _pinch_zoom_enabled or _touch_points.size() != 2:
+		return
+
+	var pinch_distance := _get_pinch_distance()
+	if _last_pinch_distance > 0.0 and pinch_distance > 0.0:
+		var new_zoom := clampf(
+			camera.zoom.x * pinch_distance / _last_pinch_distance,
+			CAMERA_MIN_ZOOM,
+			CAMERA_MAX_ZOOM
+		)
+		camera.zoom = Vector2.ONE * new_zoom
+		_clamp_camera_position()
+	_last_pinch_distance = pinch_distance
+	get_viewport().set_input_as_handled()
+
+
+func _get_pinch_distance() -> float:
+	if _touch_points.size() != 2:
+		return 0.0
+	var positions: Array = _touch_points.values()
+	return positions[0].distance_to(positions[1])
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
@@ -65,15 +132,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 
 func _is_pointer_over_world() -> bool:
-	return get_viewport().gui_get_hovered_control() == null and not _is_pointer_over_world_area()
-
-
-func _is_pointer_over_world_area() -> bool:
-	var query := PhysicsPointQueryParameters2D.new()
-	query.position = get_global_mouse_position()
-	query.collide_with_areas = true
-	query.collide_with_bodies = false
-	return not get_world_2d().direct_space_state.intersect_point(query, 1).is_empty()
+	return get_viewport().gui_get_hovered_control() == null
 
 
 func _zoom_camera(zoom_in: bool) -> void:
@@ -86,8 +145,35 @@ func _zoom_camera(zoom_in: bool) -> void:
 	if is_equal_approx(old_zoom, new_zoom):
 		return
 
+	_dismiss_camera_tutorial()
 	camera.zoom = Vector2.ONE * new_zoom
 	_clamp_camera_position()
+
+
+func _on_button_purchased(button_data: ButtonData) -> void:
+	if button_data != null and button_data.id == "hall_foundation":
+		_show_camera_tutorial()
+
+
+func _show_camera_tutorial() -> void:
+	_camera_tutorial_dismissed = false
+	TooltipManager.hide_tooltip()
+	camera_tutorial_label.text = (
+		"터치 및 드래그로 카메라 조정"
+		if OS.has_feature("mobile")
+		else "마우스 드래그/휠로 카메라 조정"
+	)
+	camera_tutorial.modulate = Color.WHITE
+	camera_tutorial.visible = true
+
+
+func _dismiss_camera_tutorial() -> void:
+	if _camera_tutorial_dismissed or not camera_tutorial.visible:
+		return
+	_camera_tutorial_dismissed = true
+	var fade := create_tween()
+	fade.tween_property(camera_tutorial, "modulate:a", 0.0, 1.5)
+	fade.tween_callback(camera_tutorial.hide)
 
 
 func _clamp_camera_position() -> void:
@@ -162,29 +248,78 @@ func _create_world_purchase_buttons() -> void:
 	for button_data in ButtonManager.buttons:
 		if button_data == null or not button_data.show_world_purchase_button:
 			continue
-		var layout_sprite := _get_layout_sprite(button_data.id)
+		var layout_sprite := _get_layout_element(button_data.id)
 		if layout_sprite == null:
 			push_warning("Main: No world layout sprite for button: " + button_data.id)
 			continue
+		var hover_areas := _get_world_hover_areas(button_data.id)
+		if hover_areas.is_empty() and button_data.show_purchased_tooltip:
+			push_warning("Main: No hover area for world button: " + button_data.id)
 		var world_button := WORLD_PURCHASE_BUTTON_SCENE.instantiate() as WorldPurchaseButton
-		world_button.setup(button_data, layout_sprite)
+		world_button.setup(button_data, layout_sprite, hover_areas)
 		income_source_views.add_child(world_button)
 
 
 func _get_layout_sprite(element_id: String) -> Sprite2D:
-	return world_layout.get_node_or_null(element_id) as Sprite2D
+	return world_layout.find_child(element_id, true, false) as Sprite2D
+
+
+func _get_layout_element(element_id: String) -> Node2D:
+	return world_layout.find_child(element_id, true, false) as Node2D
+
+
+func _get_world_hover_areas(button_id: String) -> Array[Area2D]:
+	var result: Array[Area2D] = []
+	var stored_areas: Variant = _world_hover_areas.get(button_id, [])
+	if stored_areas is Array:
+		for area in stored_areas:
+			if area is Area2D:
+				result.append(area as Area2D)
+	return result
+
+
+func _prepare_world_hover_areas() -> void:
+	_world_hover_areas.clear()
+	for button_data in ButtonManager.buttons:
+		if button_data == null:
+			continue
+		var layout_element := _get_layout_element(button_data.id)
+		if layout_element == null:
+			continue
+		var hover_areas: Array[Area2D] = []
+		for area_node in layout_element.find_children("HoverArea", "Area2D", true, false):
+			var hover_area := area_node as Area2D
+			var original_transform := hover_area.global_transform
+			hover_area.reparent(world_layout, true)
+			hover_area.global_transform = original_transform
+			hover_area.input_pickable = false
+			hover_area.collision_layer = 1
+			hover_areas.append(hover_area)
+		if not hover_areas.is_empty():
+			_world_hover_areas[button_data.id] = hover_areas
+
+
+func _hide_world_layout_sprites() -> void:
+	for node in world_layout.find_children("*", "Sprite2D", true, false):
+		(node as CanvasItem).visible = false
+	for node in world_layout.find_children("*", "AnimatedSprite2D", true, false):
+		(node as CanvasItem).visible = false
 
 
 func _create_world_click_dialogues() -> void:
 	for button_data in ButtonManager.buttons:
 		if button_data == null or button_data.click_dialogues.is_empty():
 			continue
-		var layout_sprite := _get_layout_sprite(button_data.id)
-		if layout_sprite == null:
+		var layout_element := _get_layout_element(button_data.id)
+		if layout_element == null:
 			push_warning("Main: No world layout sprite for dialogue button: " + button_data.id)
 			continue
+		var hover_areas := _get_world_hover_areas(button_data.id)
+		if hover_areas.is_empty():
+			push_warning("Main: No hover area for world dialogue: " + button_data.id)
+			continue
 		var dialogue_component := WORLD_CLICK_DIALOGUE_SCENE.instantiate() as WorldClickDialogue
-		dialogue_component.setup(button_data, layout_sprite)
+		dialogue_component.setup(button_data, layout_element, hover_areas)
 		income_source_views.add_child(dialogue_component)
 
 

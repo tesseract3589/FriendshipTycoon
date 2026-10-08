@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/restaurant/dining_seats_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "dining_seats"
+button_name = "테이블"
+tooltip_text = "간부식당 수입 x 2"
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+world_purchase_button_offset = Vector2(527, 220)
+world_purchase_info_offset = Vector2(437, 140)
+effect_type = 1
+effect_target = "restaurant"
+effect_value = 2.0

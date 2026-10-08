@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/restaurant/serving_desk_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "serving_desk"
+button_name = "배식대"
+tooltip_text = "간부식당 속도 x 2"
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+world_purchase_button_offset = Vector2(0, 110)
+world_purchase_info_offset = Vector2(-90, 30)
+effect_type = 3
+effect_target = "restaurant"
+effect_value = 2.0

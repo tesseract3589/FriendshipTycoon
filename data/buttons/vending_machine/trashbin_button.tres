@@ -1,17 +1,18 @@
 [gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://dxlm12ei3ck2w"]
 
 [ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
-[ext_resource type="Resource" uid="uid://bcc7ph1rg3xvt" path="res://data/conditions/trashbin_unlock.tres" id="3_condition"]
+[ext_resource type="Resource" uid="uid://bcc7ph1rg3xvt" path="res://data/conditions/vending_machine/trashbin_unlock.tres" id="3_condition"]
 
 [resource]
 script = ExtResource("1_button")
 id = "trashbin"
 button_name = "쓰레기통"
 price = 30.0
+tooltip_text = "자판기 속도 x 2"
 unlock_condition = ExtResource("3_condition")
 show_world_purchase_button = true
-world_purchase_button_offset = Vector2(0, -38)
-world_purchase_info_offset = Vector2(-90, -114)
+world_purchase_button_offset = Vector2(0, -30)
+world_purchase_info_offset = Vector2(-90, -105)
 click_dialogues = null
 effect_type = 3
 effect_target = "vending_machine"

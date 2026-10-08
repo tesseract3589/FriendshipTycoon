@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://bqsrg73rq6pu2"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/restaurant/restaurant_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "restaurant"
+button_name = "간부식당"
+description = "수입원"
+price = 10000.0
+type = 0
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+world_purchase_button_offset = Vector2(0, 60)
+world_purchase_info_offset = Vector2(-90, -15)
+world_visual_layer = 5
+click_dialogues = null
+effect_type = 0
+effect_target = "restaurant"
