@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ButtonData" format=3]
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://bm1ejggu26fcu"]
 
 [ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
 [ext_resource type="Resource" path="res://data/conditions/restaurant/wide_windows_unlock.tres" id="2_condition"]
@@ -7,11 +7,13 @@
 script = ExtResource("1_button")
 id = "wide_windows"
 button_name = "통유리창"
+price = 3000000.0
 tooltip_text = "간부식당 수입 x 3"
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
-world_purchase_button_offset = Vector2(727, -230)
-world_purchase_info_offset = Vector2(637, -310)
+world_purchase_button_offset = Vector2(727, -80)
+world_purchase_info_offset = Vector2(637, -160)
+click_dialogues = null
 effect_type = 1
 effect_target = "restaurant"
 effect_value = 3.0

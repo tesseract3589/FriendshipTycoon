@@ -3,10 +3,11 @@ extends Node2D
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const SIZE_POP_MOTION = preload("res://scripts/SizePopMotion.gd")
+const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 
-@onready var purchased_visuals_root: Node2D = $PurchasedSprite
-@onready var texture_button: TextureButton = $PurchaseButton
-@onready var info_label: Label = $InfoLabel
+@onready var purchased_visuals_root := ErrorManager.require_node(self, ^"PurchasedSprite", "Node2D") as Node2D
+@onready var texture_button := ErrorManager.require_node(self, ^"PurchaseButton", "TextureButton") as TextureButton
+@onready var info_label := ErrorManager.require_node(self, ^"InfoLabel", "Label") as Label
 
 var button_data: ButtonData
 var layout_root: Node2D
@@ -22,12 +23,21 @@ func setup(data: ButtonData, layout_element: Node2D, object_hover_areas: Array[A
 	button_data = data
 	layout_root = layout_element
 	hover_areas = object_hover_areas
+	if not ErrorManager.validate_instance(layout_root, "WorldPurchaseButton.setup"):
+		return
 	world_position = layout_root.global_position
 	_collect_layout_visuals(layout_root)
 
 
 func _ready() -> void:
-	if button_data == null or not button_data.show_world_purchase_button:
+	if not ErrorManager.initialize_component(self, [purchased_visuals_root, texture_button, info_label, layout_root, button_data]):
+		return
+	if texture_button.texture_normal == null:
+		ErrorManager.report_error("MISSING_TEXTURE", "구매 버튼 이미지가 없습니다.", "WorldPurchaseButton.PurchaseButton")
+		process_mode = Node.PROCESS_MODE_DISABLED
+		hide()
+		return
+	if not button_data.show_world_purchase_button:
 		visible = false
 		return
 	if layout_root != null:
@@ -38,13 +48,11 @@ func _ready() -> void:
 		_configure_hover_areas()
 	texture_button.size = texture_button.texture_normal.get_size()
 	texture_button.scale = button_data.world_purchase_button_scale
-	texture_button.z_as_relative = false
-	texture_button.z_index = 30
-	texture_button.position = world_position + button_data.world_purchase_button_offset
+	RENDER_ORDER.apply_world_layer(texture_button, RENDER_ORDER.WorldLayer.BUTTON)
+	texture_button.position = to_local(world_position + button_data.world_purchase_button_offset)
 	texture_button.position.x -= texture_button.size.x * texture_button.scale.x * 0.5
-	info_label.position = world_position + button_data.world_purchase_info_offset
-	info_label.z_as_relative = false
-	info_label.z_index = 40
+	info_label.position = to_local(world_position + button_data.world_purchase_info_offset)
+	RENDER_ORDER.apply_world_layer(info_label, RENDER_ORDER.WorldLayer.DESCRIPTION)
 	info_label.add_theme_color_override("font_outline_color", Color(0.05, 0.08, 0.12, 1.0))
 	info_label.add_theme_constant_override("outline_size", 3)
 	texture_button.pressed.connect(_purchase)
@@ -57,6 +65,8 @@ func _ready() -> void:
 
 
 func _refresh() -> void:
+	if not ErrorManager.initialize_component(self, [purchased_visuals_root, texture_button, info_label]):
+		return
 	if button_data == null:
 		visible = false
 		return
@@ -65,9 +75,11 @@ func _refresh() -> void:
 	)
 	var has_purchased_visual := button_data.bought and not purchased_visuals.is_empty()
 	for purchased_visual in purchased_visuals:
+		if not ErrorManager.validate_instance(purchased_visual, "WorldPurchaseButton:" + button_data.id):
+			continue
 		purchased_visual.visible = button_data.bought
 	for area in hover_areas:
-		if area == null:
+		if not ErrorManager.validate_instance(area, "WorldPurchaseButton:" + button_data.id + ".HoverArea"):
 			continue
 		area.input_pickable = (
 			has_purchased_visual
@@ -77,6 +89,7 @@ func _refresh() -> void:
 			)
 		)
 	if not button_data.bought:
+		_pointer_over_areas.clear()
 		TooltipManager.hide_tooltip(button_data.id)
 	texture_button.visible = not button_data.bought
 	info_label.visible = not button_data.bought
@@ -137,12 +150,7 @@ func _add_purchased_visual(source_visual: Node2D) -> void:
 	if purchased_visual == null:
 		return
 	purchased_visual.transform = layout_root.global_transform.affine_inverse() * source_visual.global_transform
-	purchased_visual.z_as_relative = false
-	purchased_visual.z_index = (
-		source_visual.z_index
-		if button_data.world_visual_layer == ButtonData.WorldVisualLayer.OBJECT
-		else button_data.world_visual_layer
-	)
+	RENDER_ORDER.apply_world_layer(purchased_visual, RENDER_ORDER.get_effective_z_index(source_visual))
 	purchased_visual.visible = false
 	purchased_visuals_root.add_child(purchased_visual)
 	purchased_visuals.append(purchased_visual)
@@ -159,7 +167,7 @@ func _add_purchased_visual(source_visual: Node2D) -> void:
 
 func _configure_hover_areas() -> void:
 	for area in hover_areas:
-		if area == null:
+		if not ErrorManager.validate_instance(area, "WorldPurchaseButton:" + button_data.id + ".HoverArea"):
 			continue
 		area.input_pickable = false
 		area.collision_layer = 1

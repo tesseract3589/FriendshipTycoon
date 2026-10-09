@@ -14,7 +14,6 @@ unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
 world_purchase_button_offset = Vector2(724, 85)
 world_purchase_info_offset = Vector2(634, 0)
-world_visual_layer = -1
 show_purchased_tooltip = false
 click_dialogues = null
 effect_type = 5

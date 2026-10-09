@@ -16,7 +16,7 @@ script = ExtResource("2_game_ui")
 [node name="World" type="Node2D" parent="." unique_id=427354301]
 
 [node name="WallPaper" type="Sprite2D" parent="World" unique_id=1312683523]
-z_index = -20
+z_index = -100
 z_as_relative = false
 position = Vector2(0, -1940.9999)
 scale = Vector2(3.0003495, 4.38059)
@@ -24,7 +24,7 @@ texture = ExtResource("2_jyhfs")
 metadata/_edit_lock_ = true
 
 [node name="Clouds" type="Node2D" parent="World" unique_id=50892527]
-z_index = -20
+z_index = -90
 z_as_relative = false
 script = ExtResource("5_clouds")
 
@@ -64,6 +64,7 @@ texture = ExtResource("4_tbgi4")
 metadata/_edit_lock_ = true
 
 [node name="HUD" type="CanvasLayer" parent="." unique_id=255123894]
+layer = 2
 
 [node name="Panel" type="PanelContainer" parent="HUD" unique_id=1662022879]
 offset_left = 24.0

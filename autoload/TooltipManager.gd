@@ -1,5 +1,6 @@
 extends CanvasLayer
 
+const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 const MOUSE_OFFSET := Vector2(16.0, 20.0)
 const VIEWPORT_MARGIN := Vector2(8.0, 8.0)
 
@@ -9,7 +10,7 @@ var _owner_id: String = ""
 
 
 func _ready() -> void:
-	layer = 100
+	layer = RENDER_ORDER.ScreenLayer.WORLD_DESCRIPTION
 	_panel = PanelContainer.new()
 	_panel.visible = false
 	_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE

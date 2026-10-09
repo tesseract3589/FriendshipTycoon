@@ -19,6 +19,7 @@ func _ready() -> void:
 
 func play_bgm(stream: AudioStream, restart: bool = false) -> void:
 	if stream == null:
+		ErrorManager.report_error("INVALID_AUDIO", "재생할 배경음 리소스가 없습니다.", "SoundManager.play_bgm")
 		return
 	if not restart and _bgm_player.stream == stream and _bgm_player.playing:
 		return
@@ -31,12 +32,17 @@ func stop_bgm() -> void:
 
 
 func set_bgm_volume(volume: float) -> void:
+	if not ErrorManager.validate_number(volume, "SoundManager.bgm_volume"):
+		return
 	bgm_volume = clampf(volume, 0.0, 1.0)
 	_apply_bgm_volume()
 
 
 func play_se(stream: AudioStream, volume_scale: float = 1.0) -> void:
 	if stream == null:
+		ErrorManager.report_error("INVALID_AUDIO", "재생할 효과음 리소스가 없습니다.", "SoundManager.play_se")
+		return
+	if not ErrorManager.validate_number(volume_scale, "SoundManager.se_volume_scale"):
 		return
 	var player := AudioStreamPlayer.new()
 	player.stream = stream
@@ -54,6 +60,8 @@ func play_purchase_sound() -> void:
 
 
 func set_se_volume(volume: float) -> void:
+	if not ErrorManager.validate_number(volume, "SoundManager.se_volume"):
+		return
 	se_volume = clampf(volume, 0.0, 1.0)
 	for player in _active_se_players:
 		if is_instance_valid(player):

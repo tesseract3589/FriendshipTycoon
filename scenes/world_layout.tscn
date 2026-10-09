@@ -6,12 +6,16 @@
 [ext_resource type="Texture2D" uid="uid://h05jvecmk4ak" path="res://assets/sprites/Ground.png" id="4_ground"]
 [ext_resource type="Texture2D" uid="uid://yx2lpkq4kjlb" path="res://assets/sprites/Structures/BaseStone_Pebbles.png" id="5_syfu6"]
 [ext_resource type="SpriteFrames" uid="uid://cstgvuh05j7qb" path="res://data/animations/promo_sign_frames.tres" id="6_promo_sign_frames"]
+[ext_resource type="Texture2D" uid="uid://2lsedch3q7ck" path="res://assets/sprites/VendingMachine/Bicycle_can_delivery.png" id="7_tmtnx"]
 [ext_resource type="Texture2D" uid="uid://cn2a3st336yex" path="res://assets/sprites/Structures/Wall_Stone.png" id="7_vvlob"]
 [ext_resource type="Texture2D" uid="uid://bwid0s1qp0r1n" path="res://assets/sprites/Restaurant/Induction.png" id="8_1j3cc"]
+[ext_resource type="Texture2D" uid="uid://daftukcp2bies" path="res://assets/sprites/VendingMachine/antenna.png" id="8_utrpj"]
 [ext_resource type="Texture2D" uid="uid://7c835e56n0mn" path="res://assets/sprites/Restaurant/dining_seats.png" id="9_jxslf"]
 [ext_resource type="Texture2D" uid="uid://dwyybcyrfa3et" path="res://assets/sprites/Restaurant/serving_desk.png" id="9_yyjay"]
 [ext_resource type="Texture2D" uid="uid://bt1ri5kouub8p" path="res://assets/sprites/Restaurant/window_modern.png" id="11_03k8n"]
 [ext_resource type="Texture2D" uid="uid://btrww8di0eqvs" path="res://assets/sprites/Structures/BaseStone.png" id="12_03k8n"]
+[ext_resource type="Script" uid="uid://5wsclbk23smg" path="res://scripts/SceneRenderLayer.gd" id="13_render_layer"]
+[ext_resource type="Texture2D" uid="uid://bbypiav0hl8rb" path="res://assets/sprites/Restaurant/hall_wallpaper_basic.png" id="14_wallpaper"]
 
 [sub_resource type="RectangleShape2D" id="VendingMachineHoverShape"]
 size = Vector2(367, 585)
@@ -24,11 +28,14 @@ height = 280.0
 radius = 25.0
 height = 108.0
 
+[sub_resource type="CircleShape2D" id="BikeDeliveryWheelHoverShape"]
+radius = 115.0
+
+[sub_resource type="RectangleShape2D" id="WirelessAntennaHoverShape"]
+size = Vector2(40, 370)
+
 [sub_resource type="RectangleShape2D" id="RestaurantHoverShape"]
 size = Vector2(723.62036, 427.7848)
-
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_1j3cc"]
-load_path = "res://.godot/imported/hall_wallpaper_basic.png-dcc016e997c2b2497b499a1915acaf0f.ctex"
 
 [sub_resource type="RectangleShape2D" id="WideWindowHoverShape"]
 size = Vector2(957.5626, 283.011)
@@ -46,17 +53,23 @@ size = Vector2(719.17804, 296.9283)
 [node name="WorldLayout" type="Node2D" unique_id=758915039]
 
 [node name="GroundReference" type="Sprite2D" parent="." unique_id=883505403]
+z_index = 20
 z_as_relative = false
 position = Vector2(0, 351)
 texture = ExtResource("4_ground")
+script = ExtResource("13_render_layer")
+render_layer = 20
 metadata/_edit_lock_ = true
 
 [node name="VendingMachine" type="Node2D" parent="." unique_id=2089962479]
+z_as_relative = false
+script = ExtResource("13_render_layer")
 
 [node name="vending_machine" type="Sprite2D" parent="VendingMachine" unique_id=558576357]
 position = Vector2(-287, 156)
 scale = Vector2(0.259537, 0.255556)
 texture = ExtResource("1_vending")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="VendingMachine/vending_machine" unique_id=232903769]
 input_pickable = false
@@ -69,6 +82,7 @@ shape = SubResource("VendingMachineHoverShape")
 position = Vector2(-200, 201)
 scale = Vector2(0.2, 0.2)
 texture = ExtResource("2_trashbin")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="VendingMachine/trashbin" unique_id=160460849]
 input_pickable = false
@@ -80,6 +94,7 @@ shape = SubResource("CapsuleShape2D_jxslf")
 [node name="vending_machine_soldier" type="Sprite2D" parent="VendingMachine" unique_id=1238742514]
 position = Vector2(-384, 174)
 texture = ExtResource("3_soldier")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="VendingMachine/vending_machine_soldier" unique_id=1932101509]
 input_pickable = false
@@ -97,6 +112,7 @@ sprite_frames = ExtResource("6_promo_sign_frames")
 animation = &"blink"
 autoplay = "blink"
 frame_progress = 0.31777832
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="VendingMachine/promo_sign" unique_id=688419935]
 position = Vector2(6.5293036, -160.3282)
@@ -106,13 +122,66 @@ input_pickable = false
 visible = false
 polygon = PackedVector2Array(-211.54944, -318.1513, -360.41748, -75.153854, 10.446899, 140.28719, -15.670288, 200.41028, 344.74725, 170.34872, 195.87915, -177.8641, 156.70331, -112.73078, -206.32593, -315.64618)
 
+[node name="bike_delivery" type="Sprite2D" parent="VendingMachine" unique_id=1504550944]
+z_as_relative = false
+position = Vector2(-546, 163)
+scale = Vector2(0.293, 0.293)
+texture = ExtResource("7_tmtnx")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="VendingMachine/bike_delivery" unique_id=1210199425]
+input_pickable = false
+
+[node name="FrontWheel" type="CollisionShape2D" parent="VendingMachine/bike_delivery/HoverArea" unique_id=814346569]
+visible = false
+position = Vector2(-208.82593, 108)
+shape = SubResource("BikeDeliveryWheelHoverShape")
+
+[node name="RearWheel" type="CollisionShape2D" parent="VendingMachine/bike_delivery/HoverArea" unique_id=1178953018]
+visible = false
+position = Vector2(195.17395, 108)
+shape = SubResource("BikeDeliveryWheelHoverShape")
+
+[node name="HandlebarAndFork" type="CollisionPolygon2D" parent="VendingMachine/bike_delivery/HoverArea" unique_id=1343994022]
+visible = false
+position = Vector2(-3.413086, 0)
+polygon = PackedVector2Array(-215, 113, -91, -156, -70, -149, -77, -134, -19, -102, -25, -89, -89, -120, -201, 120)
+
+[node name="FrameAndSeat" type="CollisionPolygon2D" parent="VendingMachine/bike_delivery/HoverArea" unique_id=1819106396]
+visible = false
+position = Vector2(-3.413086, 0)
+polygon = PackedVector2Array(-126, -22, -117, -45, 45, 81, 84, 33, 84, -37, 45, -37, 45, -58, 145, -58, 145, -37, 107, -37, 107, 12, 213, 43, 242, 71, 235, 113, 209, 145, -8, 147, 28, 102)
+
+[node name="DeliveryCargo" type="CollisionPolygon2D" parent="VendingMachine/bike_delivery/HoverArea" unique_id=1764406370]
+visible = false
+position = Vector2(-6.82605, 0)
+polygon = PackedVector2Array(160, -94, 178, -94, 178, -158, 196, -158, 196, -222, 263, -222, 263, -158, 282, -158, 282, -94, 303, -94, 303, -38, 160, -38)
+
+[node name="wireless_antenna" type="Sprite2D" parent="VendingMachine" unique_id=595605294]
+z_as_relative = false
+position = Vector2(-254, 29)
+scale = Vector2(0.285, 0.285)
+texture = ExtResource("8_utrpj")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="VendingMachine/wireless_antenna" unique_id=155284146]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="VendingMachine/wireless_antenna/HoverArea" unique_id=1187480686]
+visible = false
+position = Vector2(-7, 0)
+shape = SubResource("WirelessAntennaHoverShape")
+
 [node name="Restaurant" type="Node2D" parent="." unique_id=1674139382]
+z_as_relative = false
+script = ExtResource("13_render_layer")
 
 [node name="restaurant" type="Sprite2D" parent="Restaurant" unique_id=581539109]
 position = Vector2(1109, 70)
 scale = Vector2(0.18932593, 0.2150614)
 texture = ExtResource("8_1j3cc")
 flip_h = true
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Restaurant/restaurant" unique_id=1547996204]
 input_pickable = false
@@ -125,22 +194,32 @@ shape = SubResource("RestaurantHoverShape")
 
 [node name="first_floor_wall" type="Node2D" parent="Restaurant" unique_id=1328580372]
 z_index = 10
+z_as_relative = false
+script = ExtResource("13_render_layer")
+render_layer = 10
+metadata/_edit_lock_ = true
 
 [node name="wallpaper" type="Sprite2D" parent="Restaurant/first_floor_wall" unique_id=960887600]
-z_index = -11
+z_index = -20
+z_as_relative = false
 position = Vector2(727.625, -29.499989)
 scale = Vector2(0.6579706, 0.6424658)
-texture = SubResource("CompressedTexture2D_1j3cc")
+texture = ExtResource("14_wallpaper")
+script = ExtResource("13_render_layer")
+render_layer = -20
+metadata/_edit_lock_ = true
 
 [node name="wall_left" type="Sprite2D" parent="Restaurant/first_floor_wall" unique_id=1875247695]
 position = Vector2(102.99999, -133.00002)
 scale = Vector2(0.45666662, 0.24341506)
 texture = ExtResource("7_vvlob")
+metadata/_edit_lock_ = true
 
 [node name="wall_right" type="Sprite2D" parent="Restaurant/first_floor_wall" unique_id=876486892]
 position = Vector2(1352, -42.07425)
 scale = Vector2(0.457, 0.41040102)
 texture = ExtResource("7_vvlob")
+metadata/_edit_lock_ = true
 
 [node name="hall_foundation" type="Sprite2D" parent="Restaurant" unique_id=1264979766]
 z_index = 10
@@ -148,13 +227,22 @@ z_as_relative = false
 position = Vector2(724.00006, 202)
 scale = Vector2(0.65816325, 1)
 texture = ExtResource("5_syfu6")
+script = ExtResource("13_render_layer")
+render_layer = 10
+metadata/_edit_lock_ = true
 
 [node name="wide_windows" type="Node2D" parent="Restaurant" unique_id=1387955044]
+z_index = -10
+z_as_relative = false
+script = ExtResource("13_render_layer")
+render_layer = -10
+metadata/_edit_lock_ = true
 
 [node name="window1" type="Sprite2D" parent="Restaurant/wide_windows" unique_id=1693546435]
 position = Vector2(434.375, -117)
 scale = Vector2(0.51589304, 0.5759494)
 texture = ExtResource("11_03k8n")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Restaurant/wide_windows/window1" unique_id=1531070605]
 input_pickable = false
@@ -169,6 +257,7 @@ shape = SubResource("WideWindowHoverShape")
 position = Vector2(1019.161, -116.99999)
 scale = Vector2(0.52036124, 0.576)
 texture = ExtResource("11_03k8n")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Restaurant/wide_windows/window2" unique_id=659107071]
 input_pickable = false
@@ -180,6 +269,7 @@ shape = SubResource("WideWindowHoverShape")
 [node name="cook_soldier" type="Sprite2D" parent="Restaurant" unique_id=1957377390]
 position = Vector2(1263, 112)
 texture = ExtResource("3_soldier")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Restaurant/cook_soldier" unique_id=1771732907]
 input_pickable = false
@@ -193,6 +283,7 @@ shape = SubResource("CapsuleShape2D_gcvix")
 position = Vector2(971.00006, 84.375)
 scale = Vector2(0.24748732, 0.24608262)
 texture = ExtResource("9_yyjay")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Restaurant/serving_desk" unique_id=1334302074]
 input_pickable = false
@@ -204,11 +295,13 @@ scale = Vector2(0.9999997, 1)
 shape = SubResource("ServingDeskHoverShape")
 
 [node name="dining_seats" type="Node2D" parent="Restaurant" unique_id=1073693583]
+metadata/_edit_lock_ = true
 
 [node name="seat1" type="Sprite2D" parent="Restaurant/dining_seats" unique_id=254715542]
 position = Vector2(687.00006, 98.99999)
 scale = Vector2(0.29156327, 0.33678162)
 texture = ExtResource("9_jxslf")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Restaurant/dining_seats/seat1" unique_id=1800131941]
 input_pickable = false
@@ -223,6 +316,7 @@ shape = SubResource("DiningSeatHoverShape")
 position = Vector2(367.00003, 99)
 scale = Vector2(0.292, 0.337)
 texture = ExtResource("9_jxslf")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Restaurant/dining_seats/seat2" unique_id=1728411429]
 input_pickable = false
@@ -235,6 +329,10 @@ shape = SubResource("DiningSeatHoverShape")
 
 [node name="first_floor_ceiling" type="Sprite2D" parent="Restaurant" unique_id=663372041]
 z_index = 10
+z_as_relative = false
 position = Vector2(728, -281.25003)
 scale = Vector2(0.655102, 0.5434781)
 texture = ExtResource("12_03k8n")
+script = ExtResource("13_render_layer")
+render_layer = 10
+metadata/_edit_lock_ = true

@@ -17,11 +17,12 @@ config/icon="uid://50a8kaq5wchw"
 
 [autoload]
 
+ErrorManager="*res://autoload/ErrorManager.gd"
 SoundManager="*res://autoload/SoundManager.gd"
 EconomyManager="*res://autoload/EconomyManager.gd"
 IncomeManager="*res://autoload/IncomeManager.gd"
-ButtonManager="*res://autoload/ButtonManager.gd"
 PrestigeManager="*res://autoload/PrestigeManager.gd"
+ButtonManager="*res://autoload/ButtonManager.gd"
 TooltipManager="*res://autoload/TooltipManager.gd"
 
 [display]

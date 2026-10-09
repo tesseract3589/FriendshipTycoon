@@ -9,6 +9,8 @@ script = ExtResource("1_script")
 [node name="PurchasedSprite" type="Node2D" parent="." unique_id=85439543]
 
 [node name="PurchaseButton" type="TextureButton" parent="." unique_id=957552964]
+z_as_relative = false
+z_index = 30
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("2_buy")
 texture_pressed = ExtResource("2_buy")
@@ -17,6 +19,8 @@ ignore_texture_size = true
 stretch_mode = 4
 
 [node name="InfoLabel" type="Label" parent="." unique_id=590600223]
+z_as_relative = false
+z_index = 40
 offset_right = 180.0
 offset_bottom = 72.0
 theme_override_font_sizes/font_size = 16

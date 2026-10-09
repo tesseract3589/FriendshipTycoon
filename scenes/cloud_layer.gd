@@ -13,7 +13,7 @@ const MIN_HEIGHT: float = -1300.0
 const MAX_HEIGHT: float = -300.0
 const SCREEN_MARGIN: float = 500.0
 
-@onready var camera: Camera2D = get_node("../../Camera2D")
+@onready var camera := ErrorManager.require_node(self, ^"../../Camera2D", "Camera2D") as Camera2D
 
 var _random := RandomNumberGenerator.new()
 var _clouds: Array[Sprite2D] = []
@@ -21,6 +21,9 @@ var _speeds: Array[float] = []
 
 
 func _ready() -> void:
+	if camera == null:
+		process_mode = Node.PROCESS_MODE_DISABLED
+		return
 	_random.randomize()
 	for _index in CLOUD_COUNT:
 		var cloud := Sprite2D.new()

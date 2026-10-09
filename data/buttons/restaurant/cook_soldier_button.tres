@@ -7,12 +7,13 @@
 script = ExtResource("1_button")
 id = "cook_soldier"
 button_name = "조리병"
+price = 50000.0
 tooltip_text = "간부식당 속도 x 2"
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
-world_purchase_button_offset = Vector2(0, 120)
-world_purchase_info_offset = Vector2(-90, 40)
-click_dialogues = PackedStringArray("솥이 너무 큽니다", "이거 언제까지 저어야 합니까?", "신병은 언제 오는 겁니까", "짬통에 다이빙하고 싶습니다", "전투휴무에도 일해야 합니다")
+world_purchase_button_offset = Vector2(0, 20)
+world_purchase_info_offset = Vector2(-90, -60)
+click_dialogues = PackedStringArray("솥이 너무 큽니다", "이거 언제까지 저어야 합니까?", "신병은 언제 오는 겁니까", "짬통에 다이빙하고 싶습니다", "전투휴무에도 일해야 합니다", "대충 만들면 안됩니까?", "상태창이 보이는 것 같습니다", "양파가 아니라 대파였습니까?", "취사 누르는걸 깜빡했습니다", "고기 깨끗하게 씻으려고 퐁퐁 썼습니다", "처음부터 다시 다 넣는게 아니고 다시다를 넣는 거였습니까?")
 effect_type = 3
 effect_target = "restaurant"
 effect_value = 2.0

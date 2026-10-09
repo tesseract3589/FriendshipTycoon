@@ -6,20 +6,19 @@ const SCIENTIFIC_NOTATION_THRESHOLD: float = 100000000000.0
 static func format_number(value: float) -> String:
 	if not is_finite(value):
 		return str(value)
-	if absf(value) >= SCIENTIFIC_NOTATION_THRESHOLD:
+	var absolute_value := absf(value)
+	if absolute_value >= SCIENTIFIC_NOTATION_THRESHOLD or (absolute_value > 0.0 and absolute_value < 0.01):
 		return _format_scientific(value)
 
 	var is_negative := value < 0.0
-	var absolute_value := absf(value)
-	var whole_part := floori(absolute_value)
-	var whole_text := _group_digits(str(whole_part))
+	# Round once before separating the digits, so 999.999 carries into 1,000.
+	var decimal_text := "%.2f" % absolute_value
+	var whole_text := _group_digits(decimal_text.get_slice(".", 0))
+	var decimal_part := decimal_text.get_slice(".", 1)
 	if is_negative:
 		whole_text = "-" + whole_text
-	if is_equal_approx(absolute_value, float(whole_part)):
+	if decimal_part == "00":
 		return whole_text
-
-	var decimal_text := "%.2f" % absolute_value
-	var decimal_part := decimal_text.get_slice(".", 1)
 	return "%s.%s" % [whole_text, decimal_part]
 
 
@@ -30,6 +29,9 @@ static func _format_scientific(value: float) -> String:
 	while mantissa >= 10.0:
 		mantissa /= 10.0
 		exponent += 1
+	while mantissa < 1.0:
+		mantissa *= 10.0
+		exponent -= 1
 
 	var mantissa_milli := roundi(mantissa * 1000.0)
 	if mantissa_milli >= 10000:

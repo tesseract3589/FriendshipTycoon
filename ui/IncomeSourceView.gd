@@ -2,13 +2,14 @@ class_name IncomeSourceView
 extends Node2D
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 
 @export var source_data: IncomeSourceData
 
-@onready var sprite: Sprite2D = $Sprite
-@onready var hover_area: Area2D = $HoverArea
-@onready var hover_collision: CollisionShape2D = $HoverArea/CollisionShape2D
-@onready var timer_label: Label = $TimerLabel
+@onready var sprite := ErrorManager.require_node(self, ^"Sprite", "Sprite2D") as Sprite2D
+@onready var hover_area := ErrorManager.require_node(self, ^"HoverArea", "Area2D") as Area2D
+@onready var hover_collision := ErrorManager.require_node(self, ^"HoverArea/CollisionShape2D", "CollisionShape2D") as CollisionShape2D
+@onready var timer_label := ErrorManager.require_node(self, ^"TimerLabel", "Label") as Label
 
 var source_is_active: bool = false
 var _is_pointer_over_source: bool = false
@@ -23,7 +24,11 @@ func setup(data: IncomeSourceData, display_position: Vector2, display_scale: Vec
 
 
 func _ready() -> void:
-	if source_data == null:
+	if not ErrorManager.initialize_component(self, [sprite, hover_area, hover_collision, timer_label]):
+		return
+	if not ErrorManager.validate_income_source(source_data):
+		process_mode = Node.PROCESS_MODE_DISABLED
+		hide()
 		return
 
 	sprite.position = _display_position
@@ -36,8 +41,7 @@ func _ready() -> void:
 		hover_shape.size = source_data.display_texture.get_size()
 		hover_collision.shape = hover_shape
 	timer_label.position = _display_position + source_data.timer_offset
-	timer_label.z_as_relative = false
-	timer_label.z_index = 40
+	RENDER_ORDER.apply_world_layer(timer_label, RENDER_ORDER.WorldLayer.DESCRIPTION)
 	_style_text_label(timer_label)
 	hover_area.mouse_entered.connect(_on_mouse_entered_source)
 	hover_area.mouse_exited.connect(_on_mouse_exited_source)
@@ -77,7 +81,7 @@ func _update_timer(seconds_remaining: float) -> void:
 		return
 	var production_time := IncomeManager.get_source_production_time(source_data.id)
 	if production_time < 0.1:
-		timer_label.text = "매 %.2f초" % production_time
+		timer_label.text = "매 %s초" % NUMBER_FORMATTER.format_number(production_time)
 	elif seconds_remaining >= 10.0:
 		timer_label.text = "%ds" % ceili(seconds_remaining)
 	elif seconds_remaining >= 1.0:

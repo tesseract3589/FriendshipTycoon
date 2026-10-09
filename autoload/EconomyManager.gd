@@ -19,30 +19,44 @@ func reset_money() -> void:
 	money_changed.emit(money)
 
 
-func add_money(amount: float) -> void:
-	if amount <= 0.0 or not is_finite(amount):
-		return
+func add_money(amount: float) -> bool:
+	if not ErrorManager.validate_number(amount, "EconomyManager.add_money") or amount == 0.0:
+		return false
 
 	var rounded_amount := roundf(amount)
 	if rounded_amount <= 0.0:
-		return
-	money += rounded_amount
+		ErrorManager.report_error("INVALID_AMOUNT", "원 단위로 반올림한 금액이 0입니다.", "EconomyManager.add_money")
+		return false
+	var updated_money := money + rounded_amount
+	if not ErrorManager.validate_number(updated_money, "EconomyManager.money"):
+		return false
+	if updated_money == money:
+		ErrorManager.report_error("PRECISION_LOSS", "자금이 너무 커서 수입을 정확히 더할 수 없습니다.", "EconomyManager.add_money")
+		return false
+	money = updated_money
 	money_changed.emit(money)
+	return true
 
 
 func can_afford(amount: float) -> bool:
-	return amount >= 0.0 and money >= roundf(amount)
+	return ErrorManager.validate_number(amount, "EconomyManager.price") and ErrorManager.validate_number(money, "EconomyManager.money") and money >= roundf(amount)
 
 
 func spend_money(amount: float) -> bool:
-	if amount <= 0.0 or not is_finite(amount):
+	if not ErrorManager.validate_number(amount, "EconomyManager.spend_money", false):
 		return false
 
 	var rounded_amount := roundf(amount)
 	if rounded_amount <= 0.0 or money < rounded_amount:
 		return false
 
-	money -= rounded_amount
+	var updated_money := money - rounded_amount
+	if not ErrorManager.validate_number(updated_money, "EconomyManager.money"):
+		return false
+	if updated_money == money:
+		ErrorManager.report_error("PRECISION_LOSS", "자금이 너무 커서 구매 금액을 정확히 차감할 수 없습니다. 결제를 중단합니다.", "EconomyManager.spend_money")
+		return false
+	money = updated_money
 	money_changed.emit(money)
 
 	return true
@@ -53,15 +67,15 @@ func get_global_multiplier() -> float:
 
 
 func multiply_global_multiplier(value: float) -> void:
-	if value <= 0.0 or not is_finite(value):
+	if not ErrorManager.validate_number(value, "EconomyManager.multiplier_factor", false):
 		return
-	global_multiplier *= value
-	multiplier_changed.emit()
+	set_global_multiplier(global_multiplier * value)
 
 
 func set_global_multiplier(value: float) -> void:
-	global_multiplier = value if is_finite(value) else 0.0
-	global_multiplier = maxf(global_multiplier, 0.0)
+	if not ErrorManager.validate_number(value, "EconomyManager.global_multiplier"):
+		return
+	global_multiplier = value
 	multiplier_changed.emit()
 
 
@@ -70,13 +84,13 @@ func get_global_time_multiplier() -> float:
 
 
 func multiply_global_time_multiplier(value: float) -> void:
-	if value <= 0.0 or not is_finite(value):
+	if not ErrorManager.validate_number(value, "EconomyManager.time_multiplier_factor", false):
 		return
 	set_global_time_multiplier(global_time_multiplier * value)
 
 
 func set_global_time_multiplier(value: float) -> void:
-	if value <= 0.0 or not is_finite(value):
+	if not ErrorManager.validate_number(value, "EconomyManager.global_time_multiplier", false):
 		return
 	var previous_value := global_time_multiplier
 	if is_equal_approx(previous_value, value):

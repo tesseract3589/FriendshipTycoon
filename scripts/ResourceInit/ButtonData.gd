@@ -18,13 +18,6 @@ enum EffectType {
 	NONE
 }
 
-enum WorldVisualLayer {
-	BACKGROUND = -1,
-	OBJECT = 0,
-	FRONT_OBJECT = 5,
-	STRUCTURE = 10
-}
-
 @export var id: String = ""
 @export var button_name: String = ""
 @export var description: String = ""
@@ -46,7 +39,6 @@ enum WorldVisualLayer {
 @export var world_purchase_button_offset: Vector2 = Vector2(0.0, -100.0)
 @export var world_purchase_info_offset: Vector2 = Vector2(-90.0, -190.0)
 @export var world_purchase_button_scale: Vector2 = Vector2(0.13, 0.13)
-@export var world_visual_layer: WorldVisualLayer = WorldVisualLayer.OBJECT
 @export var show_purchased_tooltip: bool = true
 @export var click_dialogues: PackedStringArray = PackedStringArray()
 

@@ -18,6 +18,8 @@ shape = SubResource("RectangleShape2D_tefeu")
 
 [node name="TimerLabel" type="Label" parent="." unique_id=2126843963]
 visible = false
+z_as_relative = false
+z_index = 40
 offset_right = 120.0
 offset_bottom = 30.0
 theme_override_font_sizes/font_size = 20

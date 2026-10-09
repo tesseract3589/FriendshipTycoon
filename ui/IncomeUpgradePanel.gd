@@ -8,7 +8,10 @@ const UPGRADE_REPEAT_INITIAL_DELAY: float = 0.55
 const UPGRADE_REPEAT_ACCELERATION: float = 0.82
 const UPGRADE_REPEAT_MIN_INTERVAL: float = 0.06
 
-@onready var list: VBoxContainer = $Panel/Margin/VBox/List
+@onready var list := ErrorManager.require_node(self, ^"Panel/Margin/VBox/List", "VBoxContainer") as VBoxContainer
+@onready var panel := ErrorManager.require_node(self, ^"Panel", "PanelContainer") as PanelContainer
+@onready var open_button := ErrorManager.require_node(self, ^"OpenButton", "TextureButton") as TextureButton
+@onready var close_button := ErrorManager.require_node(self, ^"Panel/Margin/VBox/CloseButton", "Button") as Button
 
 var _held_source_id: String = ""
 var _repeat_timer: float = 0.0
@@ -16,19 +19,19 @@ var _repeat_interval: float = UPGRADE_REPEAT_INITIAL_DELAY
 
 
 func _ready() -> void:
-	$OpenButton.texture_normal = UPGRADE_BUTTON_TEXTURE
-	$OpenButton.pressed.connect(_toggle_panel)
-	$Panel/Margin/VBox/CloseButton.pressed.connect(_toggle_panel)
+	if not ErrorManager.initialize_component(self, [list, panel, open_button, close_button]):
+		return
+	open_button.texture_normal = UPGRADE_BUTTON_TEXTURE
+	open_button.pressed.connect(_toggle_panel)
+	close_button.pressed.connect(_toggle_panel)
 	IncomeManager.source_activation_changed.connect(_on_sources_changed)
-	IncomeManager.source_level_changed.connect(_on_level_changed)
-	IncomeManager.source_multiplier_changed.connect(_refresh_rows)
+	IncomeManager.income_changed.connect(_refresh_rows)
 	EconomyManager.money_changed.connect(_refresh_rows)
-	EconomyManager.multiplier_changed.connect(_refresh_rows)
 	_rebuild_rows()
 
 
 func _process(delta: float) -> void:
-	if _held_source_id.is_empty() or not $Panel.visible:
+	if _held_source_id.is_empty() or not panel.visible:
 		return
 	_repeat_timer -= delta
 	if _repeat_timer > 0.0:
@@ -41,8 +44,10 @@ func _process(delta: float) -> void:
 
 
 func _toggle_panel() -> void:
-	$Panel.visible = not $Panel.visible
-	if $Panel.visible:
+	if process_mode == Node.PROCESS_MODE_DISABLED:
+		return
+	panel.visible = not panel.visible
+	if panel.visible:
 		_rebuild_rows()
 	else:
 		_stop_upgrade_hold()
@@ -52,12 +57,12 @@ func _on_sources_changed(_source_id: String, _active: bool) -> void:
 	_rebuild_rows()
 
 
-func _on_level_changed(_source_id: String, _level: int) -> void:
-	_refresh_rows()
-
-
 func _rebuild_rows() -> void:
+	if not ErrorManager.initialize_component(self, [list, panel, open_button, close_button]):
+		return
+	_stop_upgrade_hold()
 	for child in list.get_children():
+		list.remove_child(child)
 		child.queue_free()
 	for source in IncomeManager.sources:
 		if source == null or not IncomeManager.source_active.get(source.id, false):
@@ -82,6 +87,8 @@ func _rebuild_rows() -> void:
 
 
 func _refresh_rows(_value = null) -> void:
+	if not ErrorManager.initialize_component(self, [list]):
+		return
 	for row in list.get_children():
 		var source_id: String = row.get_meta("source_id", "")
 		var source := IncomeManager.get_source(source_id)
@@ -96,7 +103,7 @@ func _refresh_row(row: HBoxContainer, source: IncomeSourceData) -> void:
 	var cost := IncomeManager.get_upgrade_cost(source.id)
 	row.get_node("Info").text = "%s  Lv.%d\n%s원 / 회 · 다음 업그레이드 %s원" % [source.source_name, level, NUMBER_FORMATTER.format_number(payout), NUMBER_FORMATTER.format_number(cost)]
 	var upgrade_button := row.get_node("Upgrade") as TextureButton
-	upgrade_button.disabled = not EconomyManager.can_afford(cost)
+	upgrade_button.disabled = cost <= 0.0 or not EconomyManager.can_afford(cost)
 	upgrade_button.modulate = Color(0.65, 0.65, 0.65) if upgrade_button.disabled else Color.WHITE
 
 

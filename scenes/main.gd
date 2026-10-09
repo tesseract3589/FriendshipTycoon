@@ -4,21 +4,25 @@ const INCOME_SOURCE_VIEW_SCENE: PackedScene = preload("res://ui/income_source_vi
 const WORLD_PURCHASE_BUTTON_SCENE: PackedScene = preload("res://ui/world_purchase_button.tscn")
 const WORLD_CLICK_DIALOGUE_SCENE: PackedScene = preload("res://ui/world_click_dialogue.tscn")
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 const CAMERA_MIN_ZOOM: float = 0.4
 const CAMERA_MAX_ZOOM: float = 2.5
 const CAMERA_ZOOM_STEP: float = 1.1
 const GROUND_BOTTOM_SCREEN_MARGIN: float = 24.0
 
-@onready var camera: Camera2D = $Camera2D
-@onready var wallpaper: Sprite2D = $World/WallPaper
-@onready var ground: Sprite2D = $World/Ground/Ground1
-@onready var money_label: Label = $HUD/Panel/VBoxContainer/MoneyLabel
-@onready var income_label: Label = $HUD/Panel/VBoxContainer/IncomeLabel
-@onready var income_source_views: Node2D = $World/IncomeSourceViews
-@onready var world_layout: Node2D = $World/WorldLayout
-@onready var developer_tools: DeveloperToolsPanel = $HUD/DeveloperTools
-@onready var camera_tutorial: Control = $HUD/CameraTutorial
-@onready var camera_tutorial_label: Label = $HUD/CameraTutorial/Label
+@onready var camera := ErrorManager.require_node(self, ^"Camera2D", "Camera2D") as Camera2D
+@onready var wallpaper := ErrorManager.require_node(self, ^"World/WallPaper", "Sprite2D") as Sprite2D
+@onready var ground := ErrorManager.require_node(self, ^"World/Ground/Ground1", "Sprite2D") as Sprite2D
+@onready var money_label := ErrorManager.require_node(self, ^"HUD/Panel/VBoxContainer/MoneyLabel", "Label") as Label
+@onready var income_label := ErrorManager.require_node(self, ^"HUD/Panel/VBoxContainer/IncomeLabel", "Label") as Label
+@onready var income_source_views := ErrorManager.require_node(self, ^"World/IncomeSourceViews", "Node2D") as Node2D
+@onready var world_layout := ErrorManager.require_node(self, ^"World/WorldLayout", "Node2D") as Node2D
+@onready var developer_tools := ErrorManager.require_node(self, ^"HUD/DeveloperTools", "Control") as DeveloperToolsPanel
+@onready var camera_tutorial := ErrorManager.require_node(self, ^"HUD/CameraTutorial", "Control") as Control
+@onready var camera_tutorial_label := ErrorManager.require_node(self, ^"HUD/CameraTutorial/Label", "Label") as Label
+@onready var clouds := ErrorManager.require_node(self, ^"World/Clouds", "Node2D") as Node2D
+@onready var ground_layer := ErrorManager.require_node(self, ^"World/Ground", "Node2D") as Node2D
+@onready var hud := ErrorManager.require_node(self, ^"HUD", "CanvasLayer") as CanvasLayer
 
 var _dragging_camera: bool = false
 var _touch_points: Dictionary = {}
@@ -26,16 +30,28 @@ var _pinch_zoom_enabled: bool = false
 var _last_pinch_distance: float = 0.0
 var _camera_tutorial_dismissed: bool = false
 var _world_hover_areas: Dictionary = {}
+var _layout_elements: Dictionary = {}
 
 
 func _ready() -> void:
+	if [camera, wallpaper, ground, money_label, income_label, income_source_views, world_layout, developer_tools, camera_tutorial, camera_tutorial_label, clouds, ground_layer, hud].has(null):
+		ErrorManager.report_error("SCENE_INITIALIZATION", "메인 장면을 구성할 수 없어 실행을 중단했습니다.", "Main")
+		process_mode = Node.PROCESS_MODE_DISABLED
+		return
 	camera.make_current()
+	RENDER_ORDER.apply_world_layer(wallpaper, RENDER_ORDER.WorldLayer.SKY)
+	RENDER_ORDER.apply_world_layer(clouds, RENDER_ORDER.WorldLayer.CLOUDS)
+	RENDER_ORDER.apply_world_layer(ground_layer, RENDER_ORDER.WorldLayer.GROUND)
+	hud.layer = RENDER_ORDER.ScreenLayer.HUD
+	ErrorManager.validate_visuals(wallpaper, "Main.WallPaper")
+	ErrorManager.validate_visuals(ground_layer, "Main.Ground")
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	IncomeManager.source_activation_changed.connect(_on_source_activation_changed)
 	EconomyManager.money_changed.connect(_refresh_finances)
 	IncomeManager.income_changed.connect(_refresh_finances)
 	ButtonManager.button_purchased.connect(_on_button_purchased)
 	world_layout.visible = true
+	_validate_world_layout()
 	_prepare_world_hover_areas()
 	_hide_world_layout_sprites()
 	_create_income_source_views()
@@ -126,6 +142,8 @@ func _get_pinch_distance() -> float:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if not OS.is_debug_build():
+		return
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_O:
 		developer_tools.toggle()
 		get_viewport().set_input_as_handled()
@@ -177,13 +195,16 @@ func _dismiss_camera_tutorial() -> void:
 
 
 func _clamp_camera_position() -> void:
-	# Use the max-zoom-out viewport width so horizontal pan limits stay unchanged at every zoom.
+	# Preserve the outer visible edges reached at max zoom-out, rather than camera centers.
 	var max_zoom_out_half_width := get_viewport_rect().size.x * 0.5 / CAMERA_MIN_ZOOM
+	var viewport_half_width := get_viewport_rect().size.x * 0.5 / camera.zoom.x
 	var horizontal_bounds := _get_unlocked_source_horizontal_bounds()
+	var world_left := horizontal_bounds.x - 2.0 * max_zoom_out_half_width
+	var world_right := horizontal_bounds.y + 2.0 * max_zoom_out_half_width
 	camera.global_position.x = clampf(
 		camera.global_position.x,
-		horizontal_bounds.x - max_zoom_out_half_width,
-		horizontal_bounds.y + max_zoom_out_half_width
+		world_left + viewport_half_width,
+		world_right - viewport_half_width
 	)
 	# Godot's positive Y axis points down. Let the camera descend far enough to show the
 	# ground's top, while keeping the ground's lower edge outside the viewport.
@@ -210,11 +231,11 @@ func _get_unlocked_source_horizontal_bounds() -> Vector2:
 		if source_data == null or not IncomeManager.source_active.get(source_data.id, false):
 			continue
 		var layout_sprite := _get_layout_sprite(source_data.id)
-		if layout_sprite == null:
+		if layout_sprite == null or layout_sprite.texture == null:
 			continue
-		var half_width := layout_sprite.texture.get_size().x * absf(layout_sprite.scale.x) * 0.5
-		var source_left := layout_sprite.position.x - half_width
-		var source_right := layout_sprite.position.x + half_width
+		var source_bounds: Rect2 = layout_sprite.global_transform * layout_sprite.get_rect()
+		var source_left := source_bounds.position.x
+		var source_right := source_bounds.end.x
 		if not has_unlocked_source:
 			min_x = source_left
 			max_x = source_right
@@ -237,35 +258,81 @@ func _create_income_source_views() -> void:
 			continue
 		var layout_sprite := _get_layout_sprite(source_data.id)
 		if layout_sprite == null:
-			push_warning("Main: No world layout sprite for income source: " + source_data.id)
 			continue
 		var source_view := INCOME_SOURCE_VIEW_SCENE.instantiate() as IncomeSourceView
-		source_view.setup(source_data, layout_sprite.position, layout_sprite.scale)
+		source_view.setup(
+			source_data,
+			income_source_views.to_local(layout_sprite.global_position),
+			layout_sprite.global_scale / income_source_views.global_scale
+		)
 		income_source_views.add_child(source_view)
 
 
 func _create_world_purchase_buttons() -> void:
+	var buttons_by_layout_node: Dictionary = {}
 	for button_data in ButtonManager.buttons:
 		if button_data == null or not button_data.show_world_purchase_button:
 			continue
 		var layout_sprite := _get_layout_element(button_data.id)
 		if layout_sprite == null:
-			push_warning("Main: No world layout sprite for button: " + button_data.id)
+			continue
+		buttons_by_layout_node[layout_sprite.get_instance_id()] = button_data
+	# Keep equal-depth visuals in layout tree order, regardless of the button registry order.
+	for layout_node in world_layout.find_children("*", "Node2D", true, false):
+		var button_data := buttons_by_layout_node.get(layout_node.get_instance_id()) as ButtonData
+		if button_data == null:
 			continue
 		var hover_areas := _get_world_hover_areas(button_data.id)
-		if hover_areas.is_empty() and button_data.show_purchased_tooltip:
-			push_warning("Main: No hover area for world button: " + button_data.id)
 		var world_button := WORLD_PURCHASE_BUTTON_SCENE.instantiate() as WorldPurchaseButton
-		world_button.setup(button_data, layout_sprite, hover_areas)
+		world_button.setup(button_data, layout_node as Node2D, hover_areas)
 		income_source_views.add_child(world_button)
 
 
 func _get_layout_sprite(element_id: String) -> Sprite2D:
-	return world_layout.find_child(element_id, true, false) as Sprite2D
+	return _get_layout_element(element_id) as Sprite2D
 
 
 func _get_layout_element(element_id: String) -> Node2D:
-	return world_layout.find_child(element_id, true, false) as Node2D
+	var element: Variant = _layout_elements.get(element_id)
+	if _layout_elements.has(element_id) and not is_instance_valid(element):
+		ErrorManager.report_error("FREED_WORLD_NODE", "사용 중인 월드 배치 노드가 삭제되었습니다.", "WorldLayout:" + element_id)
+		return null
+	return element as Node2D
+
+
+func _validate_world_layout() -> void:
+	_layout_elements.clear()
+	var invalid_sources: Dictionary = {}
+	var invalid_buttons: Array[String] = []
+	ErrorManager.validate_buttons(ButtonManager.buttons, IncomeManager.sources)
+	for source in IncomeManager.sources:
+		if source == null or IncomeManager.get_source(source.id) != source or not ErrorManager.validate_income_source(source):
+			continue
+		var element := ErrorManager.find_world_element(world_layout, source.id, "Sprite2D")
+		if element == null or not ErrorManager.validate_visuals(element, "IncomeSourceData:" + source.id):
+			invalid_sources[source.id] = true
+			continue
+		_layout_elements[source.id] = element
+	for data in ButtonManager.buttons:
+		if data == null:
+			continue
+		if not ErrorManager.validate_button(data, ButtonManager.buttons, IncomeManager.sources) or invalid_sources.has(data.effect_target):
+			invalid_buttons.append(data.id)
+			_layout_elements.erase(data.id)
+			continue
+		if not data.show_world_purchase_button and data.click_dialogues.is_empty():
+			continue
+		var element := ErrorManager.find_world_element(world_layout, data.id)
+		if element == null or not ErrorManager.validate_visuals(element, "ButtonData:" + data.id):
+			invalid_buttons.append(data.id)
+			_layout_elements.erase(data.id)
+			continue
+		if (data.show_purchased_tooltip or not data.click_dialogues.is_empty()) and not ErrorManager.validate_hover_areas(element, "ButtonData:" + data.id):
+			invalid_buttons.append(data.id)
+			_layout_elements.erase(data.id)
+			continue
+		_layout_elements[data.id] = element
+	ButtonManager.set_world_invalid_buttons(invalid_buttons)
 
 
 func _get_world_hover_areas(button_id: String) -> Array[Area2D]:
@@ -312,11 +379,10 @@ func _create_world_click_dialogues() -> void:
 			continue
 		var layout_element := _get_layout_element(button_data.id)
 		if layout_element == null:
-			push_warning("Main: No world layout sprite for dialogue button: " + button_data.id)
 			continue
 		var hover_areas := _get_world_hover_areas(button_data.id)
 		if hover_areas.is_empty():
-			push_warning("Main: No hover area for world dialogue: " + button_data.id)
+			ErrorManager.report_error("MISSING_HOVER_AREA", "대사를 표시할 클릭 영역을 찾을 수 없습니다.", "ButtonData:" + button_data.id)
 			continue
 		var dialogue_component := WORLD_CLICK_DIALOGUE_SCENE.instantiate() as WorldClickDialogue
 		dialogue_component.setup(button_data, layout_element, hover_areas)

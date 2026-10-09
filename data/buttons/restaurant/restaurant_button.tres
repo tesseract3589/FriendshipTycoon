@@ -14,7 +14,6 @@ unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
 world_purchase_button_offset = Vector2(0, 60)
 world_purchase_info_offset = Vector2(-90, -15)
-world_visual_layer = 5
 click_dialogues = null
 effect_type = 0
 effect_target = "restaurant"
