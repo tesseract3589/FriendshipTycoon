@@ -1,6 +1,28 @@
+@tool
 extends RefCounted
 
 const SCIENTIFIC_NOTATION_THRESHOLD: float = 100000000000.0
+const TIME_UNITS: Array[String] = ["s", "ms", "μs", "ns", "ps", "fs", "as", "zs", "ys", "rs", "qs"]
+# Compare explicit second thresholds to keep boundary rounding consistent.
+const TIME_UNIT_MIN_SECONDS: Array[float] = [1.0e-2, 1.0e-5, 1.0e-8, 1.0e-11, 1.0e-14, 1.0e-17, 1.0e-20, 1.0e-23, 1.0e-26, 1.0e-29, 1.0e-32]
+
+
+static func format_time(seconds: float) -> String:
+	if not is_finite(seconds):
+		return "%ss" % str(seconds)
+	if seconds == 0.0:
+		return "0.00s"
+	var unit_index := 0
+	while unit_index < TIME_UNITS.size() - 1 and absf(seconds) < TIME_UNIT_MIN_SECONDS[unit_index]:
+		unit_index += 1
+	var value := seconds / (TIME_UNIT_MIN_SECONDS[unit_index] * 100.0)
+	# Keep smaller values in qs without rounding a positive interval to zero.
+	var value_text := format_number(value) if absf(seconds) < TIME_UNIT_MIN_SECONDS[unit_index] else "%.2f" % value
+	return value_text + TIME_UNITS[unit_index]
+
+
+static func format_income_per_second(value: float) -> String:
+	return format_number(roundf(value))
 
 
 static func format_number(value: float) -> String:

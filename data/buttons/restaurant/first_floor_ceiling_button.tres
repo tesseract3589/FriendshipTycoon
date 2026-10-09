@@ -1,18 +1,17 @@
 [gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://c2byb1cpltqqt"]
 
 [ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
-[ext_resource type="Resource" path="res://data/conditions/restaurant/first_floor_ceiling_unlock.tres" id="2_condition"]
+[ext_resource type="Resource" uid="uid://c3jw3jrhiygt5" path="res://data/conditions/restaurant/first_floor_ceiling_unlock.tres" id="2_condition"]
 
 [resource]
 script = ExtResource("1_button")
 id = "first_floor_ceiling"
 button_name = "천장"
 description = "구조물"
+price = 1000000.0
 type = 1
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
-world_purchase_button_offset = Vector2(0, 100)
-world_purchase_info_offset = Vector2(-90, 20)
 show_purchased_tooltip = false
 click_dialogues = null
 effect_type = 5

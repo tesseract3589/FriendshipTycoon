@@ -64,11 +64,17 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "수입원 업그레이드"
 horizontal_alignment = 1
+autowrap_mode = 3
 
-[node name="List" type="VBoxContainer" parent="Panel/Margin/VBox" unique_id=2040846195]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Margin/VBox" unique_id=337254978]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 8
+horizontal_scroll_mode = 0
+
+[node name="List" type="VBoxContainer" parent="Panel/Margin/VBox/Scroll" unique_id=2040846195]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 18
 
 [node name="CloseButton" type="Button" parent="Panel/Margin/VBox" unique_id=960377370]
 custom_minimum_size = Vector2(0, 34)

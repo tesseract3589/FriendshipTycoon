@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://ui/developer_tools.tscn" id="6_developer_tools"]
 [ext_resource type="PackedScene" uid="uid://dvctb8k52oj67" path="res://ui/income_upgrade_panel.tscn" id="7_income_upgrade"]
 [ext_resource type="PackedScene" uid="uid://dtvh8n4u7xuir" path="res://scenes/world_layout.tscn" id="8_world_layout"]
+[ext_resource type="PackedScene" uid="uid://cndgmkkn4cxlg" path="res://scenes/button_layout.tscn" id="9_button_layout"]
 
 [node name="Main" type="Node2D" unique_id=1474638925]
 script = ExtResource("2_game_ui")
@@ -31,6 +32,11 @@ script = ExtResource("5_clouds")
 [node name="IncomeSourceViews" type="Node2D" parent="World" unique_id=532151006]
 
 [node name="WorldLayout" parent="World" unique_id=782816586 instance=ExtResource("8_world_layout")]
+metadata/_edit_lock_ = true
+
+[node name="ButtonLayout" parent="World" unique_id=284933318 instance=ExtResource("9_button_layout")]
+process_mode = 4
+visible = false
 metadata/_edit_lock_ = true
 
 [node name="Ground" type="Node2D" parent="World" unique_id=2056243215]

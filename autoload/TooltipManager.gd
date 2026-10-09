@@ -19,12 +19,11 @@ func _ready() -> void:
 
 	_label = Label.new()
 	_label.custom_minimum_size = Vector2(110.0, 28.0)
-	_label.custom_maximum_size = Vector2(280.0, 1000.0)
-	_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_label.add_theme_color_override("font_outline_color", Color(0.05, 0.08, 0.12, 1.0))
-	_label.add_theme_constant_override("outline_size", 3)
+	_label.add_theme_constant_override("outline_size", 4)
 	_panel.add_child(_label)
 
 

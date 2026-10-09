@@ -3,6 +3,7 @@ extends Node2D
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
+const WORLD_UI_MINIMUM_SCALE = preload("res://scripts/WorldUIMinimumScale.gd")
 
 @export var source_data: IncomeSourceData
 
@@ -49,9 +50,11 @@ func _ready() -> void:
 	IncomeManager.source_timer_changed.connect(_on_source_timer_changed)
 	IncomeManager.source_multiplier_changed.connect(_on_source_multiplier_changed)
 	IncomeManager.source_speed_multiplier_changed.connect(_on_source_speed_multiplier_changed)
+	IncomeManager.income_changed.connect(_refresh_tooltip)
 	EconomyManager.multiplier_changed.connect(_on_multiplier_changed)
 	_set_active(IncomeManager.source_active.get(source_data.id, false))
 	_update_timer(IncomeManager.get_source_time_remaining(source_data.id))
+	WORLD_UI_MINIMUM_SCALE.attach(timer_label, Vector2(0.5, 1.0))
 
 
 func _on_source_activation_changed(source_id: String, is_active: bool) -> void:
@@ -81,7 +84,7 @@ func _update_timer(seconds_remaining: float) -> void:
 		return
 	var production_time := IncomeManager.get_source_production_time(source_data.id)
 	if production_time < 0.1:
-		timer_label.text = "매 %s초" % NUMBER_FORMATTER.format_number(production_time)
+		timer_label.text = "매 %s" % NUMBER_FORMATTER.format_time(production_time)
 	elif seconds_remaining >= 10.0:
 		timer_label.text = "%ds" % ceili(seconds_remaining)
 	elif seconds_remaining >= 1.0:
@@ -91,17 +94,12 @@ func _update_timer(seconds_remaining: float) -> void:
 
 
 func _get_source_info() -> String:
-	var production_time := IncomeManager.get_source_production_time(source_data.id)
-	var payout := IncomeManager.get_source_cycle_payout(source_data.id)
-	return source_data.tooltip_text \
-		.replace("{source_name}", source_data.source_name) \
-		.replace("{payout}", NUMBER_FORMATTER.format_number(payout)) \
-		.replace("{time}", NUMBER_FORMATTER.format_number(production_time))
+	return source_data.get_tooltip_text()
 
 
 func _style_text_label(label: Label) -> void:
 	label.add_theme_color_override("font_outline_color", Color(0.05, 0.08, 0.12, 1.0))
-	label.add_theme_constant_override("outline_size", 3)
+	label.add_theme_constant_override("outline_size", 4)
 
 
 func _on_mouse_entered_source() -> void:

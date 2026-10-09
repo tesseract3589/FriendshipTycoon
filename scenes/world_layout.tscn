@@ -16,6 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://btrww8di0eqvs" path="res://assets/sprites/Structures/BaseStone.png" id="12_03k8n"]
 [ext_resource type="Script" uid="uid://5wsclbk23smg" path="res://scripts/SceneRenderLayer.gd" id="13_render_layer"]
 [ext_resource type="Texture2D" uid="uid://bbypiav0hl8rb" path="res://assets/sprites/Restaurant/hall_wallpaper_basic.png" id="14_wallpaper"]
+[ext_resource type="Texture2D" uid="uid://bbvbdvfvu14cw" path="res://assets/sprites/Restaurant/front_door.png" id="17_kp15s"]
 
 [sub_resource type="RectangleShape2D" id="VendingMachineHoverShape"]
 size = Vector2(367, 585)
@@ -50,12 +51,15 @@ size = Vector2(383.8581, 418.5586)
 [sub_resource type="RectangleShape2D" id="DiningSeatHoverShape"]
 size = Vector2(719.17804, 296.9283)
 
+[sub_resource type="RectangleShape2D" id="FrontDoorHoverShape"]
+size = Vector2(250, 390)
+
 [node name="WorldLayout" type="Node2D" unique_id=758915039]
 
 [node name="GroundReference" type="Sprite2D" parent="." unique_id=883505403]
 z_index = 20
 z_as_relative = false
-position = Vector2(0, 351)
+position = Vector2(2000, 351)
 texture = ExtResource("4_ground")
 script = ExtResource("13_render_layer")
 render_layer = 20
@@ -336,3 +340,32 @@ texture = ExtResource("12_03k8n")
 script = ExtResource("13_render_layer")
 render_layer = 10
 metadata/_edit_lock_ = true
+
+[node name="front_door" type="Sprite2D" parent="Restaurant" unique_id=1614836061]
+z_as_relative = false
+position = Vector2(152, 84)
+scale = Vector2(0.42, 0.42)
+texture = ExtResource("17_kp15s")
+
+[node name="HoverArea" type="Area2D" parent="Restaurant/front_door" unique_id=1884341994]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Restaurant/front_door/HoverArea" unique_id=496757157]
+visible = false
+shape = SubResource("FrontDoorHoverShape")
+
+[node name="Spa" type="Node2D" parent="." unique_id=1073456759]
+
+[node name="second_floor_wall" type="Node2D" parent="Spa" unique_id=1972701270]
+
+[node name="wallpaper" type="Sprite2D" parent="Spa/second_floor_wall" unique_id=1611288805]
+
+[node name="wall_left" type="Sprite2D" parent="Spa/second_floor_wall" unique_id=2070855416]
+position = Vector2(102.999985, -505.99994)
+scale = Vector2(0.457, 0.41)
+texture = ExtResource("7_vvlob")
+
+[node name="wall_right" type="Sprite2D" parent="Spa/second_floor_wall" unique_id=90667679]
+position = Vector2(1351.9999, -506)
+scale = Vector2(0.457, 0.41)
+texture = ExtResource("7_vvlob")

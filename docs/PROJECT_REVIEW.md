@@ -62,14 +62,12 @@
 
 ## 검증
 
-Godot 4.7.2에서 다음 세 장면을 headless로 실행한다.
+이 점검 당시에는 Godot 4.7.2에서 계산·구매·환생 UI, 렌더링 깊이, 잘못된 데이터와 오류 표시를 세 회귀 테스트로 검증했다. 이후 기존 테스트는 모두 삭제하고 최저가 구매 밸런스 테스트로 교체했다. 현재 실행 명령은 다음과 같다.
 
 ```text
-godot --headless --path . res://tests/runtime_regression.tscn
-godot --headless --path . res://tests/render_order_smoke.tscn
-godot --headless --path . res://tests/error_handling_smoke.tscn
+godot --headless --path . --fixed-fps 60 res://tests/balance_playthrough.tscn
 ```
 
-첫 장면은 이번에 재현한 계산·구매·환생 UI·좌표·애니메이션 문제를 확인한다. 두 번째는 기존 렌더링 깊이 검증으로, 구매 목록을 역순으로 바꾸고 모든 구매 종류를 같게 설정해도 표시 순서가 유지되는지 확인한다. 세 번째는 누적 짬 해금, 중복·누락 ID, 순환 해금, 잘못된 노드와 UI, 수치 한계, 오류 메시지와 중복 표시 방지를 확인한다. 의도적으로 오류를 넣는 검증에서는 `[GameError:...]` 콘솔 출력이 정상이다. 실제 모바일 터치 입력과 출시용 내보내기는 이번 검증에 포함하지 않았다.
+현재 테스트는 해금된 버튼과 활성 수입원의 레벨업 중 가장 싼 항목을 선택해 실제 게임의 생산과 구매를 진행한다. 버튼별 가격과 구매 시간, 전체 구매 경로는 `res://logs/balance_playthrough.txt`에 저장한다. 기존 회귀 테스트의 모든 검증 범위를 포함하지는 않는다. 실제 모바일 터치 입력과 출시용 내보내기는 이 점검에 포함하지 않았다.
 
 오류 객체의 책임과 사용법은 README의 오류 처리 항목을 참고한다. 게임 시작 전의 문법 오류·필수 `preload` 실패 등 엔진 오류 전체를 가로채는 객체는 아니다.

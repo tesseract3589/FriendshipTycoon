@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://cygr88jffoqca"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/restaurant/front_door_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "front_door"
+button_name = "평범한 유리문"
+price = 99999999.0
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = null
+effect_value = 2.0

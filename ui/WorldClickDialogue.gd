@@ -2,6 +2,7 @@ class_name WorldClickDialogue
 extends Node2D
 
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
+const WORLD_UI_MINIMUM_SCALE = preload("res://scripts/WorldUIMinimumScale.gd")
 const SPEECH_BUBBLE_WIDTH: float = 240.0
 const SPEECH_BUBBLE_MIN_HEIGHT: float = 48.0
 
@@ -18,6 +19,7 @@ var world_position: Vector2 = Vector2.ZERO
 var world_scale: Vector2 = Vector2.ONE
 var world_texture: Texture2D
 var _next_dialogue_index: int = 0
+var _bubble_minimum_scale: WorldUIMinimumScale
 
 
 func setup(data: ButtonData, layout_element: Node2D, object_hover_areas: Array[Area2D]) -> void:
@@ -55,6 +57,7 @@ func _ready() -> void:
 	ButtonManager.button_state_changed.connect(_on_button_state_changed)
 	speech_timer.timeout.connect(_on_speech_timer_timeout)
 	_update_hover_area()
+	_bubble_minimum_scale = WORLD_UI_MINIMUM_SCALE.attach(speech_bubble, Vector2(0.5, 1.0))
 
 
 func _update_hover_area() -> void:
@@ -124,6 +127,7 @@ func _show_next_dialogue() -> void:
 	])
 	speech_tail.polygon = tail_points
 	speech_tail_outline.points = tail_points
+	_bubble_minimum_scale.set_base_position(speech_bubble.position)
 	speech_tail.visible = true
 	speech_tail_outline.visible = true
 	speech_timer.start()

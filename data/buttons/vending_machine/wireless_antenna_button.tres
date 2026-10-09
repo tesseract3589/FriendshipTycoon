@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ButtonData" format=3]
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://de0ayi5dfsitg"]
 
 [ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
 [ext_resource type="Resource" path="res://data/conditions/vending_machine/wireless_antenna_unlock.tres" id="2_condition"]
@@ -8,11 +8,9 @@ script = ExtResource("1_button")
 id = "wireless_antenna"
 button_name = "무선 구매 송신"
 price = 5000000.0
-type = 2
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
-world_purchase_button_offset = Vector2(0, 20)
-world_purchase_info_offset = Vector2(-90, -60)
+click_dialogues = null
 effect_type = 1
 effect_target = "vending_machine"
 effect_value = 7.0

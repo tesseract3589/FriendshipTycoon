@@ -1,0 +1,551 @@
+[gd_scene format=3 uid="uid://cndgmkkn4cxlg"]
+
+[ext_resource type="PackedScene" uid="uid://dtvh8n4u7xuir" path="res://scenes/world_layout.tscn" id="1_pmtox"]
+[ext_resource type="Texture2D" uid="uid://d2gsxn3708ssk" path="res://assets/sprites/Interfaces/Button_buy.png" id="2_1d1cb"]
+[ext_resource type="Resource" uid="uid://d2c7hs26pkhgu" path="res://data/buttons/vending_machine/bike_delivery_button.tres" id="data_bike_delivery"]
+[ext_resource type="Resource" uid="uid://bcbm8rlatug8v" path="res://data/buttons/restaurant/cook_soldier_button.tres" id="data_cook_soldier"]
+[ext_resource type="Resource" uid="uid://dug4kj2n7flm5" path="res://data/buttons/restaurant/dining_seats_button.tres" id="data_dining_seats"]
+[ext_resource type="Resource" uid="uid://c2byb1cpltqqt" path="res://data/buttons/restaurant/first_floor_ceiling_button.tres" id="data_first_floor_ceiling"]
+[ext_resource type="Resource" uid="uid://lgajvojcvnj2" path="res://data/buttons/restaurant/first_floor_wall_button.tres" id="data_first_floor_wall"]
+[ext_resource type="Resource" uid="uid://cygr88jffoqca" path="res://data/buttons/restaurant/front_door_button.tres" id="data_front_door"]
+[ext_resource type="Resource" uid="uid://cfabjmmgeyypi" path="res://data/buttons/restaurant/hall_foundation_button.tres" id="data_hall_foundation"]
+[ext_resource type="Resource" uid="uid://di82x4fauyirx" path="res://data/buttons/vending_machine/promo_sign_button.tres" id="data_promo_sign"]
+[ext_resource type="Resource" uid="uid://bqsrg73rq6pu2" path="res://data/buttons/restaurant/restaurant_button.tres" id="data_restaurant"]
+[ext_resource type="Resource" uid="uid://bfl6o8eix7lqb" path="res://data/buttons/restaurant/serving_desk_button.tres" id="data_serving_desk"]
+[ext_resource type="Resource" uid="uid://dxlm12ei3ck2w" path="res://data/buttons/vending_machine/trashbin_button.tres" id="data_trashbin"]
+[ext_resource type="Resource" uid="uid://yu0aa6utf80u" path="res://data/buttons/vending_machine/vending_machine_button.tres" id="data_vending_machine"]
+[ext_resource type="Resource" uid="uid://b4yi0kocgoxha" path="res://data/buttons/vending_machine/vending_machine_soldier_button.tres" id="data_vending_machine_soldier"]
+[ext_resource type="Resource" uid="uid://bm1ejggu26fcu" path="res://data/buttons/restaurant/wide_windows_button.tres" id="data_wide_windows"]
+[ext_resource type="Resource" uid="uid://de0ayi5dfsitg" path="res://data/buttons/vending_machine/wireless_antenna_button.tres" id="data_wireless_antenna"]
+[ext_resource type="Script" uid="uid://coo2d71nb1q32" path="res://scripts/ButtonLayoutEntry.gd" id="entry_script"]
+[ext_resource type="Resource" uid="uid://b6bp13nuscs8p" path="res://data/IncomeSources/restaurant_income.tres" id="source_restaurant"]
+[ext_resource type="Resource" uid="uid://csp1c6tqpt5cy" path="res://data/IncomeSources/vending_machine_income.tres" id="source_vending_machine"]
+
+[node name="ButtonLayout" type="Node2D" unique_id=640187469]
+
+[node name="WorldReference" parent="." unique_id=758915039 instance=ExtResource("1_pmtox")]
+modulate = Color(1, 1, 1, 0.35)
+metadata/_edit_lock_ = true
+
+[node name="Buttons" type="Node2D" parent="." unique_id=1019661168]
+
+[node name="VendingMachine" type="Node2D" parent="Buttons" unique_id=1150457623]
+
+[node name="vending_machine" type="Node2D" parent="Buttons/VendingMachine" unique_id=1079317892]
+position = Vector2(-287, 156)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_vending_machine")
+income_source = ExtResource("source_vending_machine")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/VendingMachine/vending_machine" unique_id=1783885959]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609997
+offset_top = 30.0
+offset_right = 555.39
+offset_bottom = 417.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/VendingMachine/vending_machine" unique_id=363578498]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -55.0
+offset_right = 90.0
+offset_bottom = 17.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="trashbin" type="Node2D" parent="Buttons/VendingMachine" unique_id=618676966]
+position = Vector2(-200, 201)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_trashbin")
+income_source = ExtResource("source_vending_machine")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/VendingMachine/trashbin" unique_id=1490834254]
+z_index = 30
+z_as_relative = false
+offset_left = -22.999996
+offset_top = -19.0
+offset_right = 571.0
+offset_bottom = 368.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/VendingMachine/trashbin" unique_id=1115344698]
+z_index = 40
+z_as_relative = false
+offset_left = -74.0
+offset_top = -105.0
+offset_right = 106.0
+offset_bottom = -21.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="vending_machine_soldier" type="Node2D" parent="Buttons/VendingMachine" unique_id=1111028741]
+position = Vector2(-384, 174)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_vending_machine_soldier")
+income_source = ExtResource("source_vending_machine")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/VendingMachine/vending_machine_soldier" unique_id=1845239646]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609997
+offset_right = 555.39
+offset_bottom = 387.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/VendingMachine/vending_machine_soldier" unique_id=1290283074]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -85.0
+offset_right = 90.0
+offset_bottom = -1.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="promo_sign" type="Node2D" parent="Buttons/VendingMachine" unique_id=53667633]
+position = Vector2(-423.5, 46.999996)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_promo_sign")
+income_source = ExtResource("source_vending_machine")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/VendingMachine/promo_sign" unique_id=1290768267]
+z_index = 30
+z_as_relative = false
+offset_left = -38.50001
+offset_top = -47.0
+offset_right = 555.5
+offset_bottom = 340.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/VendingMachine/promo_sign" unique_id=197666605]
+z_index = 40
+z_as_relative = false
+offset_left = -92.5
+offset_top = -130.0
+offset_right = 87.5
+offset_bottom = -46.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="bike_delivery" type="Node2D" parent="Buttons/VendingMachine" unique_id=724190339]
+position = Vector2(-546, 163)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_bike_delivery")
+income_source = ExtResource("source_vending_machine")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/VendingMachine/bike_delivery" unique_id=466599949]
+z_index = 30
+z_as_relative = false
+offset_left = -39.00001
+offset_top = 34.0
+offset_right = 555.0
+offset_bottom = 421.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/VendingMachine/bike_delivery" unique_id=888906944]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -49.0
+offset_right = 90.0
+offset_bottom = 35.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="wireless_antenna" type="Node2D" parent="Buttons/VendingMachine" unique_id=1064853101]
+position = Vector2(-254, 29)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_wireless_antenna")
+income_source = ExtResource("source_vending_machine")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/VendingMachine/wireless_antenna" unique_id=401147669]
+z_index = 30
+z_as_relative = false
+offset_left = 15.999987
+offset_top = 19.0
+offset_right = 610.0
+offset_bottom = 406.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/VendingMachine/wireless_antenna" unique_id=747828744]
+z_index = 40
+z_as_relative = false
+offset_left = -33.0
+offset_top = -65.0
+offset_right = 147.0
+offset_bottom = 19.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Restaurant" type="Node2D" parent="Buttons" unique_id=189436960]
+
+[node name="hall_foundation" type="Node2D" parent="Buttons/Restaurant" unique_id=497602069]
+position = Vector2(724.00006, 202)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_hall_foundation")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/hall_foundation" unique_id=1486555040]
+z_index = 30
+z_as_relative = false
+offset_left = -540.0
+offset_top = -24.0
+offset_right = 54.0
+offset_bottom = 363.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/hall_foundation" unique_id=1529782793]
+z_index = 40
+z_as_relative = false
+offset_left = -592.00006
+offset_top = -105.0
+offset_right = -412.00006
+offset_bottom = -21.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="first_floor_wall" type="Node2D" parent="Buttons/Restaurant" unique_id=1573978153]
+script = ExtResource("entry_script")
+button_data = ExtResource("data_first_floor_wall")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/first_floor_wall" unique_id=77643027]
+z_index = 30
+z_as_relative = false
+offset_left = 685.0
+offset_top = 126.0
+offset_right = 1279.0
+offset_bottom = 513.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/first_floor_wall" unique_id=293965992]
+z_index = 40
+z_as_relative = false
+offset_left = 633.0
+offset_top = 44.0
+offset_right = 813.0
+offset_bottom = 128.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="restaurant" type="Node2D" parent="Buttons/Restaurant" unique_id=475476608]
+position = Vector2(1109, 70)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_restaurant")
+income_source = ExtResource("source_restaurant")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/restaurant" unique_id=383887739]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 56.0
+offset_right = 555.39014
+offset_bottom = 443.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/restaurant" unique_id=1405876069]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -27.0
+offset_right = 90.0
+offset_bottom = 57.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="cook_soldier" type="Node2D" parent="Buttons/Restaurant" unique_id=1934063584]
+position = Vector2(1263, 112)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_cook_soldier")
+income_source = ExtResource("source_restaurant")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/cook_soldier" unique_id=2055883210]
+z_index = 30
+z_as_relative = false
+offset_left = -38.61035
+offset_top = 14.0
+offset_right = 555.38965
+offset_bottom = 401.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/cook_soldier" unique_id=1882307937]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -67.0
+offset_right = 90.0
+offset_bottom = 17.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="serving_desk" type="Node2D" parent="Buttons/Restaurant" unique_id=1631977177]
+position = Vector2(971.00006, 84.375)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_serving_desk")
+income_source = ExtResource("source_restaurant")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/serving_desk" unique_id=85444888]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 41.0
+offset_right = 555.39014
+offset_bottom = 428.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/serving_desk" unique_id=1669732107]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -40.0
+offset_right = 90.0
+offset_bottom = 32.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="dining_seats" type="Node2D" parent="Buttons/Restaurant" unique_id=1909699363]
+script = ExtResource("entry_script")
+button_data = ExtResource("data_dining_seats")
+income_source = ExtResource("source_restaurant")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/dining_seats" unique_id=973079459]
+z_index = 30
+z_as_relative = false
+offset_left = 488.0
+offset_top = 124.99999
+offset_right = 1082.0
+offset_bottom = 512.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/dining_seats" unique_id=1175582047]
+z_index = 40
+z_as_relative = false
+offset_left = 437.0
+offset_top = 40.0
+offset_right = 617.0
+offset_bottom = 112.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="wide_windows" type="Node2D" parent="Buttons/Restaurant" unique_id=2050288816]
+script = ExtResource("entry_script")
+button_data = ExtResource("data_wide_windows")
+income_source = ExtResource("source_restaurant")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/wide_windows" unique_id=404369625]
+z_index = 30
+z_as_relative = false
+offset_left = 688.39
+offset_top = -70.0
+offset_right = 1282.39
+offset_bottom = 317.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/wide_windows" unique_id=242594551]
+z_index = 40
+z_as_relative = false
+offset_left = 637.0
+offset_top = -160.0
+offset_right = 817.0
+offset_bottom = -88.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="first_floor_ceiling" type="Node2D" parent="Buttons/Restaurant" unique_id=2125002100]
+position = Vector2(728, -281.25003)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_first_floor_ceiling")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/first_floor_ceiling" unique_id=894961938]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 27.0
+offset_right = 555.39014
+offset_bottom = 414.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/first_floor_ceiling" unique_id=1934696022]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -54.0
+offset_right = 90.0
+offset_bottom = 30.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="front_door" type="Node2D" parent="Buttons/Restaurant" unique_id=944359523]
+position = Vector2(152, 84)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_front_door")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/front_door" unique_id=133499950]
+z_index = 30
+z_as_relative = false
+offset_left = -91.0
+offset_top = 34.0
+offset_right = 503.0
+offset_bottom = 421.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/front_door" unique_id=436014765]
+z_index = 40
+z_as_relative = false
+offset_left = -142.0
+offset_top = -50.0
+offset_right = 38.0
+offset_bottom = 34.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1

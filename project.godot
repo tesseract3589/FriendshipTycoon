@@ -30,6 +30,10 @@ TooltipManager="*res://autoload/TooltipManager.gd"
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
+[gui]
+
+theme/default_font_multichannel_signed_distance_field=true
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

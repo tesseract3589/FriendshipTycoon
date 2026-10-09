@@ -108,7 +108,7 @@ func validate_registry(entries: Array, kind: String) -> bool:
 func find_resource(entries: Array, id: String, kind: String) -> Resource:
 	if not validate_id(id, kind):
 		return null
-	var found: Resource
+	var found: Resource = null
 	for entry in entries:
 		if (entry is ButtonData or entry is IncomeSourceData) and entry.id == id:
 			if found != null:
@@ -128,15 +128,15 @@ func validate_income_source(source: IncomeSourceData) -> bool:
 	var valid := validate_id(source.id, context)
 	var values := {
 		"base_income": source.base_income,
-		"upgrade_income_per_level": source.upgrade_income_per_level,
 		"multiplier": source.multiplier,
 		"upgrade_base_cost": source.upgrade_base_cost,
-		"upgrade_cost_growth": source.upgrade_cost_growth,
+		"upgrade_cost_linear_growth": source.upgrade_cost_linear_growth,
+		"upgrade_cost_doubling_levels": source.upgrade_cost_doubling_levels,
 		"base_time": source.base_time, "time_multiplier": source.time_multiplier
 	}
-	for name: String in values:
-		var allow_zero := name in ["base_income", "upgrade_income_per_level"]
-		if not validate_number(values[name], context + "." + name, allow_zero):
+	for property_name: String in values:
+		var allow_zero := property_name in ["base_income", "upgrade_cost_linear_growth"]
+		if not validate_number(values[property_name], context + "." + property_name, allow_zero):
 			valid = false
 	if not validate_number(source.base_time * source.time_multiplier, context + ".production_time", false):
 		valid = false
@@ -295,7 +295,7 @@ func find_world_element(root: Node, id: String, expected_type: String = "Node2D"
 		return null
 	if not validate_id(id, "WorldLayout"):
 		return null
-	var found: Node2D
+	var found: Node2D = null
 	for node in root.find_children("*", "Node2D", true, false):
 		if String(node.name) != id:
 			continue

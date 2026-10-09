@@ -1,7 +1,6 @@
 extends Node2D
 
 const INCOME_SOURCE_VIEW_SCENE: PackedScene = preload("res://ui/income_source_view.tscn")
-const WORLD_PURCHASE_BUTTON_SCENE: PackedScene = preload("res://ui/world_purchase_button.tscn")
 const WORLD_CLICK_DIALOGUE_SCENE: PackedScene = preload("res://ui/world_click_dialogue.tscn")
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
@@ -17,6 +16,7 @@ const GROUND_BOTTOM_SCREEN_MARGIN: float = 24.0
 @onready var income_label := ErrorManager.require_node(self, ^"HUD/Panel/VBoxContainer/IncomeLabel", "Label") as Label
 @onready var income_source_views := ErrorManager.require_node(self, ^"World/IncomeSourceViews", "Node2D") as Node2D
 @onready var world_layout := ErrorManager.require_node(self, ^"World/WorldLayout", "Node2D") as Node2D
+@onready var button_layout := ErrorManager.require_node(self, ^"World/ButtonLayout/Buttons", "Node2D") as Node2D
 @onready var developer_tools := ErrorManager.require_node(self, ^"HUD/DeveloperTools", "Control") as DeveloperToolsPanel
 @onready var camera_tutorial := ErrorManager.require_node(self, ^"HUD/CameraTutorial", "Control") as Control
 @onready var camera_tutorial_label := ErrorManager.require_node(self, ^"HUD/CameraTutorial/Label", "Label") as Label
@@ -31,10 +31,11 @@ var _last_pinch_distance: float = 0.0
 var _camera_tutorial_dismissed: bool = false
 var _world_hover_areas: Dictionary = {}
 var _layout_elements: Dictionary = {}
+var _button_layout_elements: Dictionary = {}
 
 
 func _ready() -> void:
-	if [camera, wallpaper, ground, money_label, income_label, income_source_views, world_layout, developer_tools, camera_tutorial, camera_tutorial_label, clouds, ground_layer, hud].has(null):
+	if [camera, wallpaper, ground, money_label, income_label, income_source_views, world_layout, button_layout, developer_tools, camera_tutorial, camera_tutorial_label, clouds, ground_layer, hud].has(null):
 		ErrorManager.report_error("SCENE_INITIALIZATION", "메인 장면을 구성할 수 없어 실행을 중단했습니다.", "Main")
 		process_mode = Node.PROCESS_MODE_DISABLED
 		return
@@ -283,8 +284,9 @@ func _create_world_purchase_buttons() -> void:
 		if button_data == null:
 			continue
 		var hover_areas := _get_world_hover_areas(button_data.id)
-		var world_button := WORLD_PURCHASE_BUTTON_SCENE.instantiate() as WorldPurchaseButton
-		world_button.setup(button_data, layout_node as Node2D, hover_areas)
+		var world_button := WorldPurchaseButton.new()
+		world_button.name = button_data.id + "_PurchaseView"
+		world_button.setup(button_data, layout_node as Node2D, hover_areas, _button_layout_elements[button_data.id])
 		income_source_views.add_child(world_button)
 
 
@@ -302,6 +304,7 @@ func _get_layout_element(element_id: String) -> Node2D:
 
 func _validate_world_layout() -> void:
 	_layout_elements.clear()
+	_button_layout_elements.clear()
 	var invalid_sources: Dictionary = {}
 	var invalid_buttons: Array[String] = []
 	ErrorManager.validate_buttons(ButtonManager.buttons, IncomeManager.sources)
@@ -331,6 +334,24 @@ func _validate_world_layout() -> void:
 			invalid_buttons.append(data.id)
 			_layout_elements.erase(data.id)
 			continue
+		if data.show_world_purchase_button:
+			var ui_layout := ErrorManager.find_world_element(button_layout, data.id, "Node2D")
+			if ui_layout == null:
+				invalid_buttons.append(data.id)
+				_layout_elements.erase(data.id)
+				continue
+			var purchase_preview := ErrorManager.require_node(ui_layout, ^"PurchaseButton", "TextureButton") as TextureButton
+			var info_preview := ErrorManager.require_node(ui_layout, ^"InfoLabel", "Label") as Label
+			if purchase_preview == null or info_preview == null:
+				invalid_buttons.append(data.id)
+				_layout_elements.erase(data.id)
+				continue
+			if purchase_preview.texture_normal == null:
+				ErrorManager.report_error("MISSING_TEXTURE", "구매 버튼 이미지가 없습니다.", "ButtonLayout:" + data.id)
+				invalid_buttons.append(data.id)
+				_layout_elements.erase(data.id)
+				continue
+			_button_layout_elements[data.id] = ui_layout
 		_layout_elements[data.id] = element
 	ButtonManager.set_world_invalid_buttons(invalid_buttons)
 
@@ -391,4 +412,4 @@ func _create_world_click_dialogues() -> void:
 
 func _refresh_finances(_value = null) -> void:
 	money_label.text = "자금: %s원" % NUMBER_FORMATTER.format_number(EconomyManager.money)
-	income_label.text = "수입: %s원 / 초" % NUMBER_FORMATTER.format_number(IncomeManager.get_total_income_per_second())
+	income_label.text = "수입: %s원 / 초" % NUMBER_FORMATTER.format_income_per_second(IncomeManager.get_total_income_per_second())

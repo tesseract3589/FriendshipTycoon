@@ -1,38 +1,42 @@
 class_name WorldPurchaseButton
 extends Node2D
 
-const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const SIZE_POP_MOTION = preload("res://scripts/SizePopMotion.gd")
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
+const WORLD_UI_MINIMUM_SCALE = preload("res://scripts/WorldUIMinimumScale.gd")
 
-@onready var purchased_visuals_root := ErrorManager.require_node(self, ^"PurchasedSprite", "Node2D") as Node2D
-@onready var texture_button := ErrorManager.require_node(self, ^"PurchaseButton", "TextureButton") as TextureButton
-@onready var info_label := ErrorManager.require_node(self, ^"InfoLabel", "Label") as Label
+var purchased_visuals_root: Node2D
+var texture_button: TextureButton
+var info_label: Label
 
 var button_data: ButtonData
 var layout_root: Node2D
 var hover_areas: Array[Area2D] = []
-var world_position: Vector2 = Vector2.ZERO
 var world_texture: Texture2D
 var layout_visuals: Array[Node2D] = []
 var purchased_visuals: Array[Node2D] = []
 var _pointer_over_areas: Dictionary = {}
+var _purchase_layout: TextureButton
+var _info_layout: Label
 
 
-func setup(data: ButtonData, layout_element: Node2D, object_hover_areas: Array[Area2D]) -> void:
+func setup(data: ButtonData, layout_element: Node2D, object_hover_areas: Array[Area2D], ui_layout: Node2D) -> void:
 	button_data = data
 	layout_root = layout_element
 	hover_areas = object_hover_areas
 	if not ErrorManager.validate_instance(layout_root, "WorldPurchaseButton.setup"):
 		return
-	world_position = layout_root.global_position
 	_collect_layout_visuals(layout_root)
+	if not ErrorManager.validate_instance(ui_layout, "WorldPurchaseButton.setup.ButtonLayout"):
+		return
+	_purchase_layout = ErrorManager.require_node(ui_layout, ^"PurchaseButton", "TextureButton") as TextureButton
+	_info_layout = ErrorManager.require_node(ui_layout, ^"InfoLabel", "Label") as Label
 
 
 func _ready() -> void:
-	if not ErrorManager.initialize_component(self, [purchased_visuals_root, texture_button, info_label, layout_root, button_data]):
+	if not ErrorManager.initialize_component(self, [layout_root, button_data, _purchase_layout, _info_layout]):
 		return
-	if texture_button.texture_normal == null:
+	if _purchase_layout.texture_normal == null:
 		ErrorManager.report_error("MISSING_TEXTURE", "구매 버튼 이미지가 없습니다.", "WorldPurchaseButton.PurchaseButton")
 		process_mode = Node.PROCESS_MODE_DISABLED
 		hide()
@@ -40,28 +44,42 @@ func _ready() -> void:
 	if not button_data.show_world_purchase_button:
 		visible = false
 		return
+	purchased_visuals_root = Node2D.new()
+	purchased_visuals_root.name = "PurchasedSprite"
+	add_child(purchased_visuals_root)
+	texture_button = _purchase_layout.duplicate() as TextureButton
+	info_label = _info_layout.duplicate() as Label
+	add_child(texture_button)
+	add_child(info_label)
+	texture_button.mouse_filter = Control.MOUSE_FILTER_STOP
 	if layout_root != null:
 		purchased_visuals_root.global_transform = layout_root.global_transform
 		for source_visual in layout_visuals:
 			_add_purchased_visual(source_visual)
 	if not hover_areas.is_empty():
 		_configure_hover_areas()
-	texture_button.size = texture_button.texture_normal.get_size()
-	texture_button.scale = button_data.world_purchase_button_scale
+	_apply_control_layout(texture_button, _purchase_layout)
+	_apply_control_layout(info_label, _info_layout)
 	RENDER_ORDER.apply_world_layer(texture_button, RENDER_ORDER.WorldLayer.BUTTON)
-	texture_button.position = to_local(world_position + button_data.world_purchase_button_offset)
-	texture_button.position.x -= texture_button.size.x * texture_button.scale.x * 0.5
-	info_label.position = to_local(world_position + button_data.world_purchase_info_offset)
 	RENDER_ORDER.apply_world_layer(info_label, RENDER_ORDER.WorldLayer.DESCRIPTION)
-	info_label.add_theme_color_override("font_outline_color", Color(0.05, 0.08, 0.12, 1.0))
-	info_label.add_theme_constant_override("outline_size", 3)
 	texture_button.pressed.connect(_purchase)
+	button_data.changed.connect(_refresh)
 	ButtonManager.button_state_changed.connect(_on_button_state_changed)
 	ButtonManager.button_purchased.connect(_on_button_purchased)
 	EconomyManager.money_changed.connect(_on_money_changed)
 	EconomyManager.multiplier_changed.connect(_refresh_purchased_tooltip)
 	IncomeManager.income_changed.connect(_refresh_purchased_tooltip)
 	_refresh()
+	WORLD_UI_MINIMUM_SCALE.attach(texture_button, Vector2(0.5, 0.0))
+	WORLD_UI_MINIMUM_SCALE.attach(info_label, Vector2(0.5, 1.0))
+
+
+func _apply_control_layout(control: Control, preview: Control) -> void:
+	var local_transform := global_transform.affine_inverse() * preview.get_global_transform()
+	control.size = preview.size
+	control.rotation = local_transform.get_rotation()
+	control.scale = local_transform.get_scale()
+	control.position = local_transform.origin
 
 
 func _refresh() -> void:
@@ -93,11 +111,7 @@ func _refresh() -> void:
 		TooltipManager.hide_tooltip(button_data.id)
 	texture_button.visible = not button_data.bought
 	info_label.visible = not button_data.bought
-	info_label.text = "%s\n%s\n가격: %s" % [
-		button_data.button_name,
-		button_data.get_purchase_description(),
-		"무료" if is_zero_approx(button_data.price) else NUMBER_FORMATTER.format_number(button_data.price)
-	]
+	info_label.text = button_data.get_purchase_label_text()
 	texture_button.disabled = not ButtonManager.can_purchase(button_data)
 	# 구매 불가능시 버튼 음영 
 	texture_button.modulate = Color(0.65, 0.65, 0.65) if texture_button.disabled else Color.WHITE
@@ -197,16 +211,8 @@ func _refresh_purchased_tooltip() -> void:
 			TooltipManager.hide_tooltip(button_data.id)
 		return
 	var tooltip_text := button_data.get_purchased_tooltip_text()
-	if (
-		button_data.tooltip_text.is_empty()
-		and button_data.effect_type == ButtonData.EffectType.ACTIVATE_SOURCE
-	):
+	if button_data.effect_type == ButtonData.EffectType.ACTIVATE_SOURCE:
 		var source := IncomeManager.get_source(button_data.effect_target)
 		if source != null:
-			var payout := IncomeManager.get_source_cycle_payout(source.id)
-			var production_time := IncomeManager.get_source_production_time(source.id)
-			tooltip_text = "%s원/%ss" % [
-				NUMBER_FORMATTER.format_number(payout),
-				NUMBER_FORMATTER.format_number(production_time)
-			]
+			tooltip_text = source.get_tooltip_text(button_data.tooltip_text)
 	TooltipManager.show_tooltip(tooltip_text, button_data.id)

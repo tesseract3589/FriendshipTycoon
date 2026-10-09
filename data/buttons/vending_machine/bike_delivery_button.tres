@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ButtonData" format=3]
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://d2c7hs26pkhgu"]
 
 [ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
 [ext_resource type="Resource" path="res://data/conditions/vending_machine/bike_delivery_unlock.tres" id="2_condition"]
@@ -8,11 +8,9 @@ script = ExtResource("1_button")
 id = "bike_delivery"
 button_name = "자전거 배달"
 price = 200000.0
-type = 2
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
-world_purchase_button_offset = Vector2(0, 20)
-world_purchase_info_offset = Vector2(-90, -60)
+click_dialogues = null
 effect_type = 3
 effect_target = "vending_machine"
-effect_value = 7.0
+effect_value = 5.0

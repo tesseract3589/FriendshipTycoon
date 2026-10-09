@@ -10,5 +10,5 @@ display_position = Vector2(-287, 156)
 display_scale = Vector2(0.259537, 0.255556)
 timer_offset = Vector2(-60, -110)
 base_income = 10.0
-upgrade_cost_growth = 1.3
+upgrade_base_cost = 30.0
 base_time = 5.0

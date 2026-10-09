@@ -15,7 +15,8 @@ extends Node
 	preload("res://data/buttons/restaurant/serving_desk_button.tres"),
 	preload("res://data/buttons/restaurant/dining_seats_button.tres"),
 	preload("res://data/buttons/restaurant/wide_windows_button.tres"),
-	preload("res://data/buttons/restaurant/first_floor_ceiling_button.tres")
+	preload("res://data/buttons/restaurant/first_floor_ceiling_button.tres"),
+	preload("res://data/buttons/restaurant/front_door_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 var _purchases_in_progress: Dictionary = {}
