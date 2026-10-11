@@ -11,14 +11,18 @@
 [ext_resource type="Resource" uid="uid://cfabjmmgeyypi" path="res://data/buttons/restaurant/hall_foundation_button.tres" id="data_hall_foundation"]
 [ext_resource type="Resource" uid="uid://di82x4fauyirx" path="res://data/buttons/vending_machine/promo_sign_button.tres" id="data_promo_sign"]
 [ext_resource type="Resource" uid="uid://bqsrg73rq6pu2" path="res://data/buttons/restaurant/restaurant_button.tres" id="data_restaurant"]
+[ext_resource type="Resource" uid="uid://15jhval862b3" path="res://data/buttons/spa/second_floor_wall_button.tres" id="data_second_floor_wall"]
 [ext_resource type="Resource" uid="uid://bfl6o8eix7lqb" path="res://data/buttons/restaurant/serving_desk_button.tres" id="data_serving_desk"]
+[ext_resource type="Resource" uid="uid://cfkjuhjvpck4x" path="res://data/buttons/spa/spa_button.tres" id="data_spa"]
 [ext_resource type="Resource" uid="uid://dxlm12ei3ck2w" path="res://data/buttons/vending_machine/trashbin_button.tres" id="data_trashbin"]
 [ext_resource type="Resource" uid="uid://yu0aa6utf80u" path="res://data/buttons/vending_machine/vending_machine_button.tres" id="data_vending_machine"]
 [ext_resource type="Resource" uid="uid://b4yi0kocgoxha" path="res://data/buttons/vending_machine/vending_machine_soldier_button.tres" id="data_vending_machine_soldier"]
+[ext_resource type="Resource" uid="uid://ryb4fys00uoh" path="res://data/buttons/restaurant/wheelchair_ramp_button.tres" id="data_wheelchair_ramp"]
 [ext_resource type="Resource" uid="uid://bm1ejggu26fcu" path="res://data/buttons/restaurant/wide_windows_button.tres" id="data_wide_windows"]
 [ext_resource type="Resource" uid="uid://de0ayi5dfsitg" path="res://data/buttons/vending_machine/wireless_antenna_button.tres" id="data_wireless_antenna"]
 [ext_resource type="Script" uid="uid://coo2d71nb1q32" path="res://scripts/ButtonLayoutEntry.gd" id="entry_script"]
 [ext_resource type="Resource" uid="uid://b6bp13nuscs8p" path="res://data/IncomeSources/restaurant_income.tres" id="source_restaurant"]
+[ext_resource type="Resource" uid="uid://dg3lw0rokj628" path="res://data/IncomeSources/spa_income.tres" id="source_spa"]
 [ext_resource type="Resource" uid="uid://csp1c6tqpt5cy" path="res://data/IncomeSources/vending_machine_income.tres" id="source_vending_machine"]
 
 [node name="ButtonLayout" type="Node2D" unique_id=640187469]
@@ -59,10 +63,13 @@ z_as_relative = false
 offset_left = -90.0
 offset_top = -55.0
 offset_right = 90.0
-offset_bottom = 17.0
+offset_bottom = 27.5
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "자판기
+수입원
+가격: 무료"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -98,6 +105,9 @@ offset_bottom = -21.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "쓰레기통
+자판기 속도 x 2
+가격: 50"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -132,6 +142,9 @@ offset_bottom = -1.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "자판기 관리병
+자판기 수입 x 2
+가격: 400"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -167,6 +180,9 @@ offset_bottom = -46.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "홍보 표지판
+자판기 속도 x 3
+가격: 3,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -202,6 +218,9 @@ offset_bottom = 35.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "자전거 배달
+자판기 속도 x 5
+가격: 200,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -237,6 +256,9 @@ offset_bottom = 19.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "무선 구매 송신
+자판기 수입 x 7
+가격: 5,000,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -273,6 +295,9 @@ offset_bottom = -21.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "회관 주춧돌
+구조물
+가격: 1,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -306,6 +331,9 @@ offset_bottom = 128.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "회관 벽
+구조물
+가격: 5,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -341,6 +369,9 @@ offset_bottom = 57.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "간부식당
+수입원
+가격: 10,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -376,6 +407,9 @@ offset_bottom = 17.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "조리병
+간부식당 속도 x 2
+가격: 50,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -407,10 +441,13 @@ z_as_relative = false
 offset_left = -90.0
 offset_top = -40.0
 offset_right = 90.0
-offset_bottom = 32.0
+offset_bottom = 42.5
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "배식대
+간부식당 속도 x 2
+가격: 500,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -441,10 +478,13 @@ z_as_relative = false
 offset_left = 437.0
 offset_top = 40.0
 offset_right = 617.0
-offset_bottom = 112.0
+offset_bottom = 122.5
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "테이블
+간부식당 수입 x 2
+가격: 800,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -475,10 +515,13 @@ z_as_relative = false
 offset_left = 637.0
 offset_top = -160.0
 offset_right = 817.0
-offset_bottom = -88.0
+offset_bottom = -77.5
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "통유리창
+간부식당 수입 x 3
+가격: 2,500,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -491,9 +534,9 @@ button_data = ExtResource("data_first_floor_ceiling")
 z_index = 30
 z_as_relative = false
 offset_left = -38.609863
-offset_top = 27.0
+offset_top = 22.0
 offset_right = 555.39014
-offset_bottom = 414.0
+offset_bottom = 409.0
 scale = Vector2(0.13, 0.13)
 mouse_filter = 2
 mouse_default_cursor_shape = 2
@@ -507,12 +550,15 @@ stretch_mode = 4
 z_index = 40
 z_as_relative = false
 offset_left = -90.0
-offset_top = -54.0
+offset_top = -59.0
 offset_right = 90.0
-offset_bottom = 30.0
+offset_bottom = 25.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "천장
+구조물
+가격: 1,000,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -547,5 +593,123 @@ offset_bottom = 34.0
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
+text = "평범한 유리문
+전체 수입 x 2
+가격: 99,999,999"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="wheelchair_ramp" type="Node2D" parent="Buttons/Restaurant" unique_id=1873394811]
+position = Vector2(-17.000008, 200)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_wheelchair_ramp")
+income_source = ExtResource("source_restaurant")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/wheelchair_ramp" unique_id=1873394812]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = -24.0
+offset_right = 555.39014
+offset_bottom = 363.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/wheelchair_ramp" unique_id=1873394813]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -105.0
+offset_right = 90.0
+offset_bottom = -21.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "휠체어용 경사로
+전체 속도 x 2
+가격: 3,333,333"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Spa" type="Node2D" parent="Buttons" unique_id=1248236143]
+
+[node name="second_floor_wall" type="Node2D" parent="Buttons/Spa" unique_id=1248236144]
+position = Vector2(728, -502)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_second_floor_wall")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Spa/second_floor_wall" unique_id=1248236145]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 154.0
+offset_right = 555.39014
+offset_bottom = 541.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Spa/second_floor_wall" unique_id=1248236146]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = 73.0
+offset_right = 90.0
+offset_bottom = 157.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "2층 벽
+구조물
+가격: 24,000,000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="spa" type="Node2D" parent="Buttons/Spa" unique_id=1627194831]
+position = Vector2(727, -407.25003)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_spa")
+income_source = ExtResource("source_spa")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Spa/spa" unique_id=1627194832]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 56.0
+offset_right = 555.39014
+offset_bottom = 443.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Spa/spa" unique_id=1627194833]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -27.0
+offset_right = 90.0
+offset_bottom = 57.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "간부목욕탕
+수입원
+가격: 12,000,000"
 horizontal_alignment = 1
 vertical_alignment = 1

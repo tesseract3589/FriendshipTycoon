@@ -7,8 +7,8 @@
 script = ExtResource("1_button")
 id = "restaurant"
 button_name = "간부식당"
-description = "수입원"
 price = 10000.0
+description = "수입원"
 type = 0
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true

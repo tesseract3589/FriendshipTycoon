@@ -27,10 +27,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -190.0
-offset_top = -112.0
-offset_right = 190.0
-offset_bottom = 112.0
+offset_left = -230.0
+offset_top = -250.0
+offset_right = 230.0
+offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
 
@@ -63,10 +63,59 @@ placeholder_text = "예: 1000000"
 alignment = 1
 select_all_on_focus = true
 
+[node name="MultiplierSeparator" type="HSeparator" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="TimeMultiplierRow" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TimeMultiplierLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/TimeMultiplierRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "개발자 시간 배율"
+
+[node name="TimeMultiplierInput" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/TimeMultiplierRow"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "1"
+alignment = 1
+select_all_on_focus = true
+
+[node name="IncomeMultiplierRow" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="IncomeMultiplierLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer/IncomeMultiplierRow"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+text = "개발자 수입 배율"
+
+[node name="IncomeMultiplierInput" type="LineEdit" parent="Panel/MarginContainer/VBoxContainer/IncomeMultiplierRow"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "1"
+alignment = 1
+select_all_on_focus = true
+
+[node name="MultiplierHelp" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "기존 전역 배율 × 개발자 배율로 적용\n시간 배율 2 = 기존 생산 속도의 2배"
+horizontal_alignment = 1
+
+[node name="ApplyMultipliersButton" type="Button" parent="Panel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "배율 적용"
+
 [node name="StatusLabel" type="Label" parent="Panel/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 24)
 layout_mode = 2
 text = ""
 horizontal_alignment = 1
+autowrap_mode = 3
 
 [node name="Buttons" type="HBoxContainer" parent="Panel/MarginContainer/VBoxContainer"]
 layout_mode = 2

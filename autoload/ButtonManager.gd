@@ -14,9 +14,12 @@ extends Node
 	preload("res://data/buttons/restaurant/cook_soldier_button.tres"),
 	preload("res://data/buttons/restaurant/serving_desk_button.tres"),
 	preload("res://data/buttons/restaurant/dining_seats_button.tres"),
+	preload("res://data/buttons/restaurant/wheelchair_ramp_button.tres"),
 	preload("res://data/buttons/restaurant/wide_windows_button.tres"),
 	preload("res://data/buttons/restaurant/first_floor_ceiling_button.tres"),
-	preload("res://data/buttons/restaurant/front_door_button.tres")
+	preload("res://data/buttons/restaurant/front_door_button.tres"),
+	preload("res://data/buttons/spa/second_floor_wall_button.tres"),
+	preload("res://data/buttons/spa/spa_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 var _purchases_in_progress: Dictionary = {}
@@ -197,8 +200,12 @@ func _is_effect_valid(button_data: ButtonData) -> bool:
 				IncomeManager.source_speed_multipliers.get(button_data.effect_target, 1.0), button_data.effect_value, context
 			) and ErrorManager.validate_number(IncomeManager.get_source_production_time(button_data.effect_target) / button_data.effect_value, context + ".production_time", false)
 		ButtonData.EffectType.GLOBAL_MULTIPLIER:
-			return _is_valid_multiplier_product(EconomyManager.get_global_multiplier(), button_data.effect_value, context)
+			return _is_valid_multiplier_product(EconomyManager.global_multiplier, button_data.effect_value, context) and ErrorManager.validate_number(
+				EconomyManager.get_global_multiplier() * button_data.effect_value, context + ".effective"
+			)
 		ButtonData.EffectType.GLOBAL_TIME_MULTIPLIER:
+			if not _is_valid_multiplier_product(EconomyManager.global_time_multiplier, button_data.effect_value, context):
+				return false
 			if not _is_valid_multiplier_product(EconomyManager.get_global_time_multiplier(), button_data.effect_value, context):
 				return false
 			for source in IncomeManager.sources:

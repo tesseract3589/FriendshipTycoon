@@ -132,10 +132,12 @@ func validate_income_source(source: IncomeSourceData) -> bool:
 		"upgrade_base_cost": source.upgrade_base_cost,
 		"upgrade_cost_linear_growth": source.upgrade_cost_linear_growth,
 		"upgrade_cost_doubling_levels": source.upgrade_cost_doubling_levels,
+		"upgrade_first_income_ratio": source.upgrade_first_income_ratio,
+		"upgrade_income_decay": source.upgrade_income_decay,
 		"base_time": source.base_time, "time_multiplier": source.time_multiplier
 	}
 	for property_name: String in values:
-		var allow_zero := property_name in ["base_income", "upgrade_cost_linear_growth"]
+		var allow_zero := property_name in ["base_income", "upgrade_cost_linear_growth", "upgrade_income_decay"]
 		if not validate_number(values[property_name], context + "." + property_name, allow_zero):
 			valid = false
 	if not validate_number(source.base_time * source.time_multiplier, context + ".production_time", false):

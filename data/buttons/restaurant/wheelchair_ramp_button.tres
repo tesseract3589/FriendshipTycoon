@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://ryb4fys00uoh"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/restaurant/wheelchair_ramp_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "wheelchair_ramp"
+button_name = "휠체어용 경사로"
+price = 3333333.0
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 4
+effect_value = 2.0

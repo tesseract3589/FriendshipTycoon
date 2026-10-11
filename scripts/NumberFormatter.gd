@@ -22,7 +22,13 @@ static func format_time(seconds: float) -> String:
 
 
 static func format_income_per_second(value: float) -> String:
-	return format_number(roundf(value))
+	if not is_finite(value):
+		return str(value)
+	if absf(value) >= SCIENTIFIC_NOTATION_THRESHOLD:
+		return _format_scientific(value, 2)
+	var decimal_text := "%.2f" % absf(value)
+	var sign_text := "-" if value < 0.0 else ""
+	return sign_text + _group_digits(decimal_text.get_slice(".", 0)) + "." + decimal_text.get_slice(".", 1)
 
 
 static func format_number(value: float) -> String:
@@ -44,7 +50,7 @@ static func format_number(value: float) -> String:
 	return "%s.%s" % [whole_text, decimal_part]
 
 
-static func _format_scientific(value: float) -> String:
+static func _format_scientific(value: float, decimal_places: int = 3) -> String:
 	var is_negative := value < 0.0
 	var mantissa := absf(value)
 	var exponent := 0
@@ -55,12 +61,13 @@ static func _format_scientific(value: float) -> String:
 		mantissa *= 10.0
 		exponent -= 1
 
-	var mantissa_milli := roundi(mantissa * 1000.0)
-	if mantissa_milli >= 10000:
-		mantissa_milli = 1000
+	var decimal_scale := int(pow(10.0, decimal_places))
+	var scaled_mantissa := roundi(mantissa * decimal_scale)
+	if scaled_mantissa >= 10 * decimal_scale:
+		scaled_mantissa = decimal_scale
 		exponent += 1
-	var mantissa_whole := floori(float(mantissa_milli) / 1000.0)
-	var mantissa_decimal := str(mantissa_milli % 1000).pad_zeros(3)
+	var mantissa_whole := floori(float(scaled_mantissa) / float(decimal_scale))
+	var mantissa_decimal := str(scaled_mantissa % decimal_scale).pad_zeros(decimal_places)
 	var sign_text := "-" if is_negative else ""
 	var exponent_sign := "+" if exponent >= 0 else "-"
 	return "%s%d.%se%s%d" % [sign_text, mantissa_whole, mantissa_decimal, exponent_sign, absi(exponent)]

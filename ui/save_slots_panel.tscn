@@ -1,0 +1,140 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/SaveSlotsPanel.gd" id="1_script"]
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0.09, 0.12, 0.17, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.32, 0.39, 0.49, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+corner_radius_bottom_right = 16
+
+[node name="SaveSlotsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="OpenButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -174.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 74.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 22
+text = "저장"
+tooltip_text = "자동 저장 슬롯 + 수동 슬롯 10개 · 저장 / 불러오기"
+
+[node name="Overlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Panel" type="PanelContainer" parent="Overlay"]
+layout_mode = 0
+offset_right = 520.0
+offset_bottom = 680.0
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="Margin" type="MarginContainer" parent="Overlay/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBox" type="VBoxContainer" parent="Overlay/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "진행 저장 / 불러오기"
+
+[node name="AutoNotice" type="Label" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.58, 0.18, 1)
+theme_override_font_sizes/font_size = 18
+text = "자동 저장 슬롯\n게임 종료 시 저장 · 다음 실행 시 자동 복원"
+autowrap_mode = 3
+
+[node name="Scroll" type="ScrollContainer" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+follow_focus = true
+
+[node name="Slots" type="VBoxContainer" parent="Overlay/Panel/Margin/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Status" type="Label" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "슬롯을 선택한 뒤 저장하거나 불러오세요."
+autowrap_mode = 3
+
+[node name="Actions" type="HBoxContainer" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Save" type="Button" parent="Overlay/Panel/Margin/VBox/Actions"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "저장"
+
+[node name="Load" type="Button" parent="Overlay/Panel/Margin/VBox/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "불러오기"
+
+[node name="Reset" type="Button" parent="Overlay/Panel/Margin/VBox/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.45, 0.4, 1)
+theme_override_colors/font_hover_color = Color(1, 0.65, 0.6, 1)
+theme_override_font_sizes/font_size = 18
+text = "초기화"
+tooltip_text = "선택한 슬롯의 저장 데이터를 삭제합니다."
+
+[node name="Close" type="Button" parent="Overlay/Panel/Margin/VBox/Actions"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "닫기"
+
+[node name="Confirmation" type="ConfirmationDialog" parent="."]
+size = Vector2i(400, 160)
+cancel_button_text = "취소"

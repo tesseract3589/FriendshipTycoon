@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://dvctb8k52oj67" path="res://ui/income_upgrade_panel.tscn" id="7_income_upgrade"]
 [ext_resource type="PackedScene" uid="uid://dtvh8n4u7xuir" path="res://scenes/world_layout.tscn" id="8_world_layout"]
 [ext_resource type="PackedScene" uid="uid://cndgmkkn4cxlg" path="res://scenes/button_layout.tscn" id="9_button_layout"]
+[ext_resource type="PackedScene" path="res://ui/save_slots_panel.tscn" id="10_save_slots"]
 
 [node name="Main" type="Node2D" unique_id=1474638925]
 script = ExtResource("2_game_ui")
@@ -105,6 +106,8 @@ visible = false
 layout_mode = 3
 
 [node name="IncomeUpgradePanel" parent="HUD" unique_id=1836911926 instance=ExtResource("7_income_upgrade")]
+
+[node name="SaveSlotsPanel" parent="HUD" instance=ExtResource("10_save_slots")]
 
 [node name="CameraTutorial" type="CenterContainer" parent="HUD" unique_id=1807127713]
 visible = false

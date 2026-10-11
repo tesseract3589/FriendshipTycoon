@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="IncomeSourceData" format=3 uid="uid://dg3lw0rokj628"]
+
+[ext_resource type="Script" uid="uid://b1edg5qvv4jec" path="res://scripts/ResourceInit/IncomeSourceData.gd" id="1_source"]
+
+[resource]
+script = ExtResource("1_source")
+id = "spa"
+source_name = "간부목욕탕"
+display_position = Vector2(727, -407.25003)
+display_scale = Vector2(0.32516348, 0.2655875)
+timer_offset = Vector2(-60, -140)
+base_income = 12000000.0
+upgrade_base_cost = 5000000.0
+base_time = 30.0

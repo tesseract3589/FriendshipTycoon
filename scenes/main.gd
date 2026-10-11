@@ -39,6 +39,7 @@ func _ready() -> void:
 		ErrorManager.report_error("SCENE_INITIALIZATION", "메인 장면을 구성할 수 없어 실행을 중단했습니다.", "Main")
 		process_mode = Node.PROCESS_MODE_DISABLED
 		return
+	SaveManager.initialize()
 	camera.make_current()
 	RENDER_ORDER.apply_world_layer(wallpaper, RENDER_ORDER.WorldLayer.SKY)
 	RENDER_ORDER.apply_world_layer(clouds, RENDER_ORDER.WorldLayer.CLOUDS)

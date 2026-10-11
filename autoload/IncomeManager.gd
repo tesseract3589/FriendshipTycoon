@@ -15,18 +15,9 @@ signal source_level_changed(source_id: String, level: int)
 
 @export var sources: Array[IncomeSourceData] = [
 	preload("res://data/IncomeSources/vending_machine_income.tres"),
-	preload("res://data/IncomeSources/restaurant_income.tres")
+	preload("res://data/IncomeSources/restaurant_income.tres"),
+	preload("res://data/IncomeSources/spa_income.tres")
 ]
-
-@export_category("Upgrade Balance")
-## 전환 가격까지의 배율 적용 전 초당 수입 증가량 = coefficient * (반올림 전 가격 ^ exponent).
-@export var upgrade_income_coefficient: float = 0.1
-## 1 미만이면 가격이 비싸질수록 추가 수입 대비 투자금 회수 시간이 길어진다.
-@export_range(0.01, 0.99, 0.01) var upgrade_income_exponent: float = 0.7
-## 이 가격을 넘으면 증가량의 지수를 낮추되 전환 지점의 수입은 연속적으로 유지한다.
-@export var upgrade_income_transition_cost: float = 1000.0
-@export_range(0.01, 0.99, 0.01) var upgrade_late_income_exponent: float = 0.15
-
 
 # 플레이 중 Source multiplier
 var source_multipliers: Dictionary = {}
@@ -39,7 +30,7 @@ var source_time_remaining: Dictionary = {}
 var source_timer_display_keys: Dictionary = {}
 # Completed-cycle payments stay separate from partial production progress.
 var source_pending_payouts: Dictionary = {}
-# Prefix sums avoid recalculating a nonlinear price curve on every frame.
+# Cache cumulative income so only newly reached levels need to be calculated.
 var source_upgrade_income_cache: Dictionary = {}
 
 
@@ -62,9 +53,8 @@ func reset_runtime_state() -> void:
 	source_timer_display_keys.clear()
 	source_pending_payouts.clear()
 	source_upgrade_income_cache.clear()
-	var valid_upgrade_balance := _validate_upgrade_balance()
 	for source in sources:
-		if not valid_upgrade_balance or source == null or get_source(source.id) != source or not ErrorManager.validate_income_source(source):
+		if source == null or get_source(source.id) != source or not ErrorManager.validate_income_source(source):
 			continue
 		source_multipliers[source.id] = source.multiplier
 		source_speed_multipliers[source.id] = 1.0
@@ -175,7 +165,7 @@ func _get_upgrade_cost_at_level(source: IncomeSourceData, level: int) -> float:
 
 func get_upgrade_income_per_second_gain(source_id: String) -> float:
 	var source := get_source(source_id)
-	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance():
+	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
 	var gain := get_next_upgrade_income_per_second(source_id) - get_source_income(source_id)
 	return gain if ErrorManager.validate_number(gain, "IncomeSourceData:" + source_id + ".upgrade_income_gain") else 0.0
@@ -183,7 +173,7 @@ func get_upgrade_income_per_second_gain(source_id: String) -> float:
 
 func get_next_upgrade_income_per_second(source_id: String) -> float:
 	var source := get_source(source_id)
-	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance():
+	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
 	var production_time := _get_production_time(source)
 	if production_time <= 0.0:
@@ -195,7 +185,7 @@ func get_next_upgrade_income_per_second(source_id: String) -> float:
 
 func get_next_upgrade_cycle_payout(source_id: String) -> float:
 	var source := get_source(source_id)
-	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance():
+	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
 	var next_base_payout := _get_source_payout(source) + _get_upgrade_cycle_gain_at_level(source, get_source_level(source_id))
 	return _get_rounded_cycle_payout(source, next_base_payout)
@@ -203,27 +193,20 @@ func get_next_upgrade_cycle_payout(source_id: String) -> float:
 
 func get_upgrade_cycle_payout_gain(source_id: String) -> float:
 	var source := get_source(source_id)
-	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance():
+	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
 	var gain := get_next_upgrade_cycle_payout(source_id) - get_source_cycle_payout(source_id)
 	return gain if ErrorManager.validate_number(gain, "IncomeSourceData:" + source_id + ".upgrade_cycle_payout_gain") else 0.0
 
 
 func _get_upgrade_cycle_gain_at_level(source: IncomeSourceData, level: int) -> float:
-	# Use the original cycle duration so speed bonuses still benefit every upgrade.
-	return _get_upgrade_income_gain_at_cost(_get_upgrade_cost_at_level(source, level)) * source.base_time * source.time_multiplier
-
-
-func _get_upgrade_income_gain_at_cost(cost: float) -> float:
-	if cost <= upgrade_income_transition_cost:
-		return upgrade_income_coefficient * pow(cost, upgrade_income_exponent)
-	var transition_gain := upgrade_income_coefficient * pow(upgrade_income_transition_cost, upgrade_income_exponent)
-	return transition_gain * pow(cost / upgrade_income_transition_cost, upgrade_late_income_exponent)
+	var income_ratio := source.upgrade_first_income_ratio / (1.0 + source.upgrade_income_decay * float(level - 1))
+	return _get_source_payout_at_level(source, level) * income_ratio
 
 
 func upgrade_source(source_id: String) -> bool:
 	var source := get_source(source_id)
-	if source == null or not _validate_upgrade_balance():
+	if source == null or not _validate_upgrade_balance(source):
 		return false
 	if not source_active.get(source_id, false):
 		return false
@@ -313,6 +296,10 @@ func _refresh_source_after_time_change(source: IncomeSourceData, production_time
 
 # income 계산
 func get_source_income(source_id: String) -> float:
+	return roundf(get_source_income_unrounded(source_id))
+
+
+func get_source_income_unrounded(source_id: String) -> float:
 	var source := get_source(source_id)
 	if source == null:
 		return 0.0
@@ -323,7 +310,7 @@ func get_source_income(source_id: String) -> float:
 	if production_time <= 0.0 or not is_finite(production_time):
 		return 0.0
 	var income := get_source_cycle_payout(source_id) / production_time
-	return roundf(income) if ErrorManager.validate_number(income, "IncomeSourceData:" + source_id + ".income_per_second") else 0.0
+	return income if ErrorManager.validate_number(income, "IncomeSourceData:" + source_id + ".income_per_second") else 0.0
 
 
 func get_source_cycle_payout(source_id: String) -> float:
@@ -347,41 +334,28 @@ func _get_source_payout_at_level(source: IncomeSourceData, level: int) -> float:
 	var upgrades := level - 1
 	if upgrades <= 0:
 		return source.base_income
-	if not _validate_upgrade_balance():
+	if not _validate_upgrade_balance(source):
 		return 0.0
-	var parameters := [upgrade_income_coefficient, upgrade_income_exponent, upgrade_income_transition_cost,
-		upgrade_late_income_exponent, source.upgrade_base_cost,
-		source.upgrade_cost_linear_growth, source.upgrade_cost_doubling_levels, source.base_time, source.time_multiplier]
+	var parameters := [source.base_income, source.upgrade_first_income_ratio, source.upgrade_income_decay]
 	var cache: Dictionary = source_upgrade_income_cache.get(source.id, {})
 	if cache.is_empty() or cache.parameters != parameters or level < int(cache.level):
-		cache = {"parameters": parameters, "level": 1, "payout": 0.0}
+		cache = {"parameters": parameters, "level": 1, "payout": source.base_income}
 	for upgrade_level in range(int(cache.level), level):
-		var gain := _get_upgrade_cycle_gain_at_level(source, upgrade_level)
+		var income_ratio := source.upgrade_first_income_ratio / (1.0 + source.upgrade_income_decay * float(upgrade_level - 1))
+		var gain: float = cache.payout * income_ratio
 		var payout: float = cache.payout + gain
 		if not is_finite(payout):
 			return payout
 		cache.payout = payout
 		cache.level = upgrade_level + 1
 	source_upgrade_income_cache[source.id] = cache
-	return source.base_income + float(cache.payout)
+	return float(cache.payout)
 
 
-func _validate_upgrade_balance() -> bool:
-	if not ErrorManager.validate_number(upgrade_income_coefficient, "IncomeManager.upgrade_income_coefficient", false):
-		return false
-	if not ErrorManager.validate_number(upgrade_income_exponent, "IncomeManager.upgrade_income_exponent", false):
-		return false
-	if upgrade_income_exponent >= 1.0:
-		ErrorManager.report_error("INVALID_UPGRADE_BALANCE", "업그레이드 수입 지수는 0보다 크고 1보다 작아야 합니다.", "IncomeManager.upgrade_income_exponent")
-		return false
-	if not ErrorManager.validate_number(upgrade_income_transition_cost, "IncomeManager.upgrade_income_transition_cost", false):
-		return false
-	if not ErrorManager.validate_number(upgrade_late_income_exponent, "IncomeManager.upgrade_late_income_exponent", false):
-		return false
-	if upgrade_late_income_exponent > upgrade_income_exponent:
-		ErrorManager.report_error("INVALID_UPGRADE_BALANCE", "후반 수입 지수는 초기 수입 지수 이하여야 합니다.", "IncomeManager.upgrade_late_income_exponent")
-		return false
-	return true
+func _validate_upgrade_balance(source: IncomeSourceData) -> bool:
+	var context := "IncomeSourceData:" + source.id
+	return ErrorManager.validate_number(source.upgrade_first_income_ratio, context + ".upgrade_first_income_ratio", false) \
+		and ErrorManager.validate_number(source.upgrade_income_decay, context + ".upgrade_income_decay")
 
 
 func get_source(source_id: String) -> IncomeSourceData:
@@ -397,7 +371,7 @@ func get_total_income_per_second() -> float:
 		if source == null:
 			continue
 
-		total += get_source_income(source.id)
+		total += get_source_income_unrounded(source.id)
 
 	return total if ErrorManager.validate_number(total, "IncomeManager.total_income_per_second") else 0.0
 

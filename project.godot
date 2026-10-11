@@ -24,6 +24,7 @@ IncomeManager="*res://autoload/IncomeManager.gd"
 PrestigeManager="*res://autoload/PrestigeManager.gd"
 ButtonManager="*res://autoload/ButtonManager.gd"
 TooltipManager="*res://autoload/TooltipManager.gd"
+SaveManager="*res://autoload/SaveManager.gd"
 
 [display]
 

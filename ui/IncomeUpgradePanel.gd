@@ -148,9 +148,10 @@ func _refresh_row(row: HBoxContainer, source: IncomeSourceData) -> void:
 	row.set_meta("source_id", source.id)
 	var level := IncomeManager.get_source_level(source.id)
 	var payout := IncomeManager.get_source_cycle_payout(source.id)
+	var income_per_second := IncomeManager.get_source_income_unrounded(source.id)
 	var cost := IncomeManager.get_upgrade_cost(source.id)
 	var payout_gain := IncomeManager.get_upgrade_cycle_payout_gain(source.id)
-	row.get_node("Info").text = "%s  Lv.%d\n%s원 / 회\n다음 레벨 +%s원/회" % [source.source_name, level, NUMBER_FORMATTER.format_number(payout), NUMBER_FORMATTER.format_number(payout_gain)]
+	row.get_node("Info").text = "%s  Lv.%d\n%s원/회, 초당 %s원\n다음 레벨 +%s원/회" % [source.source_name, level, NUMBER_FORMATTER.format_number(payout), NUMBER_FORMATTER.format_income_per_second(income_per_second), NUMBER_FORMATTER.format_number(payout_gain)]
 	row.get_node("Purchase/Price").text = "%s원" % NUMBER_FORMATTER.format_number(cost)
 	var upgrade_button := row.get_node("Purchase/Upgrade") as TextureButton
 	upgrade_button.disabled = cost <= 0.0 or not EconomyManager.can_afford(cost)

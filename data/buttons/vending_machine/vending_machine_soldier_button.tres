@@ -7,7 +7,7 @@
 script = ExtResource("1_button")
 id = "vending_machine_soldier"
 button_name = "자판기 관리병"
-price = 500.0
+price = 400.0
 tooltip_text = "자판기 수입 x 2"
 unlock_condition = ExtResource("3_condition")
 show_world_purchase_button = true
