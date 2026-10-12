@@ -11,11 +11,14 @@ const PANEL_BASE_SIZE := Vector2(395.0, 404.0)
 const PRICE_COLUMN_BASE_WIDTH: float = 85.0
 const SCREEN_MARGIN: float = 12.0
 const PANEL_RIGHT_INSET: float = 135.0
+const ROW_SEPARATION: int = 20
 
 @onready var list := ErrorManager.require_node(self, ^"Panel/Margin/VBox/Scroll/List", "VBoxContainer") as VBoxContainer
 @onready var panel := ErrorManager.require_node(self, ^"Panel", "PanelContainer") as PanelContainer
 @onready var open_button := ErrorManager.require_node(self, ^"OpenButton", "TextureButton") as TextureButton
 @onready var close_button := ErrorManager.require_node(self, ^"Panel/Margin/VBox/CloseButton", "Button") as Button
+@onready var scroll: ScrollContainer = $Panel/Margin/VBox/Scroll
+@onready var panel_margin: MarginContainer = $Panel/Margin
 
 var _held_source_id: String = ""
 var _repeat_timer: float = 0.0
@@ -41,19 +44,24 @@ func _fit_panel_to_viewport() -> void:
 		return
 	var available_size := size - Vector2.ONE * SCREEN_MARGIN * 2.0
 	var widest_price := PRICE_COLUMN_BASE_WIDTH
+	var widest_info := 0.0
 	for row in list.get_children():
+		var info := row.get_node("Info") as Label
 		var price := row.get_node("Purchase/Price") as Label
-		var font := price.get_theme_font("font")
-		var price_width := ceilf(font.get_string_size(price.text, HORIZONTAL_ALIGNMENT_LEFT, -1, price.get_theme_font_size("font_size")).x) + 8.0
-		row.set_meta("price_width", maxf(PRICE_COLUMN_BASE_WIDTH, price_width))
-		widest_price = maxf(widest_price, price_width)
-	var desired_width := PANEL_BASE_SIZE.x + widest_price - PRICE_COLUMN_BASE_WIDTH
+		widest_info = maxf(widest_info, ceilf(info.get_minimum_size().x))
+		widest_price = maxf(widest_price, ceilf(price.get_minimum_size().x) + 8.0)
+	var horizontal_padding := (
+		panel_margin.get_theme_constant("margin_left")
+		+ panel_margin.get_theme_constant("margin_right")
+		+ panel.get_theme_stylebox("panel").get_minimum_size().x
+		+ scroll.get_v_scroll_bar().get_combined_minimum_size().x
+	)
+	var desired_width := maxf(PANEL_BASE_SIZE.x, widest_info + ROW_SEPARATION + widest_price + horizontal_padding)
 	var panel_size := Vector2(minf(desired_width, available_size.x), minf(PANEL_BASE_SIZE.y, available_size.y))
-	# Reserve room for the information, row spacing, margins and a scrollbar.
-	var price_width_limit := maxf(PRICE_COLUMN_BASE_WIDTH, panel_size.x - 162.0)
+	# Keep both columns unwrapped; small screens can scroll horizontally instead.
 	for row in list.get_children():
 		var purchase := row.get_node("Purchase") as VBoxContainer
-		purchase.custom_minimum_size.x = minf(float(row.get_meta("price_width")), price_width_limit)
+		purchase.custom_minimum_size.x = widest_price
 	var right_inset := PANEL_RIGHT_INSET if panel_size.x + PANEL_RIGHT_INSET + SCREEN_MARGIN <= size.x else SCREEN_MARGIN
 	panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	panel.size = panel_size
@@ -99,11 +107,11 @@ func _rebuild_rows() -> void:
 		if source == null or not IncomeManager.source_active.get(source.id, false):
 			continue
 		var row := HBoxContainer.new()
-		row.add_theme_constant_override("separation", 20)
+		row.add_theme_constant_override("separation", ROW_SEPARATION)
 		var info := Label.new()
 		info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		info.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		info.autowrap_mode = TextServer.AUTOWRAP_OFF
 		info.name = "Info"
 		row.add_child(info)
 		var purchase := VBoxContainer.new()
@@ -115,7 +123,7 @@ func _rebuild_rows() -> void:
 		var price := Label.new()
 		price.name = "Price"
 		price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		price.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		price.autowrap_mode = TextServer.AUTOWRAP_OFF
 		price.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		purchase.add_child(price)
 		var upgrade := TextureButton.new()
@@ -151,7 +159,7 @@ func _refresh_row(row: HBoxContainer, source: IncomeSourceData) -> void:
 	var income_per_second := IncomeManager.get_source_income_unrounded(source.id)
 	var cost := IncomeManager.get_upgrade_cost(source.id)
 	var payout_gain := IncomeManager.get_upgrade_cycle_payout_gain(source.id)
-	row.get_node("Info").text = "%s  Lv.%d\n%s원/회, 초당 %s원\n다음 레벨 +%s원/회" % [source.source_name, level, NUMBER_FORMATTER.format_number(payout), NUMBER_FORMATTER.format_income_per_second(income_per_second), NUMBER_FORMATTER.format_number(payout_gain)]
+	row.get_node("Info").text = "%s Lv.%d\n%s원/회\n다음 레벨 +%s원/회\n초당 %s원" % [source.source_name, level, NUMBER_FORMATTER.format_number(payout), NUMBER_FORMATTER.format_number(payout_gain), NUMBER_FORMATTER.format_income_per_second(income_per_second)]
 	row.get_node("Purchase/Price").text = "%s원" % NUMBER_FORMATTER.format_number(cost)
 	var upgrade_button := row.get_node("Purchase/Upgrade") as TextureButton
 	upgrade_button.disabled = cost <= 0.0 or not EconomyManager.can_afford(cost)
@@ -179,6 +187,6 @@ func _stop_upgrade_hold() -> void:
 func _upgrade_source(source_id: String) -> bool:
 	if not IncomeManager.upgrade_source(source_id):
 		return false
-	SoundManager.play_purchase_sound()
+	SoundManager.play_income_upgrade_sound(IncomeManager.get_source_level(source_id))
 	_refresh_rows()
 	return true

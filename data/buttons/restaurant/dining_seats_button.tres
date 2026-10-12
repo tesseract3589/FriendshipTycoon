@@ -7,11 +7,11 @@
 script = ExtResource("1_button")
 id = "dining_seats"
 button_name = "테이블"
-price = 800000.0
+price = 1000000.0
 tooltip_text = "간부식당 수입 x 2"
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
-click_dialogues = null
+click_dialogues = PackedStringArray()
 effect_type = 1
 effect_target = "restaurant"
 effect_value = 2.0

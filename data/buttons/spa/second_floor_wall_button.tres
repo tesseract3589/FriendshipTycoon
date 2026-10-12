@@ -7,7 +7,7 @@
 script = ExtResource("1_button")
 id = "second_floor_wall"
 button_name = "2층 벽"
-price = 24000000.0
+price = 20000000.0
 description = "구조물"
 type = 1
 unlock_condition = ExtResource("2_condition")

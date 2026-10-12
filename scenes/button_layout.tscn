@@ -9,6 +9,9 @@
 [ext_resource type="Resource" uid="uid://lgajvojcvnj2" path="res://data/buttons/restaurant/first_floor_wall_button.tres" id="data_first_floor_wall"]
 [ext_resource type="Resource" uid="uid://cygr88jffoqca" path="res://data/buttons/restaurant/front_door_button.tres" id="data_front_door"]
 [ext_resource type="Resource" uid="uid://cfabjmmgeyypi" path="res://data/buttons/restaurant/hall_foundation_button.tres" id="data_hall_foundation"]
+[ext_resource type="Resource" uid="uid://bs0a641crbops" path="res://data/buttons/spa/pool_cold_button.tres" id="data_pool_cold"]
+[ext_resource type="Resource" uid="uid://c2j7ay0i6fbb6" path="res://data/buttons/spa/pool_warm_button.tres" id="data_pool_warm"]
+[ext_resource type="Resource" path="res://data/buttons/restaurant/poster_fast_eat_button.tres" id="data_poster_fast_eat"]
 [ext_resource type="Resource" uid="uid://di82x4fauyirx" path="res://data/buttons/vending_machine/promo_sign_button.tres" id="data_promo_sign"]
 [ext_resource type="Resource" uid="uid://bqsrg73rq6pu2" path="res://data/buttons/restaurant/restaurant_button.tres" id="data_restaurant"]
 [ext_resource type="Resource" uid="uid://15jhval862b3" path="res://data/buttons/spa/second_floor_wall_button.tres" id="data_second_floor_wall"]
@@ -219,7 +222,7 @@ theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "자전거 배달
-자판기 속도 x 5
+자판기 속도 x 10
 가격: 200,000"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -257,8 +260,8 @@ theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "무선 구매 송신
-자판기 수입 x 7
-가격: 5,000,000"
+자판기 수입 x 40
+가격: 12,000,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -409,7 +412,7 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "조리병
 간부식당 속도 x 2
-가격: 50,000"
+가격: 100,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -484,7 +487,7 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "테이블
 간부식당 수입 x 2
-가격: 800,000"
+가격: 1,000,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -497,9 +500,9 @@ income_source = ExtResource("source_restaurant")
 z_index = 30
 z_as_relative = false
 offset_left = 688.39
-offset_top = -70.0
+offset_top = -77.99999
 offset_right = 1282.39
-offset_bottom = 317.0
+offset_bottom = 309.0
 scale = Vector2(0.13, 0.13)
 mouse_filter = 2
 mouse_default_cursor_shape = 2
@@ -558,7 +561,7 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "천장
 구조물
-가격: 1,000,000"
+가격: 2,000,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -637,6 +640,44 @@ text = "휠체어용 경사로
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="poster_fast_eat" type="Node2D" parent="Buttons/Restaurant" unique_id=1935086111]
+position = Vector2(729.5, -108)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_poster_fast_eat")
+income_source = ExtResource("source_restaurant")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Restaurant/poster_fast_eat" unique_id=1935086112]
+z_index = 30
+z_as_relative = false
+offset_left = -329.5
+offset_top = -20.0
+offset_right = 264.5
+offset_bottom = 367.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Restaurant/poster_fast_eat" unique_id=1935086113]
+z_index = 40
+z_as_relative = false
+offset_left = -380.5
+offset_top = -100.0
+offset_right = -200.5
+offset_bottom = -16.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "5분 식사 캠페인
+간부식당 속도 x 5
+가격: 2,200,000,000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Spa" type="Node2D" parent="Buttons" unique_id=1248236143]
 
 [node name="second_floor_wall" type="Node2D" parent="Buttons/Spa" unique_id=1248236144]
@@ -672,7 +713,7 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "2층 벽
 구조물
-가격: 24,000,000"
+가격: 20,000,000"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -710,6 +751,82 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "간부목욕탕
 수입원
-가격: 12,000,000"
+가격: 50,000,000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="pool_cold" type="Node2D" parent="Buttons/Spa" unique_id=1742586111]
+position = Vector2(294.99997, -348)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_pool_cold")
+income_source = ExtResource("source_spa")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Spa/pool_cold" unique_id=1742586112]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = -24.0
+offset_right = 555.39014
+offset_bottom = 363.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Spa/pool_cold" unique_id=1742586113]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -105.0
+offset_right = 90.0
+offset_bottom = -21.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "냉탕
+간부목욕탕 수입 x 2
+가격: 500,000,000"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="pool_warm" type="Node2D" parent="Buttons/Spa" unique_id=1582437111]
+position = Vector2(1160.0001, -348)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_pool_warm")
+income_source = ExtResource("source_spa")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Spa/pool_warm" unique_id=1582437112]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = -24.0
+offset_right = 555.39014
+offset_bottom = 363.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Spa/pool_warm" unique_id=1582437113]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -105.0
+offset_right = 90.0
+offset_bottom = -21.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "온탕
+간부목욕탕 속도 x 2
+가격: 666,666,666"
 horizontal_alignment = 1
 vertical_alignment = 1

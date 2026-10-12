@@ -7,10 +7,10 @@
 script = ExtResource("1_button")
 id = "wireless_antenna"
 button_name = "무선 구매 송신"
-price = 5000000.0
+price = 12000000.0
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
-click_dialogues = null
+click_dialogues = PackedStringArray()
 effect_type = 1
 effect_target = "vending_machine"
-effect_value = 7.0
+effect_value = 40.0

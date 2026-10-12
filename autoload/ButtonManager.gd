@@ -18,8 +18,11 @@ extends Node
 	preload("res://data/buttons/restaurant/wide_windows_button.tres"),
 	preload("res://data/buttons/restaurant/first_floor_ceiling_button.tres"),
 	preload("res://data/buttons/restaurant/front_door_button.tres"),
+	preload("res://data/buttons/restaurant/poster_fast_eat_button.tres"),
 	preload("res://data/buttons/spa/second_floor_wall_button.tres"),
-	preload("res://data/buttons/spa/spa_button.tres")
+	preload("res://data/buttons/spa/spa_button.tres"),
+	preload("res://data/buttons/spa/pool_cold_button.tres"),
+	preload("res://data/buttons/spa/pool_warm_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 var _purchases_in_progress: Dictionary = {}
@@ -27,6 +30,7 @@ var _invalid_world_buttons: Dictionary = {}
 
 
 signal button_purchased(button_data: ButtonData)
+signal button_unlocked_by_purchase(button_data: ButtonData)
 signal button_unlock_changed(button_data: ButtonData)
 signal button_state_changed(button_data: ButtonData)
 
@@ -153,6 +157,11 @@ func purchase(
 	if not can_purchase(button_data):
 		return false
 
+	# Compare actual states before and after this purchase, including its effects.
+	var locked_buttons: Array[ButtonData] = []
+	for candidate in buttons:
+		if candidate != null and not candidate.bought and not is_unlocked(candidate):
+			locked_buttons.append(candidate)
 
 	# Spending emits money_changed synchronously, so guard against reentrant purchases.
 	_purchases_in_progress[button_data.get_instance_id()] = true
@@ -173,6 +182,9 @@ func purchase(
 
 	# 다른 버튼의 해금 상태 확인
 	update_button_states()
+	for candidate in locked_buttons:
+		if not candidate.bought and is_unlocked(candidate) and not _invalid_world_buttons.has(candidate.id):
+			button_unlocked_by_purchase.emit(candidate)
 
 
 	return true

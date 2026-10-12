@@ -7,7 +7,7 @@
 script = ExtResource("1_button")
 id = "cook_soldier"
 button_name = "조리병"
-price = 50000.0
+price = 100000.0
 tooltip_text = "간부식당 속도 x 2"
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true

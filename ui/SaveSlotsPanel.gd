@@ -126,7 +126,8 @@ func _select_slot(slot: int) -> void:
 	save_button.disabled = slot == SaveManager.AUTO_SLOT
 	save_button.tooltip_text = "자동 저장 슬롯은 게임 종료 시 자동 저장됩니다." if save_button.disabled else "선택한 슬롯에 현재 진행 저장"
 	var info := _slot_info[slot]
-	load_button.disabled = not info.has_save or not info.valid
+	load_button.disabled = not info.valid
+	load_button.tooltip_text = "선택한 슬롯의 진행 불러오기" if info.has_save else "빈 슬롯에서 새 게임 시작"
 	reset_button.disabled = not info.has_save and info.valid
 
 
@@ -150,9 +151,14 @@ func _request_load() -> void:
 		return
 	_pending_slot = _selected_slot
 	_pending_action = PendingAction.LOAD
-	confirmation.title = "진행 불러오기"
-	confirmation.dialog_text = "%s을 불러올까요?\n저장하지 않은 현재 진행은 사라집니다." % SaveManager.get_slot_name(_pending_slot)
-	confirmation.ok_button_text = "불러오기"
+	if _slot_info[_pending_slot].has_save:
+		confirmation.title = "진행 불러오기"
+		confirmation.dialog_text = "%s을 불러올까요?\n저장하지 않은 현재 진행은 사라집니다." % SaveManager.get_slot_name(_pending_slot)
+		confirmation.ok_button_text = "불러오기"
+	else:
+		confirmation.title = "새 게임 시작"
+		confirmation.dialog_text = "%s은 비어 있습니다.\n초기 상태로 시작할까요?\n저장하지 않은 현재 진행은 사라집니다." % SaveManager.get_slot_name(_pending_slot)
+		confirmation.ok_button_text = "새 게임 시작"
 	confirmation.popup_centered()
 
 
@@ -181,8 +187,9 @@ func _confirm_action() -> void:
 	_cancel_action()
 	match action:
 		PendingAction.LOAD:
+			var was_empty: bool = not SaveManager.get_slot_info(slot).has_save
 			if SaveManager.load_slot(slot):
-				status_label.text = "%s의 진행을 불러왔습니다." % SaveManager.get_slot_name(slot)
+				status_label.text = "%s에서 새 게임을 시작했습니다." % SaveManager.get_slot_name(slot) if was_empty else "%s의 진행을 불러왔습니다." % SaveManager.get_slot_name(slot)
 				TooltipManager.hide_tooltip()
 			else:
 				status_label.text = "불러오지 못했습니다. 오류 메시지를 확인하세요."

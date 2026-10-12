@@ -7,7 +7,7 @@
 script = ExtResource("1_button")
 id = "spa"
 button_name = "간부목욕탕"
-price = 12000000.0
+price = 50000000.0
 description = "수입원"
 type = 0
 unlock_condition = ExtResource("2_condition")

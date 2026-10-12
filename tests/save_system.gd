@@ -24,7 +24,9 @@ func _run() -> void:
 	for slot in range(0, 11):
 		_check(FileAccess.file_exists(SaveManager.get_slot_path(slot)), "Missing slot %d." % slot)
 		_check(not SaveManager.get_slot_info(slot).has_save, "A new slot must be empty.")
-	_check(not SaveManager.load_slot(2), "An empty slot cannot be loaded.")
+	_check(SaveManager.load_slot(2), "An empty slot must be loadable.")
+	var initial_progress := SaveManager._capture_progress()
+	_check(initial_progress.economy.money == 0.0 and not initial_progress.buttons.vending_machine.bought, "A fresh game must start without money or a purchased vending machine.")
 	_check(SaveManager.get_slot_path(0).get_file() == "autosave.cfg", "The automatic save must use autosave.cfg.")
 	_check(SaveManager.get_slot_path(1).get_file() == "slot_01.cfg" and SaveManager.get_slot_path(10).get_file() == "slot_10.cfg", "Manual filenames must match slots 1 through 10.")
 	_check(not SaveManager.save_slot(0), "Manual saves must not overwrite autosave.")
@@ -115,6 +117,7 @@ func _run() -> void:
 	ui.confirmation.hide()
 	ui.confirmation.confirmed.emit()
 	await _test_slot_reset(ui)
+	await _test_empty_loads(main, ui, initial_progress, expected)
 	if DisplayServer.get_name() != "headless":
 		get_window().size = Vector2i(360, 640)
 		await get_tree().process_frame
@@ -143,7 +146,7 @@ func _run() -> void:
 	ErrorManager.clear_errors()
 	_check(ErrorManager.get_errors().is_empty(), "Unexpected game errors during save/UI tests.")
 	if _failures.is_empty():
-		print("PASS: separate autosave plus ten manual slots, legacy migration and retry, typed progress round trips, int64 prestige, write-failure protection, invalid-file rejection, HUD actions, reset warning/cancellation/slot isolation, background autosave, startup restoration.")
+		print("PASS: separate autosave plus ten manual slots, legacy migration and retry, typed progress round trips, int64 prestige, write-failure protection, invalid-file rejection, HUD actions, reset warning/cancellation/slot isolation, empty-slot new games and visuals, background autosave, startup restoration.")
 	else:
 		push_error("FAIL: %d save-system checks." % _failures.size())
 	# Keep the test folder until exit so the actual close handler and fallback can run.
@@ -188,7 +191,7 @@ func _test_slot_reset(ui: Control) -> void:
 		if slot != 1:
 			_check(FileAccess.get_file_as_string(SaveManager.get_slot_path(slot)) == files_before[slot], "Reset erased an unrelated save slot.")
 	ui._slot_buttons[1].pressed.emit()
-	_check(ui.reset_button.disabled and ui.load_button.disabled and not ui.save_button.disabled, "An empty slot must be saveable with reset/load disabled.")
+	_check(ui.reset_button.disabled and not ui.load_button.disabled and not ui.save_button.disabled, "An empty manual slot must allow saving and loading, with reset disabled.")
 	# Corrupt saves remain resettable, and become valid empty slots.
 	ui._slot_buttons[10].pressed.emit()
 	_check(not ui.reset_button.disabled, "A corrupt save cannot be reset.")
@@ -212,6 +215,56 @@ func _test_slot_reset(ui: Control) -> void:
 	_check(not SaveManager.get_slot_info(1).has_save and not SaveManager.get_slot_info(0).has_save, "Reset saves reappeared on initialization.")
 	ui._slot_buttons[1].pressed.emit()
 	await _screenshot("slots_after_reset.png")
+
+
+func _test_empty_loads(main: Node, ui: Control, initial_progress: Dictionary, saved_progress: Dictionary) -> void:
+	_check(SaveManager._capture_progress() == initial_progress, "An empty autosave must start fresh even when initialization follows an advanced session.")
+	_check(SaveManager.load_slot(2), "Could not restore progress before testing a new game.")
+	var files_before: Dictionary = {}
+	for slot in range(0, 11):
+		files_before[slot] = FileAccess.get_file_as_string(SaveManager.get_slot_path(slot))
+	ui._slot_buttons[1].pressed.emit()
+	_check(not ui.load_button.disabled, "The empty slot load button is disabled.")
+	ui.load_button.pressed.emit()
+	_check(ui.confirmation.visible and ui.confirmation.dialog_text.contains("자판기도 구매하지 않은 초기 상태") and ui.confirmation.dialog_text.contains("현재 진행은 사라집니다"), "Empty-slot loading must explain the new game and loss of unsaved progress.")
+	await _screenshot("empty_load_warning.png")
+	ui.confirmation.hide()
+	ui.confirmation.canceled.emit()
+	ui.confirmation.confirmed.emit()
+	_check(SaveManager._capture_progress() == saved_progress, "Canceling a new game changed current progress.")
+	ui.load_button.pressed.emit()
+	ui.confirmation.hide()
+	ui.confirmation.confirmed.emit()
+	_check(SaveManager._capture_progress() == initial_progress, "An empty slot did not reset purchases, permanent purchases, money, prestige, upgrades, multipliers and production timers.")
+	_check(ui.status_label.text.contains("새 게임을 시작"), "Empty-slot loading did not show new-game feedback.")
+	_check(main.get_node("HUD/Panel/VBoxContainer/MoneyLabel").text.contains("0원"), "The HUD did not return to zero money.")
+	var vending_view := main.get_node("World/IncomeSourceViews/vending_machine_PurchaseView") as WorldPurchaseButton
+	_check(vending_view.is_visible_in_tree() and vending_view.texture_button.visible and not vending_view.texture_button.disabled, "A new game must show the available vending-machine purchase button.")
+	for visual in vending_view.purchased_visuals:
+		_check(not visual.visible, "Purchased vending-machine visuals remained visible in a new game.")
+	for child in main.get_node("World/IncomeSourceViews").get_children():
+		if child is IncomeSourceView:
+			_check(not child.source_is_active and not child.sprite.visible and not child.timer_label.visible, "A new game retained an active income-source visual or timer.")
+	ui.overlay.hide()
+	await _screenshot("fresh_game.png")
+	ui._open()
+	for slot in [0, 10]:
+		_check(SaveManager.load_slot(2), "Saved progress could not be restored after starting fresh.")
+		_check(SaveManager._capture_progress() == saved_progress, "Starting fresh changed the saved progress in another slot.")
+		_check(SaveManager.load_slot(slot), "Empty autosave or manual slot could not start a new game.")
+		_check(SaveManager._capture_progress() == initial_progress, "Empty slot %d retained progress from the running game." % slot)
+	for slot in range(0, 11):
+		_check(FileAccess.get_file_as_string(SaveManager.get_slot_path(slot)) == files_before[slot], "Starting a new game wrote to a save file.")
+	# A missing slot is displayed as empty and must behave like an empty file.
+	DirAccess.remove_absolute(SaveManager.get_slot_path(10))
+	SaveManager.load_slot(2)
+	_check(SaveManager.load_slot(10) and SaveManager._capture_progress() == initial_progress, "A missing empty-slot file could not start fresh.")
+	_check(not FileAccess.file_exists(SaveManager.get_slot_path(10)), "Loading a missing slot unexpectedly wrote a save.")
+	SaveManager.load_slot(2)
+	SaveManager.initialized = false
+	_check(SaveManager.initialize(_test_directory), "Initialization failed after loading a missing slot.")
+	_check(SaveManager._capture_progress() == initial_progress, "New-game defaults were captured from advanced runtime progress.")
+	_check(FileAccess.file_exists(SaveManager.get_slot_path(10)) and not SaveManager.get_slot_info(10).has_save, "Initialization failed to recreate an empty slot.")
 
 
 func _test_legacy_migration() -> void:

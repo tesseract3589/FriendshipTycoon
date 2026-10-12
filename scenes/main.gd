@@ -2,6 +2,7 @@ extends Node2D
 
 const INCOME_SOURCE_VIEW_SCENE: PackedScene = preload("res://ui/income_source_view.tscn")
 const WORLD_CLICK_DIALOGUE_SCENE: PackedScene = preload("res://ui/world_click_dialogue.tscn")
+const OFFSCREEN_BUTTON_INDICATORS = preload("res://ui/OffscreenButtonIndicators.gd")
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 const CAMERA_MIN_ZOOM: float = 0.4
@@ -32,6 +33,8 @@ var _camera_tutorial_dismissed: bool = false
 var _world_hover_areas: Dictionary = {}
 var _layout_elements: Dictionary = {}
 var _button_layout_elements: Dictionary = {}
+var _world_purchase_buttons: Dictionary = {}
+var _offscreen_button_indicators := OFFSCREEN_BUTTON_INDICATORS.new()
 
 
 func _ready() -> void:
@@ -45,6 +48,8 @@ func _ready() -> void:
 	RENDER_ORDER.apply_world_layer(clouds, RENDER_ORDER.WorldLayer.CLOUDS)
 	RENDER_ORDER.apply_world_layer(ground_layer, RENDER_ORDER.WorldLayer.GROUND)
 	hud.layer = RENDER_ORDER.ScreenLayer.HUD
+	_offscreen_button_indicators.name = "OffscreenButtonIndicators"
+	hud.add_child(_offscreen_button_indicators)
 	ErrorManager.validate_visuals(wallpaper, "Main.WallPaper")
 	ErrorManager.validate_visuals(ground_layer, "Main.Ground")
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
@@ -52,6 +57,7 @@ func _ready() -> void:
 	EconomyManager.money_changed.connect(_refresh_finances)
 	IncomeManager.income_changed.connect(_refresh_finances)
 	ButtonManager.button_purchased.connect(_on_button_purchased)
+	ButtonManager.button_unlocked_by_purchase.connect(_on_button_unlocked_by_purchase)
 	world_layout.visible = true
 	_validate_world_layout()
 	_prepare_world_hover_areas()
@@ -175,6 +181,12 @@ func _on_button_purchased(button_data: ButtonData) -> void:
 		_show_camera_tutorial()
 
 
+func _on_button_unlocked_by_purchase(button_data: ButtonData) -> void:
+	var world_button := _world_purchase_buttons.get(button_data.id) as WorldPurchaseButton
+	if is_instance_valid(world_button):
+		_offscreen_button_indicators.point_to_button(world_button.texture_button)
+
+
 func _show_camera_tutorial() -> void:
 	_camera_tutorial_dismissed = false
 	TooltipManager.hide_tooltip()
@@ -289,6 +301,7 @@ func _create_world_purchase_buttons() -> void:
 		world_button.name = button_data.id + "_PurchaseView"
 		world_button.setup(button_data, layout_node as Node2D, hover_areas, _button_layout_elements[button_data.id])
 		income_source_views.add_child(world_button)
+		_world_purchase_buttons[button_data.id] = world_button
 
 
 func _get_layout_sprite(element_id: String) -> Sprite2D:

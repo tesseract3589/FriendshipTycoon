@@ -1,6 +1,33 @@
 extends Node
 
-const PURCHASE_SOUND: AudioStream = preload("res://assets/SE/Ding.wav")
+const PURCHASE_SOUND: AudioStream = preload("res://assets/SE/Money_spend.wav")
+const INCOME_UPGRADE_SOUNDS: Array[AudioStream] = [
+	preload("res://assets/SE/Ding_C4_C.wav"),
+	preload("res://assets/SE/Ding_C4_Csharp.wav"),
+	preload("res://assets/SE/Ding_C4_D.wav"),
+	preload("res://assets/SE/Ding_C4_Dsharp.wav"),
+	preload("res://assets/SE/Ding_C4_E.wav"),
+	preload("res://assets/SE/Ding_C4_F.wav"),
+	preload("res://assets/SE/Ding_C4_Fsharp.wav"),
+	preload("res://assets/SE/Ding_C4_G.wav"),
+	preload("res://assets/SE/Ding_C4_Gsharp.wav"),
+	preload("res://assets/SE/Ding_C4_A.wav"),
+	preload("res://assets/SE/Ding_C4_Asharp.wav"),
+	preload("res://assets/SE/Ding_C4_B.wav"),
+	preload("res://assets/SE/Ding_C5_C.wav"),
+	preload("res://assets/SE/Ding_C5_Csharp.wav"),
+	preload("res://assets/SE/Ding_C5_D.wav"),
+	preload("res://assets/SE/Ding_C5_Dsharp.wav"),
+	preload("res://assets/SE/Ding_C5_E.wav"),
+	preload("res://assets/SE/Ding_C5_F.wav"),
+	preload("res://assets/SE/Ding_C5_Fsharp.wav"),
+	preload("res://assets/SE/Ding_C5_G.wav"),
+	preload("res://assets/SE/Ding_C5_Gsharp.wav"),
+	preload("res://assets/SE/Ding_C5_A.wav"),
+	preload("res://assets/SE/Ding_C5_Asharp.wav"),
+	preload("res://assets/SE/Ding_C5_B.wav"),
+	preload("res://assets/SE/Ding_C6_C.wav"),
+]
 const SILENT_VOLUME_DB: float = -80.0
 
 @export_range(0.0, 1.0, 0.01) var bgm_volume: float = 1.0
@@ -57,6 +84,12 @@ func play_se(stream: AudioStream, volume_scale: float = 1.0) -> void:
 
 func play_purchase_sound() -> void:
 	play_se(PURCHASE_SOUND)
+
+
+func play_income_upgrade_sound(level: int) -> void:
+	# Sources start at level 1, so the first successful upgrade reaches level 2.
+	var sound_index := maxi(level - 2, 0) % INCOME_UPGRADE_SOUNDS.size()
+	play_se(INCOME_UPGRADE_SOUNDS[sound_index])
 
 
 func set_se_volume(volume: float) -> void:

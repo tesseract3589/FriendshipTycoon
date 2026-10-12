@@ -21,7 +21,12 @@
 [ext_resource type="Texture2D" uid="uid://dybytq5ar5qvl" path="res://assets/sprites/Structures/ramp.png" id="18_kmwnw"]
 [ext_resource type="Texture2D" uid="uid://bfg4hrfkstioj" path="res://assets/sprites/Spa/wallpaper_ceramic_tile.png" id="18_xylr1"]
 [ext_resource type="Texture2D" uid="uid://bofho8pp5qp4g" path="res://assets/sprites/Spa/spa_cold.png" id="19_lpd7r"]
+[ext_resource type="Texture2D" uid="uid://dum7i4468wn42" path="res://assets/sprites/Restaurant/Poster.png" id="19_muhrt"]
 [ext_resource type="Texture2D" uid="uid://bwcov4mq4df4p" path="res://assets/sprites/Spa/spa_warm.png" id="20_ennmr"]
+[ext_resource type="Texture2D" uid="uid://bn2i58x5a27n0" path="res://assets/sprites/Restaurant/Poster2.png" id="20_nsk7v"]
+[ext_resource type="Texture2D" uid="uid://c5qjxp8dlcpu0" path="res://assets/sprites/Spa/pipe_system.png" id="25_nsk7v"]
+[ext_resource type="Texture2D" uid="uid://cbs6y5u7pt16d" path="res://assets/sprites/Spa/faucet_cold.png" id="26_kr5j4"]
+[ext_resource type="Texture2D" uid="uid://cp0q47cpamq3k" path="res://assets/sprites/Spa/faucet_warm.png" id="27_fq2n4"]
 
 [sub_resource type="RectangleShape2D" id="VendingMachineHoverShape"]
 size = Vector2(367, 585)
@@ -59,8 +64,20 @@ size = Vector2(719.17804, 296.9283)
 [sub_resource type="RectangleShape2D" id="FrontDoorHoverShape"]
 size = Vector2(250, 390)
 
+[sub_resource type="RectangleShape2D" id="FastEatPosterLeftHoverShape"]
+size = Vector2(657, 329)
+
+[sub_resource type="RectangleShape2D" id="FastEatPosterRightHoverShape"]
+size = Vector2(719, 329)
+
 [sub_resource type="RectangleShape2D" id="SpaShowerStandHoverShape"]
 size = Vector2(44, 722.57355)
+
+[sub_resource type="RectangleShape2D" id="PoolColdHoverShape"]
+size = Vector2(974.4159, 342.396)
+
+[sub_resource type="RectangleShape2D" id="PoolWarmHoverShape"]
+size = Vector2(974.86035, 342.9602)
 
 [node name="WorldLayout" type="Node2D" unique_id=758915039]
 
@@ -233,6 +250,16 @@ scale = Vector2(0.457, 0.41040102)
 texture = ExtResource("7_vvlob")
 metadata/_edit_lock_ = true
 
+[node name="first_floor_ceiling" type="Sprite2D" parent="Restaurant" unique_id=663372041]
+z_index = 10
+z_as_relative = false
+position = Vector2(728, -281.25003)
+scale = Vector2(0.655102, 0.5434781)
+texture = ExtResource("12_03k8n")
+script = ExtResource("13_render_layer")
+render_layer = 10
+metadata/_edit_lock_ = true
+
 [node name="hall_foundation" type="Sprite2D" parent="Restaurant" unique_id=1264979766]
 z_index = 10
 z_as_relative = false
@@ -339,16 +366,6 @@ position = Vector2(-0.00012207031, 53.412445)
 scale = Vector2(0.9999998, 0.9999999)
 shape = SubResource("DiningSeatHoverShape")
 
-[node name="first_floor_ceiling" type="Sprite2D" parent="Restaurant" unique_id=663372041]
-z_index = 10
-z_as_relative = false
-position = Vector2(728, -281.25003)
-scale = Vector2(0.655102, 0.5434781)
-texture = ExtResource("12_03k8n")
-script = ExtResource("13_render_layer")
-render_layer = 10
-metadata/_edit_lock_ = true
-
 [node name="front_door" type="Sprite2D" parent="Restaurant" unique_id=1614836061]
 z_as_relative = false
 position = Vector2(152, 84)
@@ -371,6 +388,7 @@ scale = Vector2(0.28604198, 0.32317075)
 texture = ExtResource("18_kmwnw")
 script = ExtResource("13_render_layer")
 render_layer = 10
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Restaurant/wheelchair_ramp" unique_id=1873394801]
 input_pickable = false
@@ -378,6 +396,34 @@ input_pickable = false
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Restaurant/wheelchair_ramp/HoverArea" unique_id=1873394802]
 visible = false
 polygon = PackedVector2Array(-335, 96, 375, -95, 375, 96)
+
+[node name="poster_fast_eat" type="Node2D" parent="Restaurant" unique_id=815537008]
+z_as_relative = false
+script = ExtResource("13_render_layer")
+
+[node name="poster_left" type="Sprite2D" parent="Restaurant/poster_fast_eat" unique_id=1417310521]
+position = Vector2(437, -108)
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("19_muhrt")
+
+[node name="HoverArea" type="Area2D" parent="Restaurant/poster_fast_eat/poster_left" unique_id=1935086101]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Restaurant/poster_fast_eat/poster_left/HoverArea" unique_id=1935086102]
+visible = false
+shape = SubResource("FastEatPosterLeftHoverShape")
+
+[node name="poster_right" type="Sprite2D" parent="Restaurant/poster_fast_eat" unique_id=68600470]
+position = Vector2(1022, -108)
+scale = Vector2(0.36, 0.36)
+texture = ExtResource("20_nsk7v")
+
+[node name="HoverArea" type="Area2D" parent="Restaurant/poster_fast_eat/poster_right" unique_id=1935086103]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Restaurant/poster_fast_eat/poster_right/HoverArea" unique_id=1935086104]
+visible = false
+shape = SubResource("FastEatPosterRightHoverShape")
 
 [node name="Spa" type="Node2D" parent="." unique_id=1073456759]
 
@@ -387,6 +433,7 @@ position = Vector2(727, -407.25003)
 scale = Vector2(0.32516348, 0.2655875)
 texture = ExtResource("18_ennmr")
 script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Spa/spa" unique_id=1627194821]
 input_pickable = false
@@ -431,12 +478,58 @@ scale = Vector2(0.457, 0.3957357)
 texture = ExtResource("7_vvlob")
 metadata/_edit_lock_ = true
 
+[node name="second_floor_ceiling" type="Sprite2D" parent="Spa" unique_id=683294566]
+z_index = 10
+z_as_relative = false
+position = Vector2(728.00006, -748)
+scale = Vector2(0.655102, 0.5434781)
+texture = ExtResource("12_03k8n")
+
 [node name="pool_cold" type="Sprite2D" parent="Spa" unique_id=1604631295]
-position = Vector2(294.99997, -348)
+z_as_relative = false
+position = Vector2(294.99997, -347)
 scale = Vector2(0.35816324, 0.2774565)
 texture = ExtResource("19_lpd7r")
+script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="Spa/pool_cold" unique_id=1742586101]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Spa/pool_cold/HoverArea" unique_id=1742586102]
+visible = false
+position = Vector2(1.3961182, -1.8018799)
+shape = SubResource("PoolColdHoverShape")
 
 [node name="pool_warm" type="Sprite2D" parent="Spa" unique_id=1007157335]
-position = Vector2(1160.0001, -348)
+z_as_relative = false
+position = Vector2(1160.0001, -347)
 scale = Vector2(0.358, 0.277)
 texture = ExtResource("20_ennmr")
+script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="Spa/pool_warm" unique_id=1582437101]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Spa/pool_warm/HoverArea" unique_id=1582437102]
+visible = false
+position = Vector2(-1.3969727, -1.8050537)
+shape = SubResource("PoolWarmHoverShape")
+
+[node name="conduit" type="Sprite2D" parent="Spa" unique_id=1911008666]
+position = Vector2(728.00006, -602)
+scale = Vector2(0.665, 0.665)
+texture = ExtResource("25_nsk7v")
+
+[node name="faucet" type="Node2D" parent="Spa" unique_id=362419575]
+
+[node name="cold" type="Sprite2D" parent="Spa/faucet" unique_id=78777122]
+position = Vector2(178.00002, -422.00003)
+scale = Vector2(0.155, 0.155)
+texture = ExtResource("26_kr5j4")
+
+[node name="warm" type="Sprite2D" parent="Spa/faucet" unique_id=97547657]
+position = Vector2(1278.0001, -422)
+scale = Vector2(0.155, 0.155)
+texture = ExtResource("27_fq2n4")

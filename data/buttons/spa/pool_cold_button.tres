@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://bs0a641crbops"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/spa/pool_cold_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "pool_cold"
+button_name = "냉탕"
+price = 500000000.0
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 1
+effect_target = "spa"
+effect_value = 2.0

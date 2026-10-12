@@ -29,7 +29,7 @@ func initialize(directory: String = "") -> bool:
 		return true
 	save_directory = get_default_save_directory() if directory.is_empty() else directory
 	_preserve_invalid_autosave = false
-	_defaults = _capture_progress()
+	_defaults = _create_initial_progress()
 	var error := DirAccess.make_dir_recursive_absolute(save_directory)
 	if error != OK:
 		return _file_error("SAVE_DIRECTORY", "저장 폴더를 만들 수 없습니다.", error)
@@ -47,8 +47,7 @@ func initialize(directory: String = "") -> bool:
 	# Main calls this before creating world views. Test scenes do not initialize saves.
 	var info := get_slot_info(AUTO_SLOT)
 	_preserve_invalid_autosave = not info.valid
-	if info.has_save or not info.valid:
-		load_slot(AUTO_SLOT)
+	load_slot(AUTO_SLOT)
 	slots_changed.emit()
 	return true
 
@@ -209,15 +208,17 @@ func reset_slot(slot: int) -> bool:
 func load_slot(slot: int) -> bool:
 	if not initialized or slot < AUTO_SLOT or slot > SLOT_COUNT:
 		return false
-	var config := ConfigFile.new()
-	var error := config.load(get_slot_path(slot))
-	if error != OK:
-		return _file_error("SAVE_READ", "%s을 불러올 수 없습니다." % get_slot_name(slot), error)
-	if not _valid_header(config, slot):
-		return _invalid_save(slot)
-	if not config.has_section_key("progress", "state"):
-		return false
-	var state: Variant = config.get_value("progress", "state")
+	# Empty slots start a new game without writing over any saved progress.
+	var state: Variant = _defaults
+	var path := get_slot_path(slot)
+	if FileAccess.file_exists(path):
+		var config := ConfigFile.new()
+		var error := config.load(path)
+		if error != OK:
+			return _file_error("SAVE_READ", "%s을 불러올 수 없습니다." % get_slot_name(slot), error)
+		if not _valid_header(config, slot):
+			return _invalid_save(slot)
+		state = config.get_value("progress", "state", _defaults)
 	# Validate the complete snapshot before changing any live progress.
 	if not _validate_progress(state):
 		return _invalid_save(slot)
@@ -257,6 +258,37 @@ func _write_config(slot: int, config: ConfigFile, preserve_invalid: bool = true)
 	if slot == AUTO_SLOT:
 		_preserve_invalid_autosave = false
 	return true
+
+
+func _create_initial_progress() -> Dictionary:
+	# Define a fresh game independently of the currently running session.
+	var button_states: Dictionary = {}
+	for button in ButtonManager.buttons:
+		if button != null:
+			button_states[button.id] = {"bought": false, "permanent_bought": false}
+	var source_states: Dictionary = {}
+	for source in IncomeManager.sources:
+		if source != null:
+			source_states[source.id] = {
+				"active": false,
+				"level": 1,
+				"multiplier": source.multiplier,
+				"speed_multiplier": 1.0,
+				"time_remaining": 0.0,
+				"pending_payout": 0.0,
+			}
+	return {
+		"economy": {
+			"money": 0.0,
+			"global_multiplier": 1.0,
+			"global_time_multiplier": 1.0,
+			"developer_income_multiplier": 1.0,
+			"developer_time_multiplier": 1.0,
+		},
+		"prestige": {"total_jjam": 0, "current_jjam": 0},
+		"buttons": button_states,
+		"sources": source_states,
+	}
 
 
 func _capture_progress() -> Dictionary:
