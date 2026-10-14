@@ -1,4 +1,5 @@
 extends Node
+const BIG = preload("res://scripts/BigNumber.gd")
 
 const CYCLE_BOUNDARY_TOLERANCE: float = 1.0e-9
 
@@ -30,6 +31,8 @@ var source_time_remaining: Dictionary = {}
 var source_timer_display_keys: Dictionary = {}
 # Completed-cycle payments stay separate from partial production progress.
 var source_pending_payouts: Dictionary = {}
+var source_pending_corrections: Dictionary = {}
+var _runtime_generation: int = 0
 # Cache cumulative income so only newly reached levels need to be calculated.
 var source_upgrade_income_cache: Dictionary = {}
 
@@ -41,6 +44,7 @@ func _ready() -> void:
 
 
 func reset_runtime_state() -> void:
+	_runtime_generation += 1
 	ErrorManager.validate_registry(sources, "IncomeSourceData")
 	var reset_ids: Dictionary = {}
 	for id in source_active:
@@ -52,6 +56,7 @@ func reset_runtime_state() -> void:
 	source_time_remaining.clear()
 	source_timer_display_keys.clear()
 	source_pending_payouts.clear()
+	source_pending_corrections.clear()
 	source_upgrade_income_cache.clear()
 	for source in sources:
 		if source == null or get_source(source.id) != source or not ErrorManager.validate_income_source(source):
@@ -63,6 +68,7 @@ func reset_runtime_state() -> void:
 		source_time_remaining[source.id] = 0.0
 		source_timer_display_keys[source.id] = 0
 		source_pending_payouts[source.id] = 0.0
+		source_pending_corrections[source.id] = 0.0
 		reset_ids[source.id] = true
 	# Notify views only after every source has returned to a consistent state.
 	for id: String in reset_ids:
@@ -125,7 +131,7 @@ func _get_timer_display_key(seconds_remaining: float) -> int:
 
 
 # 특정 source의 multiplier를 불러옴
-func get_source_multiplier(source_id: String) -> float:
+func get_source_multiplier(source_id: String) -> Variant:
 	if not _has_source_state(source_id, source_multipliers, "multiplier"):
 		return 1.0
 
@@ -147,61 +153,67 @@ func _has_source_state(source_id: String, state: Dictionary, state_name: String)
 	return true
 
 
-func get_upgrade_cost(source_id: String) -> float:
+func get_upgrade_cost(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null:
 		return 0.0
 	var level := get_source_level(source_id)
-	var cost := roundf(_get_upgrade_cost_at_level(source, level))
+	var cost: Variant = BIG.rounded(_get_upgrade_cost_at_level(source, level))
 	if not ErrorManager.validate_number(cost, "IncomeSourceData:" + source_id + ".upgrade_cost", false):
 		return 0.0
 	return cost
 
 
-func _get_upgrade_cost_at_level(source: IncomeSourceData, level: int) -> float:
+func _get_upgrade_cost_at_level(source: IncomeSourceData, level: int) -> Variant:
 	var upgrades := float(level - 1)
-	return source.upgrade_base_cost * (1.0 + source.upgrade_cost_linear_growth * upgrades) * pow(2.0, upgrades / source.upgrade_cost_doubling_levels)
+	# Preserve native rounding for existing gameplay, extend only when pow overflows.
+	var native_growth := pow(2.0, upgrades / source.upgrade_cost_doubling_levels)
+	var native_cost := source.upgrade_base_cost * (1.0 + source.upgrade_cost_linear_growth * upgrades) * native_growth
+	if is_finite(native_cost):
+		return native_cost
+	var growth: Variant = native_growth if is_finite(native_growth) else BIG.power_of_ten(upgrades / source.upgrade_cost_doubling_levels * log(2.0) / log(10.0))
+	return BIG.multiply(BIG.multiply(source.upgrade_base_cost, 1.0 + source.upgrade_cost_linear_growth * upgrades), growth)
 
 
-func get_upgrade_income_per_second_gain(source_id: String) -> float:
+func get_upgrade_income_per_second_gain(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
-	var gain := get_next_upgrade_income_per_second(source_id) - get_source_income(source_id)
+	var gain: Variant = BIG.subtract(get_next_upgrade_income_per_second(source_id), get_source_income(source_id))
 	return gain if ErrorManager.validate_number(gain, "IncomeSourceData:" + source_id + ".upgrade_income_gain") else 0.0
 
 
-func get_next_upgrade_income_per_second(source_id: String) -> float:
+func get_next_upgrade_income_per_second(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
 	var production_time := _get_production_time(source)
 	if production_time <= 0.0:
 		return 0.0
-	var next_payout := get_next_upgrade_cycle_payout(source_id)
-	var next_income := next_payout / production_time
-	return roundf(next_income) if ErrorManager.validate_number(next_income, "IncomeSourceData:" + source_id + ".next_upgrade_income") else 0.0
+	var next_payout: Variant = get_next_upgrade_cycle_payout(source_id)
+	var next_income: Variant = BIG.divide(next_payout, production_time)
+	return BIG.rounded(next_income) if ErrorManager.validate_number(next_income, "IncomeSourceData:" + source_id + ".next_upgrade_income") else 0.0
 
 
-func get_next_upgrade_cycle_payout(source_id: String) -> float:
+func get_next_upgrade_cycle_payout(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
-	var next_base_payout := _get_source_payout(source) + _get_upgrade_cycle_gain_at_level(source, get_source_level(source_id))
+	var next_base_payout: Variant = BIG.add(_get_source_payout(source), _get_upgrade_cycle_gain_at_level(source, get_source_level(source_id)))
 	return _get_rounded_cycle_payout(source, next_base_payout)
 
 
-func get_upgrade_cycle_payout_gain(source_id: String) -> float:
+func get_upgrade_cycle_payout_gain(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
-	var gain := get_next_upgrade_cycle_payout(source_id) - get_source_cycle_payout(source_id)
+	var gain: Variant = BIG.subtract(get_next_upgrade_cycle_payout(source_id), get_source_cycle_payout(source_id))
 	return gain if ErrorManager.validate_number(gain, "IncomeSourceData:" + source_id + ".upgrade_cycle_payout_gain") else 0.0
 
 
-func _get_upgrade_cycle_gain_at_level(source: IncomeSourceData, level: int) -> float:
+func _get_upgrade_cycle_gain_at_level(source: IncomeSourceData, level: int) -> Variant:
 	var income_ratio := source.upgrade_first_income_ratio / (1.0 + source.upgrade_income_decay * float(level - 1))
-	return _get_source_payout_at_level(source, level) * income_ratio
+	return BIG.multiply(_get_source_payout_at_level(source, level), income_ratio)
 
 
 func upgrade_source(source_id: String) -> bool:
@@ -210,12 +222,12 @@ func upgrade_source(source_id: String) -> bool:
 		return false
 	if not source_active.get(source_id, false):
 		return false
-	var cost := get_upgrade_cost(source_id)
-	if cost <= 0.0:
+	var cost: Variant = get_upgrade_cost(source_id)
+	if BIG.compare(cost, 0.0) <= 0:
 		return false
-	var next_payout := roundf((_get_source_payout(source) + _get_upgrade_cycle_gain_at_level(source, get_source_level(source_id))) * get_source_multiplier(source_id) * EconomyManager.get_global_multiplier())
+	var next_payout: Variant = get_next_upgrade_cycle_payout(source_id)
 	var production_time := _get_production_time(source)
-	if production_time <= 0.0 or not ErrorManager.validate_number(next_payout / production_time, "IncomeSourceData:" + source_id + ".upgraded_income"):
+	if production_time <= 0.0 or not ErrorManager.validate_number(BIG.divide(next_payout, production_time), "IncomeSourceData:" + source_id + ".upgraded_income"):
 		return false
 	if not EconomyManager.spend_money(cost):
 		return false
@@ -237,7 +249,7 @@ func multiply_source_multiplier(
 
 	if not ErrorManager.validate_number(value, "IncomeSourceData:" + source_id + ".multiplier_factor", false):
 		return
-	var updated_multiplier: float = source_multipliers[source_id] * value
+	var updated_multiplier: Variant = BIG.multiply(source_multipliers[source_id], value)
 	if not ErrorManager.validate_number(updated_multiplier, "IncomeSourceData:" + source_id + ".multiplier", false):
 		return
 	source_multipliers[source_id] = updated_multiplier
@@ -295,11 +307,11 @@ func _refresh_source_after_time_change(source: IncomeSourceData, production_time
 
 
 # income 계산
-func get_source_income(source_id: String) -> float:
-	return roundf(get_source_income_unrounded(source_id))
+func get_source_income(source_id: String) -> Variant:
+	return BIG.rounded(get_source_income_unrounded(source_id))
 
 
-func get_source_income_unrounded(source_id: String) -> float:
+func get_source_income_unrounded(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null:
 		return 0.0
@@ -309,28 +321,32 @@ func get_source_income_unrounded(source_id: String) -> float:
 	var production_time := _get_production_time(source)
 	if production_time <= 0.0 or not is_finite(production_time):
 		return 0.0
-	var income := get_source_cycle_payout(source_id) / production_time
+	var income: Variant = BIG.divide(get_source_cycle_payout(source_id), production_time)
 	return income if ErrorManager.validate_number(income, "IncomeSourceData:" + source_id + ".income_per_second") else 0.0
 
 
-func get_source_cycle_payout(source_id: String) -> float:
+func get_source_cycle_payout(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null:
 		return 0.0
 	return _get_rounded_cycle_payout(source, _get_source_payout(source))
 
 
-func _get_rounded_cycle_payout(source: IncomeSourceData, base_payout: float) -> float:
+func _get_rounded_cycle_payout(source: IncomeSourceData, base_payout: Variant) -> Variant:
 	# Round each completed cycle after every income bonus, before batching cycles.
-	var payout := roundf(base_payout * get_source_multiplier(source.id) * EconomyManager.get_global_multiplier())
+	var raw_payout: Variant = BIG.multiply(BIG.multiply(base_payout, get_source_multiplier(source.id)), EconomyManager.get_global_multiplier())
+	var payout: Variant = BIG.rounded(raw_payout)
+	# Positive sub-won cycles must accumulate, even when individually rounded to zero.
+	if BIG.compare(payout, 0.0) == 0 and BIG.valid(raw_payout, false):
+		payout = raw_payout
 	return payout if ErrorManager.validate_number(payout, "IncomeSourceData:" + source.id + ".payout") else 0.0
 
 
-func _get_source_payout(source: IncomeSourceData) -> float:
+func _get_source_payout(source: IncomeSourceData) -> Variant:
 	return _get_source_payout_at_level(source, get_source_level(source.id))
 
 
-func _get_source_payout_at_level(source: IncomeSourceData, level: int) -> float:
+func _get_source_payout_at_level(source: IncomeSourceData, level: int) -> Variant:
 	var upgrades := level - 1
 	if upgrades <= 0:
 		return source.base_income
@@ -340,16 +356,38 @@ func _get_source_payout_at_level(source: IncomeSourceData, level: int) -> float:
 	var cache: Dictionary = source_upgrade_income_cache.get(source.id, {})
 	if cache.is_empty() or cache.parameters != parameters or level < int(cache.level):
 		cache = {"parameters": parameters, "level": 1, "payout": source.base_income}
-	for upgrade_level in range(int(cache.level), level):
+	var exact_end := mini(level, int(cache.level) + 2048)
+	for upgrade_level in range(int(cache.level), exact_end):
 		var income_ratio := source.upgrade_first_income_ratio / (1.0 + source.upgrade_income_decay * float(upgrade_level - 1))
-		var gain: float = cache.payout * income_ratio
-		var payout: float = cache.payout + gain
-		if not is_finite(payout):
+		var gain: Variant = BIG.multiply(cache.payout, income_ratio)
+		var payout: Variant = BIG.add(cache.payout, gain)
+		if not BIG.valid(payout):
 			return payout
 		cache.payout = payout
 		cache.level = upgrade_level + 1
+	if exact_end < level:
+		# Approximate only the distant tail; work stays bounded for huge saved levels.
+		var first := float(exact_end - 1)
+		var last := float(level - 1)
+		var ratio := source.upgrade_first_income_ratio
+		var decay := source.upgrade_income_decay
+		var logarithmic_growth: float
+		if decay == 0.0:
+			logarithmic_growth = (last - first) * log(1.0 + ratio)
+		else:
+			var start_y := 1.0 + decay * first
+			var end_y := 1.0 + decay * last
+			var start_integral := start_y * log(1.0 + ratio / start_y) + ratio * log(start_y + ratio)
+			var end_integral := end_y * log(1.0 + ratio / end_y) + ratio * log(end_y + ratio)
+			logarithmic_growth = (end_integral - start_integral) / decay
+			logarithmic_growth += (log(1.0 + ratio / start_y) - log(1.0 + ratio / end_y)) * 0.5
+			var start_derivative := -decay * (ratio / start_y) / (start_y + ratio)
+			var end_derivative := -decay * (ratio / end_y) / (end_y + ratio)
+			logarithmic_growth += (end_derivative - start_derivative) / 12.0
+		cache.payout = BIG.multiply(cache.payout, BIG.power_of_ten(logarithmic_growth / log(10.0)))
+		cache.level = level
 	source_upgrade_income_cache[source.id] = cache
-	return float(cache.payout)
+	return cache.payout
 
 
 func _validate_upgrade_balance(source: IncomeSourceData) -> bool:
@@ -362,16 +400,16 @@ func get_source(source_id: String) -> IncomeSourceData:
 	return ErrorManager.find_resource(sources, source_id, "IncomeSourceData") as IncomeSourceData
 
 # 전체 income source들의 income 총합을 계산
-func get_total_income_per_second() -> float:
+func get_total_income_per_second() -> Variant:
 
-	var total := 0.0
+	var total: Variant = 0.0
 
 	for source in sources:
 
 		if source == null:
 			continue
 
-		total += get_source_income_unrounded(source.id)
+		total = BIG.add(total, get_source_income_unrounded(source.id))
 
 	return total if ErrorManager.validate_number(total, "IncomeManager.total_income_per_second") else 0.0
 
@@ -392,15 +430,22 @@ func _process(delta: float) -> void:
 		if remaining <= production_time * CYCLE_BOUNDARY_TOLERANCE:
 			# Cycle counts can exceed int64 at very high production speeds.
 			var overdue_cycles := -remaining / production_time
-			var nearest_boundary := roundf(overdue_cycles)
-			var on_boundary := absf(overdue_cycles - nearest_boundary) <= CYCLE_BOUNDARY_TOLERANCE
-			if on_boundary:
-				overdue_cycles = nearest_boundary
-			var completed_cycles := floorf(overdue_cycles) + 1.0
-			var pending: float = source_pending_payouts.get(source.id, 0.0)
-			pending += get_source_cycle_payout(source.id) * completed_cycles
-			if ErrorManager.validate_number(pending, "IncomeSourceData:" + source.id + ".pending_payout"):
-				source_pending_payouts[source.id] = pending
+			var on_boundary := false
+			var completed_cycles: Variant
+			if is_finite(overdue_cycles):
+				var nearest_boundary := roundf(overdue_cycles)
+				on_boundary = absf(overdue_cycles - nearest_boundary) <= CYCLE_BOUNDARY_TOLERANCE
+				if on_boundary:
+					overdue_cycles = nearest_boundary
+				completed_cycles = floorf(overdue_cycles) + 1.0
+			else:
+				completed_cycles = BIG.add(BIG.floored(BIG.divide(-remaining, production_time)), 1.0)
+			var pending: Variant = source_pending_payouts.get(source.id, 0.0)
+			var accumulated := BIG.add_with_residual(pending, BIG.multiply(get_source_cycle_payout(source.id), completed_cycles))
+			var correction: Variant = BIG.add(source_pending_corrections.get(source.id, 0.0), accumulated[1])
+			if ErrorManager.validate_number(accumulated[0], "IncomeSourceData:" + source.id + ".pending_payout") and BIG.valid_signed(correction):
+				source_pending_payouts[source.id] = accumulated[0]
+				source_pending_corrections[source.id] = correction
 			remaining = production_time if on_boundary else production_time - fposmod(-remaining, production_time)
 
 		source_time_remaining[source.id] = remaining
@@ -414,12 +459,28 @@ func _process(delta: float) -> void:
 
 
 func _flush_source_payout(source_id: String) -> void:
-	var pending: float = source_pending_payouts.get(source_id, 0.0)
-	var amount := floorf(pending)
-	if amount <= 0.0:
+	var pending: Variant = source_pending_payouts.get(source_id, 0.0)
+	var pending_correction: Variant = source_pending_corrections.get(source_id, 0.0)
+	var folded := BIG.add_with_residual(pending, pending_correction)
+	var amount: Variant = BIG.floored(folded[0])
+	var correction: Variant = BIG.truncated(folded[1])
+	var remainder: Variant = BIG.subtract(folded[0], amount)
+	var remainder_correction: Variant = BIG.subtract(folded[1], correction)
+	# Borrow one won if a negative low part puts the true amount below the floor.
+	if BIG.compare(BIG.add(remainder, remainder_correction), 0.0) < 0:
+		var reduced: Variant = BIG.subtract(amount, 1.0)
+		if BIG.compare(reduced, amount) == 0:
+			correction = BIG.subtract(correction, 1.0)
+		else:
+			amount = reduced
+		remainder = BIG.add(remainder, 1.0)
+	if BIG.compare(BIG.add(amount, correction), 0.0) <= 0:
 		return
-	# Each completed cycle has already been rounded to whole won before batching.
-	# Commit state before money_changed handlers can purchase upgrades or reset it.
-	source_pending_payouts[source_id] = pending - amount
-	if not EconomyManager.add_money(amount):
+	var generation := _runtime_generation
+	# Transfer the integer low part to the wallet; keep fractional won at the source.
+	# Commit before callbacks; a prestige/reset must not resurrect pending earnings.
+	source_pending_payouts[source_id] = remainder
+	source_pending_corrections[source_id] = remainder_correction
+	if not EconomyManager.add_money(amount, correction) and generation == _runtime_generation:
 		source_pending_payouts[source_id] = pending
+		source_pending_corrections[source_id] = pending_correction

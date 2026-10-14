@@ -2,6 +2,7 @@ class_name DeveloperToolsPanel
 extends Control
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+const BIG = preload("res://scripts/BigNumber.gd")
 
 @onready var amount_input := ErrorManager.require_node(self, ^"Panel/MarginContainer/VBoxContainer/AmountInput", "LineEdit") as LineEdit
 @onready var time_multiplier_input := ErrorManager.require_node(self, ^"Panel/MarginContainer/VBoxContainer/TimeMultiplierRow/TimeMultiplierInput", "LineEdit") as LineEdit
@@ -43,11 +44,11 @@ func _refresh_multiplier_inputs() -> void:
 
 
 func _apply_multipliers() -> void:
-	var time_multiplier := _read_multiplier(time_multiplier_input, "시간", false)
-	if time_multiplier < 0.0:
+	var time_multiplier: Variant = _read_multiplier(time_multiplier_input, "시간", false)
+	if BIG.compare(time_multiplier, 0.0) < 0:
 		return
-	var income_multiplier := _read_multiplier(income_multiplier_input, "수입", true)
-	if income_multiplier < 0.0:
+	var income_multiplier: Variant = _read_multiplier(income_multiplier_input, "수입", true)
+	if BIG.compare(income_multiplier, 0.0) < 0:
 		return
 	if not EconomyManager.set_developer_multipliers(time_multiplier, income_multiplier):
 		status_label.text = "배율을 적용하지 못했습니다. 오류 메시지를 확인하세요."
@@ -59,13 +60,13 @@ func _apply_multipliers() -> void:
 	]
 
 
-func _read_multiplier(input: LineEdit, label: String, allow_zero: bool) -> float:
+func _read_multiplier(input: LineEdit, label: String, allow_zero: bool) -> Variant:
 	var value_text := input.text.strip_edges()
 	if not value_text.is_valid_float():
 		status_label.text = "유효한 %s 배율을 입력하세요." % label
 		return -1.0
-	var value := value_text.to_float()
-	if not is_finite(value) or value < 0.0 or (not allow_zero and value == 0.0):
+	var value: Variant = BIG.parse(value_text) if allow_zero else value_text.to_float()
+	if not BIG.valid(value, allow_zero) or (not allow_zero and value is BIG):
 		status_label.text = "%s 배율은 %s 입력하세요." % [label, "0 이상의 값으로" if allow_zero else "0보다 큰 값으로"]
 		return -1.0
 	return value
@@ -81,8 +82,8 @@ func _add_money() -> void:
 		status_label.text = "유효한 금액을 입력하세요."
 		return
 
-	var amount := amount_text.to_float()
-	if amount <= 0.0 or not is_finite(amount):
+	var amount: Variant = BIG.parse(amount_text)
+	if not BIG.valid(amount, false):
 		status_label.text = "0보다 큰 금액을 입력하세요."
 		return
 

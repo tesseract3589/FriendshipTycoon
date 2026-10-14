@@ -15,6 +15,7 @@
 [ext_resource type="Resource" uid="uid://di82x4fauyirx" path="res://data/buttons/vending_machine/promo_sign_button.tres" id="data_promo_sign"]
 [ext_resource type="Resource" uid="uid://bqsrg73rq6pu2" path="res://data/buttons/restaurant/restaurant_button.tres" id="data_restaurant"]
 [ext_resource type="Resource" uid="uid://15jhval862b3" path="res://data/buttons/spa/second_floor_wall_button.tres" id="data_second_floor_wall"]
+[ext_resource type="Resource" path="res://data/buttons/spa/second_floor_ceiling_button.tres" id="data_second_floor_ceiling"]
 [ext_resource type="Resource" uid="uid://bfl6o8eix7lqb" path="res://data/buttons/restaurant/serving_desk_button.tres" id="data_serving_desk"]
 [ext_resource type="Resource" uid="uid://cfkjuhjvpck4x" path="res://data/buttons/spa/spa_button.tres" id="data_spa"]
 [ext_resource type="Resource" uid="uid://dxlm12ei3ck2w" path="res://data/buttons/vending_machine/trashbin_button.tres" id="data_trashbin"]
@@ -717,6 +718,40 @@ text = "2층 벽
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="second_floor_ceiling" type="Node2D" parent="Buttons/Spa" unique_id=1684305101]
+position = Vector2(728.00006, -748)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_second_floor_ceiling")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Spa/second_floor_ceiling" unique_id=1684305102]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 22.0
+offset_right = 555.39014
+offset_bottom = 409.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Spa/second_floor_ceiling" unique_id=1684305103]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -59.0
+offset_right = 90.0
+offset_bottom = 25.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="spa" type="Node2D" parent="Buttons/Spa" unique_id=1627194831]
 position = Vector2(727, -407.25003)
 script = ExtResource("entry_script")
@@ -727,9 +762,9 @@ income_source = ExtResource("source_spa")
 z_index = 30
 z_as_relative = false
 offset_left = -38.609863
-offset_top = 56.0
+offset_top = -50.0
 offset_right = 555.39014
-offset_bottom = 443.0
+offset_bottom = 337.0
 scale = Vector2(0.13, 0.13)
 mouse_filter = 2
 mouse_default_cursor_shape = 2
@@ -743,9 +778,9 @@ stretch_mode = 4
 z_index = 40
 z_as_relative = false
 offset_left = -90.0
-offset_top = -27.0
+offset_top = -128.99997
 offset_right = 90.0
-offset_bottom = 57.0
+offset_bottom = -44.99997
 theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18

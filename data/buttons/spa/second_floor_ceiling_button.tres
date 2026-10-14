@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/spa/second_floor_ceiling_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "second_floor_ceiling"
+button_name = "2층 천장"
+price = 1000000000.0
+description = "구조물"
+type = 1
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+show_purchased_tooltip = false
+click_dialogues = PackedStringArray()
+effect_type = 5

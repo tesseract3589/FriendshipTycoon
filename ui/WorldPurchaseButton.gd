@@ -133,7 +133,7 @@ func _on_button_purchased(purchased_data: ButtonData) -> void:
 		SIZE_POP_MOTION.play(purchased_visuals)
 
 
-func _on_money_changed(_new_money: float) -> void:
+func _on_money_changed(_new_money: Variant) -> void:
 	_refresh()
 
 

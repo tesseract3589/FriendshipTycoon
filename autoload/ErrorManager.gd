@@ -1,4 +1,5 @@
 extends CanvasLayer
+const BIG = preload("res://scripts/BigNumber.gd")
 
 ## Central validation and presentation of recoverable game/data errors.
 ## Engine parse errors and missing preloads occur before these guards can run.
@@ -78,8 +79,8 @@ func validate_id(id: String, context: String) -> bool:
 	return true
 
 
-func validate_number(value: float, context: String, allow_zero: bool = true) -> bool:
-	if not is_finite(value) or value < 0.0 or (not allow_zero and value == 0.0):
+func validate_number(value: Variant, context: String, allow_zero: bool = true) -> bool:
+	if not BIG.valid(value, allow_zero):
 		report_error("INVALID_NUMBER", "유효하지 않은 수치입니다: %s" % str(value), context)
 		return false
 	return true
@@ -150,7 +151,7 @@ func validate_condition(condition: UnlockCondition, buttons: Array, context: Str
 		return true
 	match condition.type:
 		UnlockCondition.Type.MONEY:
-			return validate_number(condition.amount, context + ".amount")
+			return validate_number(condition.get_amount(), context + ".amount")
 		UnlockCondition.Type.TOTAL_JJAM:
 			if not validate_number(condition.amount, context + ".amount"):
 				return false
@@ -172,7 +173,7 @@ func validate_button(button: ButtonData, buttons: Array, sources: Array) -> bool
 	var context := "ButtonData:" + button.id
 	if find_resource(buttons, button.id, "ButtonData") != button:
 		return false
-	var valid := validate_number(button.price, context + ".price")
+	var valid := validate_number(button.get_price(), context + ".price")
 	if button.price > 0.0 and roundf(button.price) == 0.0:
 		report_error("INVALID_PRICE", "가격을 원 단위로 반올림하면 0원이 됩니다.", context)
 		valid = false

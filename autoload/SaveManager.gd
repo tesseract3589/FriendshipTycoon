@@ -1,4 +1,5 @@
 extends Node
+const BIG = preload("res://scripts/BigNumber.gd")
 
 signal slots_changed()
 signal progress_loaded(slot: int)
@@ -172,7 +173,7 @@ func get_slot_info(slot: int) -> Dictionary:
 	info.valid = _validate_progress(state)
 	if info.valid:
 		info.saved_at = config.get_value("slot", "saved_at", "")
-		info.money = state.economy.money
+		info.money = BIG.deserialize(state.economy.money)
 	return info
 
 
@@ -276,10 +277,12 @@ func _create_initial_progress() -> Dictionary:
 				"speed_multiplier": 1.0,
 				"time_remaining": 0.0,
 				"pending_payout": 0.0,
+				"pending_correction": 0.0,
 			}
 	return {
 		"economy": {
 			"money": 0.0,
+			"money_correction": 0.0,
 			"global_multiplier": 1.0,
 			"global_time_multiplier": 1.0,
 			"developer_income_multiplier": 1.0,
@@ -302,20 +305,22 @@ func _capture_progress() -> Dictionary:
 			source_states[source.id] = {
 				"active": IncomeManager.source_active.get(source.id, false),
 				"level": IncomeManager.source_levels.get(source.id, 1),
-				"multiplier": IncomeManager.source_multipliers.get(source.id, source.multiplier),
+				"multiplier": BIG.serialize(IncomeManager.source_multipliers.get(source.id, source.multiplier)),
 				"speed_multiplier": IncomeManager.source_speed_multipliers.get(source.id, 1.0),
 				"time_remaining": IncomeManager.source_time_remaining.get(source.id, 0.0),
-				"pending_payout": IncomeManager.source_pending_payouts.get(source.id, 0.0),
+				"pending_payout": BIG.serialize(IncomeManager.source_pending_payouts.get(source.id, 0.0)),
+				"pending_correction": BIG.serialize(IncomeManager.source_pending_corrections.get(source.id, 0.0)),
 			}
 	return {
 		"economy": {
-			"money": EconomyManager.money,
-			"global_multiplier": EconomyManager.global_multiplier,
+			"money": BIG.serialize(EconomyManager.money),
+			"money_correction": BIG.serialize(EconomyManager.money_correction),
+			"global_multiplier": BIG.serialize(EconomyManager.global_multiplier),
 			"global_time_multiplier": EconomyManager.global_time_multiplier,
-			"developer_income_multiplier": EconomyManager.developer_income_multiplier,
+			"developer_income_multiplier": BIG.serialize(EconomyManager.developer_income_multiplier),
 			"developer_time_multiplier": EconomyManager.developer_time_multiplier,
 		},
-		"prestige": {"total_jjam": PrestigeManager.total_jjam, "current_jjam": PrestigeManager.current_jjam},
+		"prestige": {"total_jjam": BIG.serialize_count(PrestigeManager.total_jjam), "current_jjam": BIG.serialize_count(PrestigeManager.current_jjam)},
 		"buttons": button_states,
 		"sources": source_states,
 	}
@@ -329,17 +334,26 @@ func _validate_progress(value: Variant) -> bool:
 		if not state.get(key) is Dictionary:
 			return false
 	var economy: Dictionary = state.economy
+	var correction: Variant = economy.get("money_correction", 0.0)
+	if correction is Dictionary and not BIG.is_serialized(correction, true):
+		return false
+	correction = BIG.deserialize(correction, true)
+	if not BIG.valid_signed(correction):
+		return false
 	for key in ["money", "global_multiplier", "developer_income_multiplier"]:
 		if not _valid_number(economy.get(key)):
 			return false
 	for key in ["global_time_multiplier", "developer_time_multiplier"]:
-		if not _valid_number(economy.get(key), true):
+		if not (economy.get(key) is float or economy.get(key) is int) or not _valid_number(economy.get(key), true):
 			return false
-	if not _valid_number(economy.global_multiplier * economy.developer_income_multiplier) \
+	if BIG.compare(BIG.add(BIG.deserialize(economy.money), correction), 0.0) < 0:
+		return false
+	if not _valid_number(BIG.multiply(BIG.deserialize(economy.global_multiplier), BIG.deserialize(economy.developer_income_multiplier))) \
 		or not _valid_number(economy.global_time_multiplier * economy.developer_time_multiplier, true):
 		return false
 	for key in ["total_jjam", "current_jjam"]:
-		if not state.prestige.get(key) is int or state.prestige[key] < 0:
+		var count: Variant = state.prestige.get(key)
+		if not ((count is int and count >= 0) or (BIG.is_serialized(count) and count.decimal_exponent >= 18)):
 			return false
 	for id in state.buttons:
 		var button: Variant = state.buttons[id]
@@ -356,37 +370,51 @@ func _validate_progress(value: Variant) -> bool:
 		for key in ["multiplier", "speed_multiplier"]:
 			if not _valid_number(source.get(key), true):
 				return false
+		if not (source.speed_multiplier is float or source.speed_multiplier is int):
+			return false
 		for key in ["time_remaining", "pending_payout"]:
 			if not _valid_number(source.get(key)):
 				return false
-		# Reject impossible levels before the cumulative-income calculation can loop.
+		if not (source.time_remaining is float or source.time_remaining is int):
+			return false
+		var pending_correction: Variant = source.get("pending_correction", 0.0)
+		if pending_correction is Dictionary and not BIG.is_serialized(pending_correction, true):
+			return false
+		pending_correction = BIG.deserialize(pending_correction, true)
+		if not BIG.valid_signed(pending_correction) or BIG.compare(BIG.add(BIG.deserialize(source.pending_payout), pending_correction), 0.0) < 0:
+			return false
+		# Reject levels whose cost is outside the extended numeric range.
 		if not IncomeManager.source_active.has(id):
 			continue # Removed content can remain in older saves.
 		var definition := IncomeManager.get_source(id)
-		if source.level > 1 and not is_finite(IncomeManager._get_upgrade_cost_at_level(definition, source.level - 1)):
+		if source.level > 1 and not BIG.valid(IncomeManager._get_upgrade_cost_at_level(definition, source.level - 1)):
 			return false
 		var production_time: float = definition.base_time * definition.time_multiplier / source.speed_multiplier / economy.global_time_multiplier / economy.developer_time_multiplier
 		if not _valid_number(production_time, true):
 			return false
-		if not _valid_number(source.multiplier * economy.global_multiplier * economy.developer_income_multiplier):
+		if not _valid_number(BIG.multiply(BIG.multiply(BIG.deserialize(source.multiplier), BIG.deserialize(economy.global_multiplier)), BIG.deserialize(economy.developer_income_multiplier))):
 			return false
 	return true
 
 
 func _valid_number(value: Variant, positive: bool = false) -> bool:
-	return (value is float or value is int) and is_finite(float(value)) \
-		and (float(value) > 0.0 if positive else float(value) >= 0.0)
+	if value is Dictionary:
+		return BIG.is_serialized(value)
+	return BIG.valid(value, not positive)
 
 
 func _restore_progress(state: Dictionary) -> void:
+	# Loading replaces the pending ledger just like a reset; invalidate in-flight payouts.
+	IncomeManager._runtime_generation += 1
 	var economy: Dictionary = state.economy
-	EconomyManager.money = economy.money
-	EconomyManager.global_multiplier = economy.global_multiplier
+	EconomyManager.money = BIG.deserialize(economy.money)
+	EconomyManager.money_correction = BIG.deserialize(economy.get("money_correction", 0.0), true)
+	EconomyManager.global_multiplier = BIG.deserialize(economy.global_multiplier)
 	EconomyManager.global_time_multiplier = economy.global_time_multiplier
-	EconomyManager.developer_income_multiplier = economy.developer_income_multiplier
+	EconomyManager.developer_income_multiplier = BIG.deserialize(economy.developer_income_multiplier)
 	EconomyManager.developer_time_multiplier = economy.developer_time_multiplier
-	PrestigeManager.total_jjam = state.prestige.total_jjam
-	PrestigeManager.current_jjam = state.prestige.current_jjam
+	PrestigeManager.total_jjam = BIG.deserialize(state.prestige.total_jjam)
+	PrestigeManager.current_jjam = BIG.deserialize(state.prestige.current_jjam)
 	for button in ButtonManager.buttons:
 		if button != null:
 			var saved: Dictionary = state.buttons.get(button.id, _defaults.buttons[button.id])
@@ -399,10 +427,11 @@ func _restore_progress(state: Dictionary) -> void:
 		var saved: Dictionary = state.sources.get(source.id, _defaults.sources[source.id])
 		IncomeManager.source_active[source.id] = saved.active
 		IncomeManager.source_levels[source.id] = saved.level
-		IncomeManager.source_multipliers[source.id] = saved.multiplier
+		IncomeManager.source_multipliers[source.id] = BIG.deserialize(saved.multiplier)
 		IncomeManager.source_speed_multipliers[source.id] = saved.speed_multiplier
 		IncomeManager.source_time_remaining[source.id] = saved.time_remaining
-		IncomeManager.source_pending_payouts[source.id] = saved.pending_payout
+		IncomeManager.source_pending_payouts[source.id] = BIG.deserialize(saved.pending_payout)
+		IncomeManager.source_pending_corrections[source.id] = BIG.deserialize(saved.get("pending_correction", 0.0), true)
 		IncomeManager.source_timer_display_keys[source.id] = IncomeManager._get_timer_display_key(saved.time_remaining)
 	# Notify only after all managers agree. Effects are already saved, so do not replay purchases.
 	ButtonManager.update_button_states(true)

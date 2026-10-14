@@ -1,4 +1,5 @@
 extends Node
+const BIG = preload("res://scripts/BigNumber.gd")
 
 
 @export var buttons: Array[ButtonData] = [
@@ -20,6 +21,7 @@ extends Node
 	preload("res://data/buttons/restaurant/front_door_button.tres"),
 	preload("res://data/buttons/restaurant/poster_fast_eat_button.tres"),
 	preload("res://data/buttons/spa/second_floor_wall_button.tres"),
+	preload("res://data/buttons/spa/second_floor_ceiling_button.tres"),
 	preload("res://data/buttons/spa/spa_button.tres"),
 	preload("res://data/buttons/spa/pool_cold_button.tres"),
 	preload("res://data/buttons/spa/pool_warm_button.tres")
@@ -43,7 +45,7 @@ func _ready() -> void:
 	update_button_states()
 
 
-func _on_money_changed(_new_money: float) -> void:
+func _on_money_changed(_new_money: Variant) -> void:
 	update_button_states()
 
 
@@ -79,12 +81,12 @@ func is_unlocked(button_data: ButtonData) -> bool:
 	match condition.type:
 
 		UnlockCondition.Type.MONEY:
-			return EconomyManager.money >= condition.amount
+			return BIG.compare(EconomyManager.money, condition.get_amount()) >= 0
 		UnlockCondition.Type.TOTAL_JJAM:
-			if PrestigeManager.total_jjam < 0:
+			if BIG.compare(PrestigeManager.total_jjam, 0) < 0:
 				PrestigeManager.get_total_jjam()
 				return false
-			return PrestigeManager.get_total_jjam() >= int(condition.amount)
+			return BIG.compare(PrestigeManager.get_total_jjam(), condition.amount) >= 0
 
 
 		UnlockCondition.Type.BUTTON:
@@ -136,7 +138,7 @@ func can_purchase(
 
 
 	# 돈 부족
-	if not EconomyManager.can_afford(button_data.price):
+	if not EconomyManager.can_afford(button_data.get_price()):
 		return false
 
 
@@ -165,7 +167,7 @@ func purchase(
 
 	# Spending emits money_changed synchronously, so guard against reentrant purchases.
 	_purchases_in_progress[button_data.get_instance_id()] = true
-	if button_data.price > 0.0 and not EconomyManager.spend_money(button_data.price):
+	if BIG.compare(button_data.get_price(), 0.0) > 0 and not EconomyManager.spend_money(button_data.get_price()):
 		_purchases_in_progress.erase(button_data.get_instance_id())
 		return false
 
@@ -208,17 +210,17 @@ func _is_effect_valid(button_data: ButtonData) -> bool:
 				IncomeManager.get_source_multiplier(button_data.effect_target), button_data.effect_value, context
 			)
 		ButtonData.EffectType.SOURCE_SPEED_MULTIPLIER:
-			return IncomeManager.source_speed_multipliers.has(button_data.effect_target) and _is_valid_multiplier_product(
-				IncomeManager.source_speed_multipliers.get(button_data.effect_target, 1.0), button_data.effect_value, context
+			return IncomeManager.source_speed_multipliers.has(button_data.effect_target) and ErrorManager.validate_number(
+				IncomeManager.source_speed_multipliers.get(button_data.effect_target, 1.0) * button_data.effect_value, context, false
 			) and ErrorManager.validate_number(IncomeManager.get_source_production_time(button_data.effect_target) / button_data.effect_value, context + ".production_time", false)
 		ButtonData.EffectType.GLOBAL_MULTIPLIER:
 			return _is_valid_multiplier_product(EconomyManager.global_multiplier, button_data.effect_value, context) and ErrorManager.validate_number(
-				EconomyManager.get_global_multiplier() * button_data.effect_value, context + ".effective"
+				BIG.multiply(EconomyManager.get_global_multiplier(), button_data.effect_value), context + ".effective"
 			)
 		ButtonData.EffectType.GLOBAL_TIME_MULTIPLIER:
-			if not _is_valid_multiplier_product(EconomyManager.global_time_multiplier, button_data.effect_value, context):
+			if not ErrorManager.validate_number(EconomyManager.global_time_multiplier * button_data.effect_value, context, false):
 				return false
-			if not _is_valid_multiplier_product(EconomyManager.get_global_time_multiplier(), button_data.effect_value, context):
+			if not ErrorManager.validate_number(EconomyManager.get_global_time_multiplier() * button_data.effect_value, context, false):
 				return false
 			for source in IncomeManager.sources:
 				if source != null and not ErrorManager.validate_number(IncomeManager.get_source_production_time(source.id) / button_data.effect_value, context + ":" + source.id, false):
@@ -228,8 +230,8 @@ func _is_effect_valid(button_data: ButtonData) -> bool:
 	return false
 
 
-func _is_valid_multiplier_product(current_value: float, factor: float, context: String) -> bool:
-	var updated_value := current_value * factor
+func _is_valid_multiplier_product(current_value: Variant, factor: float, context: String) -> bool:
+	var updated_value: Variant = BIG.multiply(current_value, factor)
 	return ErrorManager.validate_number(updated_value, context, false)
 
 

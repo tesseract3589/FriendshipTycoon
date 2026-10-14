@@ -1,6 +1,7 @@
 extends Node
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+const BIG = preload("res://scripts/BigNumber.gd")
 const LOG_PATH := "res://logs/balance_playthrough.txt"
 const SIMULATION_FPS: int = 60
 const MAX_SIMULATION_SECONDS: int = 86400
@@ -61,8 +62,8 @@ func _check_income_curves() -> void:
 			continue
 		var previous_ratio := INF
 		for level in [1, 2, 3, 10, 30, 60]:
-			var payout := IncomeManager._get_source_payout_at_level(source, level)
-			var gain := IncomeManager._get_upgrade_cycle_gain_at_level(source, level)
+			var payout: float = IncomeManager._get_source_payout_at_level(source, level)
+			var gain: float = IncomeManager._get_upgrade_cycle_gain_at_level(source, level)
 			if not is_finite(payout) or payout <= 0.0 or not is_finite(gain) or gain <= 0.0:
 				_failure = "레벨업 곡선에 유효한 수입 증가가 없습니다: " + source.source_name
 				return
@@ -75,20 +76,20 @@ func _check_income_curves() -> void:
 				return
 			previous_ratio = ratio
 		# Editing a .tres setting during play must also invalidate cached income.
-		var before := IncomeManager._get_source_payout_at_level(source, 10)
+		var before: float = IncomeManager._get_source_payout_at_level(source, 10)
 		var original_ratio := source.upgrade_first_income_ratio
 		var original_decay := source.upgrade_income_decay
 		var original_base := source.base_income
 		source.upgrade_first_income_ratio = original_ratio * 1.1
-		var raised_first_gain := IncomeManager._get_source_payout_at_level(source, 10)
+		var raised_first_gain: float = IncomeManager._get_source_payout_at_level(source, 10)
 		source.upgrade_first_income_ratio = original_ratio
 		source.upgrade_income_decay = original_decay + 1.0
-		var steeper_decay := IncomeManager._get_source_payout_at_level(source, 10)
+		var steeper_decay: float = IncomeManager._get_source_payout_at_level(source, 10)
 		source.upgrade_income_decay = original_decay
 		source.base_income = original_base * 2.0
-		var raised_base := IncomeManager._get_source_payout_at_level(source, 10)
+		var raised_base: float = IncomeManager._get_source_payout_at_level(source, 10)
 		source.base_income = original_base
-		var restored := IncomeManager._get_source_payout_at_level(source, 10)
+		var restored: float = IncomeManager._get_source_payout_at_level(source, 10)
 		if raised_first_gain <= before or steeper_decay >= before or not is_equal_approx(raised_base, before * 2.0) or not is_equal_approx(restored, before):
 			_failure = "수입원 설정을 변경해도 이전 캐시가 유지됩니다: " + source.source_name
 			return
@@ -100,7 +101,7 @@ func _play() -> void:
 			_failure = "안전 한도에 도달했습니다. 해금 조건과 진행 속도를 확인하세요."
 			return
 		var candidate := _get_cheapest_candidate()
-		if not candidate.is_empty() and EconomyManager.can_afford(float(candidate.cost)):
+		if not candidate.is_empty() and EconomyManager.can_afford(candidate.cost):
 			if not _purchase(candidate):
 				return
 			# Re-evaluate immediately: a purchase may unlock a cheaper button.
@@ -125,14 +126,14 @@ func _get_cheapest_candidate() -> Dictionary:
 			continue
 		if not _unlock_frames.has(button.id):
 			_unlock_frames[button.id] = _frame
-		var cost := roundf(button.price)
-		if cheapest.is_empty() or cost < float(cheapest.cost):
+		var cost: Variant = BIG.rounded(button.get_price())
+		if cheapest.is_empty() or BIG.compare(cost, cheapest.cost) < 0:
 			cheapest = {"kind": "button", "id": button.id, "name": button.button_name, "cost": cost}
 	for source in IncomeManager.sources:
 		if source == null or not IncomeManager.source_active.get(source.id, false):
 			continue
-		var cost := IncomeManager.get_upgrade_cost(source.id)
-		if cost > 0.0 and (cheapest.is_empty() or cost < float(cheapest.cost)):
+		var cost: Variant = IncomeManager.get_upgrade_cost(source.id)
+		if BIG.compare(cost, 0.0) > 0 and (cheapest.is_empty() or BIG.compare(cost, cheapest.cost) < 0):
 			var level := IncomeManager.get_source_level(source.id)
 			cheapest = {
 				"kind": "upgrade", "id": source.id, "cost": cost, "level": level,
@@ -142,8 +143,8 @@ func _get_cheapest_candidate() -> Dictionary:
 
 
 func _purchase(candidate: Dictionary) -> bool:
-	var money_before := EconomyManager.money
-	var preview_payout := IncomeManager.get_next_upgrade_cycle_payout(candidate.id) if candidate.kind == "upgrade" else 0.0
+	var money_before: Variant = EconomyManager.money
+	var preview_payout: Variant = IncomeManager.get_next_upgrade_cycle_payout(candidate.id) if candidate.kind == "upgrade" else 0.0
 	var success: bool
 	if candidate.kind == "button":
 		success = ButtonManager.purchase_by_id(candidate.id)
@@ -152,13 +153,13 @@ func _purchase(candidate: Dictionary) -> bool:
 	if not success:
 		_failure = "최저가 항목 구매에 실패했습니다: " + str(candidate.name)
 		return false
-	if EconomyManager.money != money_before - float(candidate.cost):
+	if BIG.compare(EconomyManager.money, BIG.subtract(money_before, candidate.cost)) != 0:
 		_failure = "구매 가격과 실제 차감액이 다릅니다: " + str(candidate.name)
 		return false
 	if candidate.kind == "upgrade" and IncomeManager.get_source_level(candidate.id) != int(candidate.level) + 1:
 		_failure = "수입원 레벨이 정상적으로 증가하지 않았습니다: " + str(candidate.name)
 		return false
-	if candidate.kind == "upgrade" and IncomeManager.get_source_cycle_payout(candidate.id) != preview_payout:
+	if candidate.kind == "upgrade" and BIG.compare(IncomeManager.get_source_cycle_payout(candidate.id), preview_payout) != 0:
 		_failure = "다음 레벨 미리보기와 실제 회당 수입이 다릅니다: " + str(candidate.name)
 		return false
 	var order := _purchase_records.size() + 1
@@ -206,7 +207,7 @@ func _has_unpurchased_buttons() -> bool:
 
 func _has_production_income() -> bool:
 	for source in IncomeManager.sources:
-		if source != null and IncomeManager.source_active.get(source.id, false) and IncomeManager.get_source_cycle_payout(source.id) > 0.0:
+		if source != null and IncomeManager.source_active.get(source.id, false) and BIG.compare(IncomeManager.get_source_cycle_payout(source.id), 0.0) > 0:
 			return true
 	return false
 
@@ -272,5 +273,5 @@ func _duration(frames: int) -> String:
 	return "%.2f초 (%d분 %05.2f초)" % [seconds, minutes, seconds - minutes * 60.0]
 
 
-func _won(amount: float) -> String:
+func _won(amount: Variant) -> String:
 	return NUMBER_FORMATTER.format_number(amount) + "원"

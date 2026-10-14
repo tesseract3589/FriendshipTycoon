@@ -3,6 +3,7 @@ class_name ButtonData
 extends Resource
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+const BIG = preload("res://scripts/BigNumber.gd")
 
 enum Type {
 	INCOME_SOURCE,
@@ -27,6 +28,12 @@ enum EffectType {
 @export var price: float = 0.0:
 	set(value):
 		price = value
+		emit_changed()
+
+## Optional price beyond float range, e.g. "1.25e500". Empty uses price.
+@export var large_price: String = "":
+	set(value):
+		large_price = value
 		emit_changed()
 
 @export_category("Purchase Description")
@@ -109,8 +116,12 @@ func get_purchase_label_text(source_name_override: String = "") -> String:
 	return "%s\n%s\n가격: %s" % [
 		button_name,
 		get_purchase_description(source_name_override),
-		"무료" if is_zero_approx(price) else NUMBER_FORMATTER.format_number(price)
+		"무료" if BIG.compare(get_price(), 0.0) == 0 else NUMBER_FORMATTER.format_number(get_price()) + "원"
 	]
+
+
+func get_price() -> Variant:
+	return price if large_price.strip_edges().is_empty() else BIG.parse(large_price)
 
 
 func get_purchased_tooltip_text() -> String:

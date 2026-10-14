@@ -425,5 +425,5 @@ func _create_world_click_dialogues() -> void:
 
 
 func _refresh_finances(_value = null) -> void:
-	money_label.text = "자금: %s원" % NUMBER_FORMATTER.format_number(EconomyManager.money)
+	money_label.text = "자금: %s원" % NUMBER_FORMATTER.format_current_money(EconomyManager.money)
 	income_label.text = "수입: %s원 / 초" % NUMBER_FORMATTER.format_income_per_second(IncomeManager.get_total_income_per_second())

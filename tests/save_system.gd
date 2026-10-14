@@ -110,7 +110,7 @@ func _run() -> void:
 	ui.confirmation.hide()
 	ui.confirmation.confirmed.emit()
 	_check(SaveManager._capture_progress() == expected, "Loading through the real UI did not restore progress.")
-	_check(main.get_node("HUD/Panel/VBoxContainer/MoneyLabel").text.contains(preload("res://scripts/NumberFormatter.gd").format_number(expected.economy.money)), "Money HUD failed after restoration.")
+	_check(main.get_node("HUD/Panel/VBoxContainer/MoneyLabel").text == "자금: %s원" % preload("res://scripts/NumberFormatter.gd").format_current_money(expected.economy.money), "Money HUD failed after restoration.")
 	_check((main.get_node("World/IncomeSourceViews").get_child(0) as IncomeSourceView).source_is_active, "Income-source visuals failed after restoration.")
 	ui.save_button.pressed.emit()
 	_check(ui.confirmation.visible, "Overwrite must show a confirmation.")
@@ -226,7 +226,7 @@ func _test_empty_loads(main: Node, ui: Control, initial_progress: Dictionary, sa
 	ui._slot_buttons[1].pressed.emit()
 	_check(not ui.load_button.disabled, "The empty slot load button is disabled.")
 	ui.load_button.pressed.emit()
-	_check(ui.confirmation.visible and ui.confirmation.dialog_text.contains("자판기도 구매하지 않은 초기 상태") and ui.confirmation.dialog_text.contains("현재 진행은 사라집니다"), "Empty-slot loading must explain the new game and loss of unsaved progress.")
+	_check(ui.confirmation.visible and ui.confirmation.title == "새 게임 시작" and ui.confirmation.dialog_text.contains("초기 상태로 시작") and ui.confirmation.dialog_text.contains("현재 진행은 사라집니다"), "Empty-slot loading must explain the new game and loss of unsaved progress.")
 	await _screenshot("empty_load_warning.png")
 	ui.confirmation.hide()
 	ui.confirmation.canceled.emit()
@@ -237,7 +237,7 @@ func _test_empty_loads(main: Node, ui: Control, initial_progress: Dictionary, sa
 	ui.confirmation.confirmed.emit()
 	_check(SaveManager._capture_progress() == initial_progress, "An empty slot did not reset purchases, permanent purchases, money, prestige, upgrades, multipliers and production timers.")
 	_check(ui.status_label.text.contains("새 게임을 시작"), "Empty-slot loading did not show new-game feedback.")
-	_check(main.get_node("HUD/Panel/VBoxContainer/MoneyLabel").text.contains("0원"), "The HUD did not return to zero money.")
+	_check(main.get_node("HUD/Panel/VBoxContainer/MoneyLabel").text == "자금: 0.0000원", "The HUD did not return to zero money.")
 	var vending_view := main.get_node("World/IncomeSourceViews/vending_machine_PurchaseView") as WorldPurchaseButton
 	_check(vending_view.is_visible_in_tree() and vending_view.texture_button.visible and not vending_view.texture_button.disabled, "A new game must show the available vending-machine purchase button.")
 	for visual in vending_view.purchased_visuals:
