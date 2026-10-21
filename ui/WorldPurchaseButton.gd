@@ -92,6 +92,7 @@ func _refresh() -> void:
 		button_data.bought and world_texture != null
 	)
 	var has_purchased_visual := button_data.bought and not purchased_visuals.is_empty()
+	var has_hover_animation := purchased_visuals.any(func(visual: Node2D) -> bool: return visual.has_method("set_hovered"))
 	for purchased_visual in purchased_visuals:
 		if not ErrorManager.validate_instance(purchased_visual, "WorldPurchaseButton:" + button_data.id):
 			continue
@@ -104,11 +105,14 @@ func _refresh() -> void:
 			and (
 				button_data.show_purchased_tooltip
 				or not button_data.click_dialogues.is_empty()
+				or has_hover_animation
 			)
 		)
 	if not button_data.bought:
+		SIZE_POP_MOTION.stop(purchased_visuals)
 		_pointer_over_areas.clear()
 		TooltipManager.hide_tooltip(button_data.id)
+	_update_hover_visuals()
 	texture_button.visible = not button_data.bought
 	info_label.visible = not button_data.bought
 	info_label.text = button_data.get_purchase_label_text()
@@ -131,6 +135,24 @@ func _on_button_purchased(purchased_data: ButtonData) -> void:
 	if button_data != null and purchased_data.id == button_data.id:
 		_refresh()
 		SIZE_POP_MOTION.play(purchased_visuals)
+	elif button_data != null and _is_multiplier_target(purchased_data):
+		SIZE_POP_MOTION.pulse(purchased_visuals)
+
+
+func _is_multiplier_target(purchased_data: ButtonData) -> bool:
+	if (
+		not button_data.bought
+		or button_data.effect_type != ButtonData.EffectType.ACTIVATE_SOURCE
+		or not IncomeManager.source_active.get(button_data.effect_target, false)
+		or purchased_data.effect_value == 1.0
+	):
+		return false
+	match purchased_data.effect_type:
+		ButtonData.EffectType.SOURCE_MULTIPLIER, ButtonData.EffectType.SOURCE_SPEED_MULTIPLIER:
+			return purchased_data.effect_target == button_data.effect_target
+		ButtonData.EffectType.GLOBAL_MULTIPLIER, ButtonData.EffectType.GLOBAL_TIME_MULTIPLIER:
+			return true
+	return false
 
 
 func _on_money_changed(_new_money: Variant) -> void:
@@ -190,14 +212,25 @@ func _configure_hover_areas() -> void:
 
 
 func _on_mouse_entered_sprite(area_id: int) -> void:
+	if button_data == null or not button_data.bought:
+		return
 	_pointer_over_areas[area_id] = true
+	_update_hover_visuals()
 	_refresh_purchased_tooltip()
 
 
 func _on_mouse_exited_sprite(area_id: int) -> void:
 	_pointer_over_areas.erase(area_id)
+	_update_hover_visuals()
 	if _pointer_over_areas.is_empty() and button_data != null:
 		TooltipManager.hide_tooltip(button_data.id)
+
+
+func _update_hover_visuals() -> void:
+	var hovered := button_data != null and button_data.bought and not _pointer_over_areas.is_empty()
+	for visual in purchased_visuals:
+		if is_instance_valid(visual) and visual.has_method("set_hovered"):
+			visual.set_hovered(hovered)
 
 
 func _refresh_purchased_tooltip() -> void:

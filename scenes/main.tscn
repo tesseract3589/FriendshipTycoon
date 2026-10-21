@@ -9,6 +9,11 @@
 [ext_resource type="PackedScene" uid="uid://dtvh8n4u7xuir" path="res://scenes/world_layout.tscn" id="8_world_layout"]
 [ext_resource type="PackedScene" uid="uid://cndgmkkn4cxlg" path="res://scenes/button_layout.tscn" id="9_button_layout"]
 [ext_resource type="PackedScene" path="res://ui/save_slots_panel.tscn" id="10_save_slots"]
+[ext_resource type="PackedScene" uid="uid://d0dkn6j0mmh" path="res://ui/phone_dm_panel.tscn" id="11_phone_dm"]
+[ext_resource type="PackedScene" path="res://ui/event_reward_deposit.tscn" id="12_event_reward"]
+[ext_resource type="Script" uid="uid://b66qgx3re7m7r" path="res://ui/CameraTutorial.gd" id="13_camera_tutorial"]
+[ext_resource type="PackedScene" path="res://ui/cat_watching_event.tscn" id="14_cat_event"]
+[ext_resource type="PackedScene" path="res://ui/jjam_prestige_panel.tscn" id="15_jjam_prestige"]
 
 [node name="Main" type="Node2D" unique_id=1474638925]
 script = ExtResource("2_game_ui")
@@ -101,13 +106,15 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "수입: 0원 / 초"
 
-[node name="DeveloperTools" parent="HUD" unique_id=1112298444 instance=ExtResource("6_developer_tools")]
-visible = false
-layout_mode = 3
+[node name="PhoneDMPanel" parent="HUD" unique_id=162818714 instance=ExtResource("11_phone_dm")]
 
 [node name="IncomeUpgradePanel" parent="HUD" unique_id=1836911926 instance=ExtResource("7_income_upgrade")]
 
-[node name="SaveSlotsPanel" parent="HUD" instance=ExtResource("10_save_slots")]
+[node name="jjam_prestige_panel" parent="HUD" unique_id=1328254666 instance=ExtResource("15_jjam_prestige")]
+
+[node name="SaveSlotsPanel" parent="HUD" unique_id=1784676476 instance=ExtResource("10_save_slots")]
+
+[node name="EventRewardDeposit" parent="HUD" unique_id=429058265 instance=ExtResource("12_event_reward")]
 
 [node name="CameraTutorial" type="CenterContainer" parent="HUD" unique_id=1807127713]
 visible = false
@@ -118,6 +125,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+script = ExtResource("13_camera_tutorial")
 
 [node name="Label" type="Label" parent="HUD/CameraTutorial" unique_id=851752071]
 custom_minimum_size = Vector2(900, 100)
@@ -129,3 +137,12 @@ theme_override_font_sizes/font_size = 48
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
+
+[node name="CatWatchingEvent" parent="." unique_id=592080937 instance=ExtResource("14_cat_event")]
+
+[node name="DeveloperHUD" type="CanvasLayer" parent="." unique_id=2119747189]
+layer = 10
+
+[node name="DeveloperTools" parent="DeveloperHUD" unique_id=1112298444 instance=ExtResource("6_developer_tools")]
+visible = false
+layout_mode = 3

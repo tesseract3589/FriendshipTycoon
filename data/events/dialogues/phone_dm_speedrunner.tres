@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PhoneDMDialogueData" format=3 uid="uid://bedp4hj2r7av7"]
+
+[ext_resource type="Script" uid="uid://d20v4ti23htw" path="res://scripts/ResourceInit/PhoneDMDialogueData.gd" id="1_auhre"]
+
+[resource]
+script = ExtResource("1_auhre")
+contact_name = "스피드러너"
+greeting = "안녕하세요전국스피드런협회에서나왔습니다"
+introduction = "부식스피드런세계기록도전중입니다"
+offer_1 = "{amount}원에주시면안되나요"
+refusal_1 = "앗"
+offer_2 = "그럼그럼요이정도로는어림도없을걸예상했습니다하지만저의타자속도와띄어쓰기를절대하지않겠다는철학그리고자금력은국내최고급아무도따라올자가없죠그렇다면가격을조금올려보도록하겠습니다.{amount}원에주세요"
+refusal_2 = "크윽.저의자금력도점점바닥을보이는군요"
+offer_3 = "{amount}원.지금따내면세계기록인데한번만도와주시죠"
+refusal_3 = "아니나였으면이가격에는줬다"
+final_offer = "마지막 제안, {amount}원! 저의 철학까지 어겨가면서 정중히 부탁드립니다"
+acceptance = "죠습니다죠습니다상어입니다굿굿"
+breakdown = "이번런은실패...리트군요"
+player_accept = "그럼 이 계좌로 입금 부탁드립니다"
+player_bargain = "?"
+player_reject = "문자 잘못 보내셨습니다."

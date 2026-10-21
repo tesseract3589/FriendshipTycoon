@@ -30,7 +30,7 @@ func reset_money() -> void:
 	money_changed.emit(money)
 
 
-func add_money(amount: Variant, correction: Variant = 0.0) -> bool:
+func add_money(amount: Variant, correction: Variant = 0.0, earned_income: bool = false) -> bool:
 	if not ErrorManager.validate_number(amount, "EconomyManager.add_money") or BIG.compare(amount, 0.0) == 0:
 		return false
 	if not BIG.valid_signed(correction) or BIG.compare(BIG.add(amount, correction), 0.0) < 0:
@@ -40,7 +40,11 @@ func add_money(amount: Variant, correction: Variant = 0.0) -> bool:
 	if BIG.compare(rounded_amount, 0.0) <= 0:
 		ErrorManager.report_error("INVALID_AMOUNT", "원 단위로 반올림한 금액이 0입니다.", "EconomyManager.add_money")
 		return false
-	return _apply_money_delta(rounded_amount, correction)
+	return _apply_money_delta(rounded_amount, correction, earned_income)
+
+
+func add_income(amount: Variant, correction: Variant = 0.0) -> bool:
+	return add_money(amount, correction, true)
 
 
 func can_afford(amount: Variant) -> bool:
@@ -49,7 +53,10 @@ func can_afford(amount: Variant) -> bool:
 	return BIG.compare(BIG.add(BIG.subtract(money, BIG.rounded(amount)), money_correction), 0.0) >= 0
 
 
-func spend_money(amount: Variant) -> bool:
+## commit_purchase updates associated purchase state after payment succeeds,
+## before money_changed observers can save, reload or request another purchase.
+## It must only commit state, without emitting signals itself.
+func spend_money(amount: Variant, commit_purchase: Callable = Callable()) -> bool:
 	if not ErrorManager.validate_number(amount, "EconomyManager.spend_money", false):
 		return false
 
@@ -57,10 +64,10 @@ func spend_money(amount: Variant) -> bool:
 	if BIG.compare(rounded_amount, 0.0) <= 0 or not can_afford(rounded_amount):
 		return false
 
-	return _apply_money_delta(BIG.subtract(0.0, rounded_amount))
+	return _apply_money_delta(BIG.subtract(0.0, rounded_amount), 0.0, false, commit_purchase)
 
 
-func _apply_money_delta(delta: Variant, extra_correction: Variant = 0.0) -> bool:
+func _apply_money_delta(delta: Variant, extra_correction: Variant = 0.0, earned_income: bool = false, commit_purchase: Callable = Callable()) -> bool:
 	var addition := BIG.add_with_residual(money, delta)
 	var correction: Variant = BIG.add(money_correction, addition[1])
 	correction = BIG.add(correction, extra_correction)
@@ -70,12 +77,16 @@ func _apply_money_delta(delta: Variant, extra_correction: Variant = 0.0) -> bool
 	# Commit both parts before synchronous money_changed callbacks can spend/reset.
 	money = folded[0]
 	money_correction = folded[1]
+	if commit_purchase.is_valid():
+		commit_purchase.call()
+	if earned_income:
+		IncomeManager.record_income(delta, extra_correction)
 	money_changed.emit(money)
 	return true
 
 
 func get_global_multiplier() -> Variant:
-	return BIG.multiply(global_multiplier, developer_income_multiplier)
+	return BIG.multiply(BIG.multiply(global_multiplier, developer_income_multiplier), PrestigeManager.get_prestige_multiplier())
 
 
 func multiply_global_multiplier(value: Variant) -> void:

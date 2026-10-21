@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="GameEventData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ResourceInit/GameEventData.gd" id="1"]
+[ext_resource type="Resource" path="res://data/conditions/events/jjamtong_intro_unlock.tres" id="2"]
+
+[resource]
+resource_name = "짬통 소개"
+script = ExtResource("1")
+id = "jjamtong_intro"
+unlock_condition = ExtResource("2")
+trigger = 0
+one_off = true
+cooldown_seconds = 0.0

@@ -10,6 +10,7 @@ enum WorldLayer {
 	OBJECT = 0,
 	FRONT_FRAME = 10,
 	GROUND = 20,
+	GROUNDMASKING = 25,
 	BUTTON = 30,
 	DESCRIPTION = 40
 }
@@ -17,6 +18,10 @@ enum WorldLayer {
 enum ScreenLayer {
 	WORLD_DESCRIPTION = 1,
 	HUD = 2,
+	SIDEBAR = 3,
+	SAVE = 4,
+	EVENT = 5,
+	DEVELOPER = 10,
 	ERROR = 100
 }
 

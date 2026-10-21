@@ -7,7 +7,7 @@
 script = ExtResource("1_button")
 id = "pool_warm"
 button_name = "온탕"
-price = 666666666.0
+price = 666660000.0
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
 click_dialogues = PackedStringArray()

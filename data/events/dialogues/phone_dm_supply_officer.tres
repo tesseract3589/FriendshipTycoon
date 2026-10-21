@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PhoneDMDialogueData" format=3 uid="uid://d2krywc4aug6i"]
+
+[ext_resource type="Script" uid="uid://d20v4ti23htw" path="res://scripts/ResourceInit/PhoneDMDialogueData.gd" id="1_dialogue"]
+
+[resource]
+script = ExtResource("1_dialogue")
+contact_name = "보급관"
+greeting = "단결! 보급관입니다. 잠깐 대화 가능합니까?"
+introduction = "창고 정리하느라 병사들이 지쳤는데 부식 좀 부탁드립니다"
+offer_1 = "뭐 공짜로 달라는 건 아니고, {amount}원이면 되겠습니까?"
+refusal_1 = "예상보다 단가가 쎄네요"
+offer_2 = "{amount}원이면 어떤가요?"
+refusal_2 = "이거 예산 안에서 안되겠는데요."
+offer_3 = "{amount}원. 여기까지는 일단 가능합니다"
+refusal_3 = "아 왜 이러세요 급양관님~"
+final_offer = " 그럼 제 몫까지 보태서... {amount}원! 더는 정말 어렵습니다"
+acceptance = "창고 앞으로 부탁드립니다~^^ 단결!"
+breakdown = "어쩔 수 없죠"
+player_accept = "단결! 우정회관 계좌로 입금 부탁드립니다. 좋은 하루 되십시오!"
+player_bargain = "단결! 조금 부족한 느낌이 있습니다."
+player_reject = "아 지금 바쁩니다 죄송합니다^^"

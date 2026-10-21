@@ -9,6 +9,7 @@ const BIG = preload("res://scripts/BigNumber.gd")
 	preload("res://data/buttons/vending_machine/promo_sign_button.tres"),
 	preload("res://data/buttons/vending_machine/bike_delivery_button.tres"),
 	preload("res://data/buttons/vending_machine/wireless_antenna_button.tres"),
+	preload("res://data/buttons/vending_machine/huge_fridge_button.tres"),
 	preload("res://data/buttons/restaurant/hall_foundation_button.tres"),
 	preload("res://data/buttons/restaurant/first_floor_wall_button.tres"),
 	preload("res://data/buttons/restaurant/restaurant_button.tres"),
@@ -23,8 +24,17 @@ const BIG = preload("res://scripts/BigNumber.gd")
 	preload("res://data/buttons/spa/second_floor_wall_button.tres"),
 	preload("res://data/buttons/spa/second_floor_ceiling_button.tres"),
 	preload("res://data/buttons/spa/spa_button.tres"),
+	preload("res://data/buttons/spa/spa_soldier_button.tres"),
+	preload("res://data/buttons/spa/vent_windows_button.tres"),
+	preload("res://data/buttons/spa/conduit_button.tres"),
+	preload("res://data/buttons/spa/faucet_button.tres"),
 	preload("res://data/buttons/spa/pool_cold_button.tres"),
-	preload("res://data/buttons/spa/pool_warm_button.tres")
+	preload("res://data/buttons/spa/pool_warm_button.tres"),
+	preload("res://data/buttons/bumin/asphalt_button.tres"),
+	preload("res://data/buttons/bumin/bumin_button.tres"),
+	preload("res://data/buttons/bumin/office_chair_bumin_button.tres"),
+	preload("res://data/buttons/restaurant/jjamtong_button.tres"),
+	preload("res://data/buttons/lab/titanium_bars_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 var _purchases_in_progress: Dictionary = {}
@@ -40,6 +50,7 @@ signal button_state_changed(button_data: ButtonData)
 func _ready() -> void:
 	EconomyManager.money_changed.connect(_on_money_changed)
 	PrestigeManager.prestige_changed.connect(update_button_states)
+	button_purchased.connect(PrestigeManager.on_button_purchased)
 	ErrorManager.validate_buttons(buttons, IncomeManager.sources)
 	_apply_purchased_effects()
 	update_button_states()
@@ -86,7 +97,7 @@ func is_unlocked(button_data: ButtonData) -> bool:
 			if BIG.compare(PrestigeManager.total_jjam, 0) < 0:
 				PrestigeManager.get_total_jjam()
 				return false
-			return BIG.compare(PrestigeManager.get_total_jjam(), condition.amount) >= 0
+			return BIG.compare(PrestigeManager.get_total_jjam(), condition.get_amount()) >= 0
 
 
 		UnlockCondition.Type.BUTTON:

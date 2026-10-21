@@ -1,0 +1,97 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/CatWatchingEvent.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Cat/Cat_silhouette.png" id="2_cat"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Interfaces/Button_sus.png" id="3_button"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Cat/cat_aura_smoke.tres" id="4_aura"]
+
+[node name="CatWatchingEvent" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_script")
+
+[node name="Overlay" type="Control" parent="."]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
+focus_mode = 2
+
+[node name="Dim" type="ColorRect" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.015, 0.01, 0.025, 0.4)
+
+[node name="Content" type="Control" parent="Overlay"]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 880.0
+mouse_filter = 2
+
+[node name="CatRoot" type="Node2D" parent="Overlay/Content"]
+position = Vector2(500, 300)
+
+[node name="Aura" type="Node2D" parent="Overlay/Content/CatRoot"]
+
+[node name="Glow" type="Sprite2D" parent="Overlay/Content/CatRoot/Aura"]
+modulate = Color(1, 1, 1, 0.55)
+scale = Vector2(5.5, 5.5)
+texture = ExtResource("4_aura")
+
+[node name="Smoke" type="CPUParticles2D" parent="Overlay/Content/CatRoot/Aura"]
+emitting = false
+amount = 48
+lifetime = 1.8
+preprocess = 1.8
+randomness = 0.4
+local_coords = true
+texture = ExtResource("4_aura")
+emission_shape = 5
+spread = 16.0
+gravity = Vector2(0, -12)
+initial_velocity_min = 35.0
+initial_velocity_max = 75.0
+radial_accel_min = 15.0
+radial_accel_max = 35.0
+tangential_accel_min = -8.0
+tangential_accel_max = 8.0
+scale_amount_min = 0.65
+scale_amount_max = 1.3
+
+[node name="Silhouette" type="Sprite2D" parent="Overlay/Content/CatRoot"]
+texture = ExtResource("2_cat")
+
+[node name="Caption" type="Label" parent="Overlay/Content"]
+layout_mode = 0
+offset_top = 570.0
+offset_right = 1000.0
+offset_bottom = 675.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0.02, 0.04, 0.07, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 52
+text = "무언가가 당신을 주시합니다..."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Confirm" type="TextureButton" parent="Overlay/Content"]
+layout_mode = 0
+offset_left = 290.0
+offset_top = 710.0
+offset_right = 710.0
+offset_bottom = 870.0
+focus_mode = 2
+texture_normal = ExtResource("3_button")
+ignore_texture_size = true
+stretch_mode = 5

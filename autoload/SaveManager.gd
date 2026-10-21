@@ -288,13 +288,16 @@ func _create_initial_progress() -> Dictionary:
 			"developer_income_multiplier": 1.0,
 			"developer_time_multiplier": 1.0,
 		},
-		"prestige": {"total_jjam": 0, "current_jjam": 0},
+		"prestige": {"jjam_system_version": 1, "jjam_unlocked": false, "banked_jjam": 0, "live_jjam": 0, "total_jjam": 0, "initial_jjam_pending": false, "prestige_count": 0},
+		"income": {"total_earned_income": 0.0, "total_earned_income_correction": 0.0, "jjam_earned_income": 0.0, "jjam_earned_income_correction": 0.0},
 		"buttons": button_states,
 		"sources": source_states,
+		"events": {},
 	}
 
 
 func _capture_progress() -> Dictionary:
+	var wallet := EventManager.get_wallet_for_save()
 	var button_states: Dictionary = {}
 	for button in ButtonManager.buttons:
 		if button != null:
@@ -313,16 +316,23 @@ func _capture_progress() -> Dictionary:
 			}
 	return {
 		"economy": {
-			"money": BIG.serialize(EconomyManager.money),
-			"money_correction": BIG.serialize(EconomyManager.money_correction),
+			"money": BIG.serialize(wallet[0]),
+			"money_correction": BIG.serialize(wallet[1]),
 			"global_multiplier": BIG.serialize(EconomyManager.global_multiplier),
 			"global_time_multiplier": EconomyManager.global_time_multiplier,
 			"developer_income_multiplier": BIG.serialize(EconomyManager.developer_income_multiplier),
 			"developer_time_multiplier": EconomyManager.developer_time_multiplier,
 		},
-		"prestige": {"total_jjam": BIG.serialize_count(PrestigeManager.total_jjam), "current_jjam": BIG.serialize_count(PrestigeManager.current_jjam)},
+		"prestige": PrestigeManager.get_save_state(),
+		"income": {
+			"total_earned_income": BIG.serialize(IncomeManager.total_earned_income),
+			"total_earned_income_correction": BIG.serialize(IncomeManager.total_earned_income_correction),
+			"jjam_earned_income": BIG.serialize(IncomeManager.jjam_earned_income),
+			"jjam_earned_income_correction": BIG.serialize(IncomeManager.jjam_earned_income_correction),
+		},
 		"buttons": button_states,
 		"sources": source_states,
+		"events": EventManager.get_save_state(),
 	}
 
 
@@ -330,6 +340,8 @@ func _validate_progress(value: Variant) -> bool:
 	if not value is Dictionary:
 		return false
 	var state: Dictionary = value
+	if not EventManager.is_save_state_valid(state.get("events", {})):
+		return false
 	for key in ["economy", "prestige", "buttons", "sources"]:
 		if not state.get(key) is Dictionary:
 			return false
@@ -351,7 +363,28 @@ func _validate_progress(value: Variant) -> bool:
 	if not _valid_number(BIG.multiply(BIG.deserialize(economy.global_multiplier), BIG.deserialize(economy.developer_income_multiplier))) \
 		or not _valid_number(economy.global_time_multiplier * economy.developer_time_multiplier, true):
 		return false
-	for key in ["total_jjam", "current_jjam"]:
+	var jjam_keys := ["total_jjam", "current_jjam"]
+	if state.prestige.has("jjam_system_version"):
+		if state.prestige.jjam_system_version != 1:
+			return false
+		for key in ["jjam_unlocked", "initial_jjam_pending"]:
+			if not state.prestige.get(key) is bool:
+				return false
+		if not state.prestige.get("prestige_count") is int or state.prestige.prestige_count < 0:
+			return false
+		if not state.get("income") is Dictionary:
+			return false
+		for key in ["total_earned_income", "jjam_earned_income"]:
+			if not _valid_number(state.income.get(key)):
+				return false
+			var low: Variant = state.income.get(key + "_correction")
+			if low is Dictionary and not BIG.is_serialized(low, true):
+				return false
+			low = BIG.deserialize(low, true)
+			if not BIG.valid_signed(low) or BIG.compare(BIG.add(BIG.deserialize(state.income[key]), low), 0.0) < 0:
+				return false
+		jjam_keys = ["total_jjam", "banked_jjam", "live_jjam"]
+	for key in jjam_keys:
 		var count: Variant = state.prestige.get(key)
 		if not ((count is int and count >= 0) or (BIG.is_serialized(count) and count.decimal_exponent >= 18)):
 			return false
@@ -404,6 +437,7 @@ func _valid_number(value: Variant, positive: bool = false) -> bool:
 
 
 func _restore_progress(state: Dictionary) -> void:
+	EventManager.restore_save_state(state.get("events", {}))
 	# Loading replaces the pending ledger just like a reset; invalidate in-flight payouts.
 	IncomeManager._runtime_generation += 1
 	var economy: Dictionary = state.economy
@@ -413,13 +447,17 @@ func _restore_progress(state: Dictionary) -> void:
 	EconomyManager.global_time_multiplier = economy.global_time_multiplier
 	EconomyManager.developer_income_multiplier = BIG.deserialize(economy.developer_income_multiplier)
 	EconomyManager.developer_time_multiplier = economy.developer_time_multiplier
-	PrestigeManager.total_jjam = BIG.deserialize(state.prestige.total_jjam)
-	PrestigeManager.current_jjam = BIG.deserialize(state.prestige.current_jjam)
 	for button in ButtonManager.buttons:
 		if button != null:
 			var saved: Dictionary = state.buttons.get(button.id, _defaults.buttons[button.id])
 			button.bought = saved.bought
 			button.permanent_bought = saved.permanent_bought
+	var income: Dictionary = state.get("income", {})
+	IncomeManager.total_earned_income = BIG.deserialize(income.get("total_earned_income", 0.0))
+	IncomeManager.total_earned_income_correction = BIG.deserialize(income.get("total_earned_income_correction", 0.0), true)
+	IncomeManager.jjam_earned_income = BIG.deserialize(income.get("jjam_earned_income", 0.0))
+	IncomeManager.jjam_earned_income_correction = BIG.deserialize(income.get("jjam_earned_income_correction", 0.0), true)
+	PrestigeManager.restore_save_state(state.prestige)
 	IncomeManager.source_upgrade_income_cache.clear()
 	for source in IncomeManager.sources:
 		if source == null:
@@ -434,6 +472,8 @@ func _restore_progress(state: Dictionary) -> void:
 		IncomeManager.source_pending_corrections[source.id] = BIG.deserialize(saved.get("pending_correction", 0.0), true)
 		IncomeManager.source_timer_display_keys[source.id] = IncomeManager._get_timer_display_key(saved.time_remaining)
 	# Notify only after all managers agree. Effects are already saved, so do not replay purchases.
+	EventManager.reconcile_permanent_unlocks()
+	EventManager.reconcile_one_off_history()
 	ButtonManager.update_button_states(true)
 	EconomyManager.money_changed.emit(EconomyManager.money)
 	EconomyManager.multiplier_changed.emit()

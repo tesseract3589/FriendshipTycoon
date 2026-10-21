@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PhoneDMEventData" format=3 uid="uid://bofbd2462nlqe"]
+
+[ext_resource type="Script" uid="uid://2tk3pbss2o3x" path="res://scripts/ResourceInit/PhoneDMEventData.gd" id="1_event"]
+[ext_resource type="Resource" uid="uid://0x6diu73gylp" path="res://data/conditions/events/phone_dm_unlock.tres" id="2_condition"]
+[ext_resource type="Resource" uid="uid://77i5rh5twuus" path="res://data/events/dialogues/phone_dm_deputy_commander.tres" id="3_dialogue"]
+[ext_resource type="Resource" uid="uid://dtvkkdfyl2k5u" path="res://data/events/dialogues/phone_dm_duty_officer.tres" id="4_dialogue"]
+[ext_resource type="Resource" uid="uid://bedp4hj2r7av7" path="res://data/events/dialogues/phone_dm_speedrunner.tres" id="5_7236a"]
+[ext_resource type="Resource" uid="uid://d2krywc4aug6i" path="res://data/events/dialogues/phone_dm_supply_officer.tres" id="5_dialogue"]
+[ext_resource type="Script" uid="uid://d20v4ti23htw" path="res://scripts/ResourceInit/PhoneDMDialogueData.gd" id="6_dialogue_type"]
+[ext_resource type="Resource" uid="uid://baiyqt15pwfbh" path="res://data/events/dialogues/phone_dm_rich_ordinary.tres" id="6_t1lx0"]
+[ext_resource type="Resource" uid="uid://d0ln23vxomce4" path="res://data/events/dialogues/phone_dm_foreigner.tres" id="7_hw6rd"]
+
+[resource]
+resource_name = "DM 부식 거래"
+script = ExtResource("1_event")
+dialogues = Array[ExtResource("6_dialogue_type")]([ExtResource("3_dialogue"), ExtResource("4_dialogue"), ExtResource("5_dialogue"), ExtResource("5_7236a"), ExtResource("6_t1lx0"), ExtResource("7_hw6rd")])
+breakdown_chances = PackedFloat32Array(0.1, 0.3, 0.5)
+result_display_seconds = 2.0
+id = "phone_dm"
+unlock_condition = ExtResource("2_condition")
+permanent_unlock = true
+cooldown_seconds = 150.0

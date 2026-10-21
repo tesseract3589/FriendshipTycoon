@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="IncomeSourceData" format=3 uid="uid://dynq5q0b3ug6h"]
+
+[ext_resource type="Script" uid="uid://b1edg5qvv4jec" path="res://scripts/ResourceInit/IncomeSourceData.gd" id="1_source"]
+
+[resource]
+script = ExtResource("1_source")
+id = "bumin"
+source_name = "부식의민족"
+display_position = Vector2(1795, 131)
+display_scale = Vector2(0.26, 0.26)
+timer_offset = Vector2(-60, -155)
+base_income = 20000000000.0
+upgrade_base_cost = 500000000.0
+base_time = 300.0

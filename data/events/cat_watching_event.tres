@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GameEventData" format=3 uid="uid://chggge0w7jbq6"]
+
+[ext_resource type="Script" uid="uid://cbk1k2sh1nf87" path="res://scripts/ResourceInit/GameEventData.gd" id="1_event"]
+[ext_resource type="Resource" path="res://data/conditions/events/cat_watching_unlock.tres" id="2_condition"]
+
+[resource]
+resource_name = "짬 환생 시스템 예고"
+script = ExtResource("1_event")
+id = "cat_watching"
+unlock_condition = ExtResource("2_condition")
+trigger = 0
+one_off = true
+no_prestige_only = true
+chance_per_roll = 0.0
+cooldown_seconds = 0.0

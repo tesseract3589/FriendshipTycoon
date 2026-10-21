@@ -38,7 +38,7 @@ static func _format_small_income(value: float) -> String:
 		return str(value)
 	var decimal_text := "%.2f" % absf(value)
 	var sign_text := "-" if value < 0.0 else ""
-	return _trim_decimal(sign_text + _group_digits(decimal_text.get_slice(".", 0)) + "." + decimal_text.get_slice(".", 1))
+	return _trim_decimal(sign_text + decimal_text)
 
 
 static func format_number(value: Variant) -> String:
@@ -46,6 +46,8 @@ static func format_number(value: Variant) -> String:
 
 
 static func format_current_money(value: Variant) -> String:
+	if BIG.compare(BIG.absolute(value), 10000.0) < 0:
+		return "%.0f" % float(BIG.truncated(value))
 	return _format_money(value, 4, false)
 
 
@@ -86,7 +88,7 @@ static func _format_large(value: Variant, trim_zeros: bool = true) -> String:
 	var scientific_digits := "%d.%s" % [scientific_scaled / 10000, str(scientific_scaled % 10000).pad_zeros(4)]
 	if trim_zeros:
 		scientific_digits = _trim_decimal(scientific_digits)
-	return "%s%s만 x 10^%d" % [sign_text, scientific_digits, scientific_exponent - 4]
+	return "%s%s × 10^%d" % [sign_text, scientific_digits, scientific_exponent]
 
 
 static func _format_small_number(value: float, decimal_places: int = 2, trim_zeros: bool = true) -> String:
@@ -97,13 +99,9 @@ static func _format_small_number(value: float, decimal_places: int = 2, trim_zer
 		return _format_scientific(value, maxi(3, decimal_places), trim_zeros)
 
 	var is_negative := value < 0.0
-	# Round once before separating the digits, so 999.999 carries into 1,000.
-	var decimal_text := "%.*f" % [decimal_places, absolute_value]
-	var whole_text := _group_digits(decimal_text.get_slice(".", 0))
-	var decimal_part := decimal_text.get_slice(".", 1)
+	var digits := "%.*f" % [decimal_places, absolute_value]
 	if is_negative:
-		whole_text = "-" + whole_text
-	var digits := "%s.%s" % [whole_text, decimal_part]
+		digits = "-" + digits
 	return _trim_decimal(digits) if trim_zeros else digits
 
 
@@ -137,15 +135,3 @@ static func _trim_decimal(digits: String) -> String:
 	while digits.ends_with("0"):
 		digits = digits.trim_suffix("0")
 	return digits.trim_suffix(".")
-
-
-static func _group_digits(digits: String) -> String:
-	var grouped := ""
-	var digits_in_group := 0
-	for index in range(digits.length() - 1, -1, -1):
-		if digits_in_group == 3:
-			grouped = "," + grouped
-			digits_in_group = 0
-		grouped = digits.substr(index, 1) + grouped
-		digits_in_group += 1
-	return grouped

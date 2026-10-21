@@ -2,6 +2,7 @@ class_name IncomeSourceData
 extends Resource
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+const BIG = preload("res://scripts/BigNumber.gd")
 
 @export var id: String = ""
 @export var source_name: String = ""
@@ -14,26 +15,31 @@ const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 @export_multiline var tooltip_text: String = "{payout}원/{time}\n초당 {income_per_second}원"
 @export var timer_offset: Vector2 = Vector2(0.0, -110.0)
 
-# 생산량: 기본 수입에 레벨별 증가율을 누적한 뒤 수입 배율을 적용한다.
+# 생산량: 기본 수입에 레벨에 따른 지수 성장과 수입 배율을 적용한다.
 @export_category("Income")
 @export var base_income: float = 0.0
+## 큰 수 기본 수입. 예: "1.25e500". 비워 두면 base_income을 사용합니다.
+@export var large_base_income: String = ""
 @export var multiplier: float = 1.0
 @export var upgrade_base_cost: float = 10.0
 ## 가격 = 초기 가격 * (1 + linear_growth * 업그레이드 횟수) * 2^(업그레이드 횟수 / doubling_levels).
-@export var upgrade_cost_linear_growth: float = 0.8
-@export var upgrade_cost_doubling_levels: float = 4.0
+@export var upgrade_cost_linear_growth: float = 0.96
+@export var upgrade_cost_doubling_levels: float = 3.0
 
 @export_category("Upgrade Income")
-## 첫 업그레이드의 수입 증가율. 0.3이면 기본 회당 수입의 +30%, 1.0이면 +100%.
-@export var upgrade_first_income_ratio: float = 0.3
-## 현재 수입 대비 증가율 = first_income_ratio / (1 + decay * (현재 레벨 - 1)).
-## 값이 클수록 다음 레벨부터 증가율이 빠르게 낮아진다. 0이면 매번 같은 증가율.
-@export var upgrade_income_decay: float = 4.0
+## 이 레벨 수만큼 올리면 upgrade_income_growth_multiplier배가 된다. Lv.1→51은 50레벨 증가.
+@export var upgrade_income_growth_levels: int = 60
+## 기본 수입 × multiplier^((현재 레벨 - 1) / growth_levels). 기본값은 50레벨마다 10,000배.
+@export var upgrade_income_growth_multiplier: float = 10000.0
 
 # 생산 시간 (time초당 ~원, income source마다 달라짐)
 @export_category("Time")
 @export var base_time: float = 1.0
 @export var time_multiplier: float = 1.0
+
+
+func get_base_income() -> Variant:
+	return base_income if large_base_income.strip_edges().is_empty() else BIG.parse(large_base_income)
 
 
 func get_tooltip_text(template_override: String = "") -> String:

@@ -1,0 +1,37 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://i1ucxcli5tt3"]
+
+[ext_resource type="Texture2D" uid="uid://moqmoo50n0ru" path="res://assets/sprites/Restaurant/JjamtongCat/peek_1.png" id="1_ears"]
+[ext_resource type="Texture2D" uid="uid://cnevgdtltwj6" path="res://assets/sprites/Restaurant/JjamtongCat/peek_2.png" id="2_eyes"]
+[ext_resource type="Texture2D" uid="uid://c0gke4iox2ywk" path="res://assets/sprites/Restaurant/JjamtongCat/peek_open.png" id="3_face"]
+
+[sub_resource type="AtlasTexture" id="Atlas_ears"]
+atlas = ExtResource("1_ears")
+region = Rect2(0, 0, 1038, 398)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Atlas_eyes"]
+atlas = ExtResource("2_eyes")
+region = Rect2(0, 0, 1038, 435)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Atlas_face"]
+atlas = ExtResource("3_face")
+region = Rect2(0, 0, 1038, 399)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_ears")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_eyes")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_face")
+}],
+"loop": 0,
+"name": &"open",
+"speed": 12.0
+}]

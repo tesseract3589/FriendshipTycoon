@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://cb7vo0d2fcs1i"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/bumin/asphalt_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "asphalt"
+button_name = "아스팔트 포장"
+price = 200000000.0
+description = "구조물"
+type = 1
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+show_purchased_tooltip = false
+click_dialogues = PackedStringArray()
+effect_type = 5

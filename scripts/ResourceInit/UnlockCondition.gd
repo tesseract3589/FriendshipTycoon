@@ -9,7 +9,7 @@ enum Type {
 
 @export var type: Type
 @export var value: String = ""
-# MONEY: required money. TOTAL_JJAM: required lifetime jjam (whole points).
+# MONEY: required money. TOTAL_JJAM: banked + unbanked jjam (whole points).
 @export var amount: float = 0.0
 ## Optional MONEY threshold beyond float range, e.g. "1e500".
 @export var large_amount: String = ""

@@ -12,6 +12,9 @@ const MIN_FRONT_DOOR_UNLOCK_SECONDS: float = 600.0
 const TARGET_COMPLETION_SECONDS: float = 1779.6666666667
 const COMPLETION_TIME_TOLERANCE: float = 0.05
 
+@export var curve_checks_only: bool = false
+@export var enforce_legacy_pacing_targets: bool = false
+
 var _frame: int = 0
 var _last_purchase_frame: int = 0
 var _last_button_frame: int = 0
@@ -39,12 +42,19 @@ func _run() -> void:
 		EconomyManager.set_global_multiplier(1.0)
 		ButtonManager.reset_for_prestige()
 		_check_income_curves()
-		if _failure.is_empty():
+		if _failure.is_empty() and not curve_checks_only:
 			await _play()
-		if _failure.is_empty():
+		if _failure.is_empty() and enforce_legacy_pacing_targets and not curve_checks_only:
 			_check_pacing()
 	if not ErrorManager.get_errors().is_empty() and _failure.is_empty():
 		_failure = "플레이 중 게임 오류가 발생했습니다."
+	if curve_checks_only:
+		if _failure.is_empty():
+			print("PASS: exponential income growth, 50-level windows, next-level forecasts, large levels and resource cache invalidation")
+		else:
+			push_error(_failure)
+		get_tree().quit(0 if _failure.is_empty() else 1)
+		return
 	if not _write_report():
 		_failure = "결과 파일을 저장하지 못했습니다: " + LOG_PATH
 	if _failure.is_empty():
@@ -60,37 +70,48 @@ func _check_income_curves() -> void:
 	for source in IncomeManager.sources:
 		if source == null:
 			continue
-		var previous_ratio := INF
-		for level in [1, 2, 3, 10, 30, 60]:
-			var payout: float = IncomeManager._get_source_payout_at_level(source, level)
-			var gain: float = IncomeManager._get_upgrade_cycle_gain_at_level(source, level)
-			if not is_finite(payout) or payout <= 0.0 or not is_finite(gain) or gain <= 0.0:
+		var expected_ratio := pow(source.upgrade_income_growth_multiplier, 1.0 / float(source.upgrade_income_growth_levels))
+		for level in [1, 2, 3, 17, 50, 51, 101, 5001, 100001]:
+			var payout: Variant = IncomeManager._get_source_payout_at_level(source, level)
+			var next_payout: Variant = IncomeManager._get_source_payout_at_level(source, level + 1)
+			var window_payout: Variant = IncomeManager._get_source_payout_at_level(source, level + source.upgrade_income_growth_levels)
+			if not BIG.valid(payout, false) or BIG.compare(next_payout, payout) <= 0:
 				_failure = "레벨업 곡선에 유효한 수입 증가가 없습니다: " + source.source_name
 				return
-			var ratio := gain / payout
-			if level == 1 and roundf(payout + gain) < roundf(payout) * 1.3:
-				_failure = "첫 레벨업의 실제 수입 증가가 30% 미만입니다: " + source.source_name
+			if level == 1 and BIG.compare(payout, source.get_base_income()) != 0:
+				_failure = "Lv.1 수입이 기본 수입과 다릅니다: " + source.source_name
 				return
-			if source.upgrade_income_decay > 0.0 and ratio >= previous_ratio:
-				_failure = "레벨이 높아져도 수입 증가율이 낮아지지 않습니다: " + source.source_name
+			var ratio := float(BIG.divide(next_payout, payout))
+			var window_ratio := float(BIG.divide(window_payout, payout))
+			if absf(ratio / expected_ratio - 1.0) > 1.0e-9 or absf(window_ratio / source.upgrade_income_growth_multiplier - 1.0) > 1.0e-9:
+				_failure = "수입이 설정된 지수 성장 배율을 따르지 않습니다: " + source.source_name
 				return
-			previous_ratio = ratio
 		# Editing a .tres setting during play must also invalidate cached income.
-		var before: float = IncomeManager._get_source_payout_at_level(source, 10)
-		var original_ratio := source.upgrade_first_income_ratio
-		var original_decay := source.upgrade_income_decay
+		var original_multiplier := source.upgrade_income_growth_multiplier
+		var original_levels := source.upgrade_income_growth_levels
 		var original_base := source.base_income
-		source.upgrade_first_income_ratio = original_ratio * 1.1
-		var raised_first_gain: float = IncomeManager._get_source_payout_at_level(source, 10)
-		source.upgrade_first_income_ratio = original_ratio
-		source.upgrade_income_decay = original_decay + 1.0
-		var steeper_decay: float = IncomeManager._get_source_payout_at_level(source, 10)
-		source.upgrade_income_decay = original_decay
+		var original_override := source.large_base_income
+		var sample_level := original_levels + 1
+		var before: Variant = IncomeManager._get_source_payout_at_level(source, sample_level)
+		source.upgrade_income_growth_multiplier = original_multiplier * 2.0
+		var raised_growth: Variant = IncomeManager._get_source_payout_at_level(source, sample_level)
+		source.upgrade_income_growth_multiplier = original_multiplier
+		source.upgrade_income_growth_levels = original_levels * 2
+		var slower_growth: Variant = IncomeManager._get_source_payout_at_level(source, sample_level)
+		source.upgrade_income_growth_levels = original_levels
+		source.large_base_income = "2e500"
+		var large_base: Variant = IncomeManager._get_source_payout_at_level(source, sample_level)
+		source.large_base_income = original_override
 		source.base_income = original_base * 2.0
-		var raised_base: float = IncomeManager._get_source_payout_at_level(source, 10)
+		var raised_base: Variant = IncomeManager._get_source_payout_at_level(source, sample_level)
 		source.base_income = original_base
-		var restored: float = IncomeManager._get_source_payout_at_level(source, 10)
-		if raised_first_gain <= before or steeper_decay >= before or not is_equal_approx(raised_base, before * 2.0) or not is_equal_approx(restored, before):
+		var restored: Variant = IncomeManager._get_source_payout_at_level(source, sample_level)
+		var expected_base_factor := 2.0 if original_override.strip_edges().is_empty() else 1.0
+		if absf(float(BIG.divide(raised_growth, before)) - 2.0) > 1.0e-10 \
+			or BIG.compare(slower_growth, before) >= 0 \
+			or absf(float(BIG.divide(raised_base, before)) - expected_base_factor) > 1.0e-10 \
+			or absf(float(BIG.divide(large_base, BIG.multiply(BIG.parse("2e500"), original_multiplier))) - 1.0) > 1.0e-10 \
+			or BIG.compare(restored, before) != 0:
 			_failure = "수입원 설정을 변경해도 이전 캐시가 유지됩니다: " + source.source_name
 			return
 
@@ -226,17 +247,17 @@ func _write_report() -> bool:
 	file.store_line("자금이 부족하면 실제 생산 주기가 완료될 때까지 기다리고 매 프레임 다시 비교. 같은 가격은 버튼 우선, 이후 등록 순서.")
 	file.store_line("실제 게임의 구매·생산·배율·원 단위 반올림을 사용. 60FPS 가상 시간, 클릭 지연 없음. 모든 버튼 구매 시 종료.")
 	file.store_line("초기 영구 구매 항목은 게임 초기화 규칙에 따르며 구매 기록에서 제외.")
-	file.store_line("진행 목표: 간부식당 구매 2~3분, 평범한 유리문 해금 최소 10분. 해금은 구매 버튼이 열리는 시점.")
-	file.store_line("완료 시간 비교: 변경 전 %.2f초 / 허용 ±%.0f%% / 현재 차이 %+.2f%%" % [TARGET_COMPLETION_SECONDS,
+	file.store_line("과거 진행 목표 검사: " + ("사용" if enforce_legacy_pacing_targets else "미사용 — 지수 성장 개편 후 시간 재측정"))
+	file.store_line("과거 완료 시간 참고: %.2f초 / 허용 ±%.0f%% / 현재 차이 %+.2f%%" % [TARGET_COMPLETION_SECONDS,
 		COMPLETION_TIME_TOLERANCE * 100.0, (_seconds(_frame) / TARGET_COMPLETION_SECONDS - 1.0) * 100.0])
-	file.store_line("수입 곡선: 현재 수입 × 첫 증가율 / (1 + 감소 강도 × (현재 레벨 - 1))만큼 다음 레벨에 추가.")
+	file.store_line("수입 곡선: 기본 수입 × 성장 배율^((현재 레벨 - 1) / 성장 레벨 간격). 기본값: 50레벨마다 10,000배.")
 	for source in IncomeManager.sources:
 		if source == null:
 			continue
-		file.store_line("%s: 기본 수입 %s / 기본 주기 %.4f초 / 첫 레벨업 가격 %s / 첫 수입 증가 +%.1f%% / 감소 강도 %s / 선형 가격 성장 %s / 가격 2배 간격 %s레벨 / 종료 Lv.%d" % [
-			source.source_name, _won(source.base_income), source.base_time * source.time_multiplier,
-			_won(source.upgrade_base_cost), source.upgrade_first_income_ratio * 100.0,
-			source.upgrade_income_decay, source.upgrade_cost_linear_growth,
+		file.store_line("%s: 기본 수입 %s / 기본 주기 %.4f초 / 첫 레벨업 가격 %s / %d레벨마다 수입 %s배 / 선형 가격 성장 %s / 가격 2배 간격 %s레벨 / 종료 Lv.%d" % [
+			source.source_name, _won(source.get_base_income()), source.base_time * source.time_multiplier,
+			_won(source.upgrade_base_cost), source.upgrade_income_growth_levels,
+			NUMBER_FORMATTER.format_number(source.upgrade_income_growth_multiplier), source.upgrade_cost_linear_growth,
 			source.upgrade_cost_doubling_levels, IncomeManager.get_source_level(source.id)
 		])
 	file.store_line("")

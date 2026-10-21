@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://cescg2ficgop5"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" uid="uid://chxig0cbp7kjt" path="res://data/conditions/spa/spa_soldier_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "spa_soldier"
+button_name = "목욕탕 관리병"
+large_price = "2e9"
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray("공기가 너무 습합니다", "왜 저도 전투복으로 근무합니까?", "물장난은 금지입니다", "냉탕 입수 실시! 악!", "온탕은 들어가면 안될 것 같습니다...", "수건 좀 그만 개고 싶습니다", "수건 쓰고 제발 아무데나 던져놓지 마십쇼", "이러다 미륵사지 수건탑 쌓겠습니다", "바닥이 미끄러우니 전속력으로 뛰시기 바랍니다")
+effect_type = 3
+effect_target = "spa"
+effect_value = 2.0

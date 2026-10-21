@@ -7,11 +7,11 @@
 script = ExtResource("1_button")
 id = "first_floor_wall"
 button_name = "회관 벽"
+price = 3000.0
 description = "구조물"
-price = 5000.0
 type = 1
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
 show_purchased_tooltip = false
-click_dialogues = null
+click_dialogues = PackedStringArray()
 effect_type = 5

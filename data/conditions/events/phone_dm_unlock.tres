@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="UnlockCondition" format=3 uid="uid://0x6diu73gylp"]
+
+[ext_resource type="Script" uid="uid://texnmvmehxfy" path="res://scripts/ResourceInit/UnlockCondition.gd" id="1_condition"]
+
+[resource]
+script = ExtResource("1_condition")
+type = 2
+value = "bumin"

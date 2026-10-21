@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PhoneDMDialogueData" format=3 uid="uid://77i5rh5twuus"]
+
+[ext_resource type="Script" uid="uid://d20v4ti23htw" path="res://scripts/ResourceInit/PhoneDMDialogueData.gd" id="1_dialogue"]
+
+[resource]
+script = ExtResource("1_dialogue")
+contact_name = "부사령관"
+greeting = "급양관인가? 부사령관이네"
+introduction = "사무실에 부식이 다 떨어져서 그런데"
+offer_1 = "{amount}원이면 충분하겠지?"
+refusal_1 = "요새 MZ들은 다르구만 허허"
+offer_2 = "{amount}원은 어떤가?"
+refusal_2 = "허허... 이것도 안되다니"
+offer_3 = "마지막이라네. {amount}원."
+refusal_3 = "이 친구 패기가 대단하구만"
+final_offer = "인심 썼네. {amount}원!"
+acceptance = "그럼 본청으로 배송해 주게"
+breakdown = "하는 수 없지. 다이어트하는 수밖에"
+player_accept = "단결! 우정회관 계좌로 입금 부탁드립니다. 좋은 하루 되십시오!"
+player_bargain = "단결! 조금만 더 부탁드립니다!"
+player_reject = "단결! 죄송하지만 저희도 재고가 없습니다."

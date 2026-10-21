@@ -7,6 +7,7 @@ const CYCLE_BOUNDARY_TOLERANCE: float = 1.0e-9
 # 각 income source별로 multiplier를 불러오고 적용
 
 signal income_changed()
+signal cumulative_income_changed()
 signal source_multiplier_changed(source_id: String)
 signal source_speed_multiplier_changed(source_id: String)
 signal source_activation_changed(source_id: String, is_active: bool)
@@ -17,7 +18,8 @@ signal source_level_changed(source_id: String, level: int)
 @export var sources: Array[IncomeSourceData] = [
 	preload("res://data/IncomeSources/vending_machine_income.tres"),
 	preload("res://data/IncomeSources/restaurant_income.tres"),
-	preload("res://data/IncomeSources/spa_income.tres")
+	preload("res://data/IncomeSources/spa_income.tres"),
+	preload("res://data/IncomeSources/bumin_income.tres")
 ]
 
 # 플레이 중 Source multiplier
@@ -33,8 +35,55 @@ var source_timer_display_keys: Dictionary = {}
 var source_pending_payouts: Dictionary = {}
 var source_pending_corrections: Dictionary = {}
 var _runtime_generation: int = 0
-# Cache cumulative income so only newly reached levels need to be calculated.
+# Keep locks until each call unwinds, including across resets and save restores.
+var _upgrades_in_progress: Dictionary = {}
+# Cache the last direct exponential result for each source and its settings.
 var source_upgrade_income_cache: Dictionary = {}
+
+# Earnings do not decrease when money is spent. The run ledger starts on the first
+# bin purchase and restarts at jjam prestige; the lifetime ledger survives it.
+var total_earned_income: Variant = 0.0
+var total_earned_income_correction: Variant = 0.0
+var jjam_earned_income: Variant = 0.0
+var jjam_earned_income_correction: Variant = 0.0
+
+
+func record_income(amount: Variant, correction: Variant = 0.0) -> void:
+	var lifetime := _accumulate_earnings(total_earned_income, total_earned_income_correction, amount, correction)
+	total_earned_income = lifetime[0]
+	total_earned_income_correction = lifetime[1]
+	if PrestigeManager.jjam_unlocked:
+		var run := _accumulate_earnings(jjam_earned_income, jjam_earned_income_correction, amount, correction)
+		jjam_earned_income = run[0]
+		jjam_earned_income_correction = run[1]
+	cumulative_income_changed.emit()
+
+
+func _accumulate_earnings(high: Variant, low: Variant, amount: Variant, correction: Variant) -> Array:
+	var sum := BIG.add_with_residual(high, amount)
+	return BIG.add_with_residual(sum[0], BIG.add(BIG.add(low, correction), sum[1]))
+
+
+## Undo a DM reservation rejected before the conversation actually ended.
+func revoke_recorded_income(amount: Variant, recorded_in_jjam: bool) -> void:
+	var negative: Variant = BIG.subtract(0.0, amount)
+	var lifetime := _accumulate_earnings(total_earned_income, total_earned_income_correction, negative, 0.0)
+	total_earned_income = lifetime[0]
+	total_earned_income_correction = lifetime[1]
+	if recorded_in_jjam:
+		var run := _accumulate_earnings(jjam_earned_income, jjam_earned_income_correction, negative, 0.0)
+		jjam_earned_income = run[0]
+		jjam_earned_income_correction = run[1]
+	cumulative_income_changed.emit()
+
+
+func get_jjam_earned_income() -> Variant:
+	return BIG.add(jjam_earned_income, jjam_earned_income_correction)
+
+
+func reset_jjam_income() -> void:
+	jjam_earned_income = 0.0
+	jjam_earned_income_correction = 0.0
 
 
 func _ready() -> void:
@@ -199,7 +248,7 @@ func get_next_upgrade_cycle_payout(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
-	var next_base_payout: Variant = BIG.add(_get_source_payout(source), _get_upgrade_cycle_gain_at_level(source, get_source_level(source_id)))
+	var next_base_payout: Variant = _get_source_payout_at_level(source, get_source_level(source_id) + 1)
 	return _get_rounded_cycle_payout(source, next_base_payout)
 
 
@@ -212,11 +261,20 @@ func get_upgrade_cycle_payout_gain(source_id: String) -> Variant:
 
 
 func _get_upgrade_cycle_gain_at_level(source: IncomeSourceData, level: int) -> Variant:
-	var income_ratio := source.upgrade_first_income_ratio / (1.0 + source.upgrade_income_decay * float(level - 1))
-	return BIG.multiply(_get_source_payout_at_level(source, level), income_ratio)
+	return BIG.subtract(_get_source_payout_at_level(source, level + 1), _get_source_payout_at_level(source, level))
 
 
 func upgrade_source(source_id: String) -> bool:
+	if _upgrades_in_progress.has(source_id):
+		return false
+	_upgrades_in_progress[source_id] = true
+	var upgraded := _upgrade_source_locked(source_id)
+	_upgrades_in_progress.erase(source_id)
+	return upgraded
+
+
+func _upgrade_source_locked(source_id: String) -> bool:
+	var generation := _runtime_generation
 	var source := get_source(source_id)
 	if source == null or not _validate_upgrade_balance(source):
 		return false
@@ -229,12 +287,20 @@ func upgrade_source(source_id: String) -> bool:
 	var production_time := _get_production_time(source)
 	if production_time <= 0.0 or not ErrorManager.validate_number(BIG.divide(next_payout, production_time), "IncomeSourceData:" + source_id + ".upgraded_income"):
 		return false
-	if not EconomyManager.spend_money(cost):
+	if generation != _runtime_generation:
 		return false
-	source_levels[source_id] = get_source_level(source_id) + 1
-	source_level_changed.emit(source_id, source_levels[source_id])
+	var next_level := get_source_level(source_id) + 1
+	# Wallet observers must see the paid-for level, including when saving mid-signal.
+	var commit_level := func() -> void: source_levels[source_id] = next_level
+	if not EconomyManager.spend_money(cost, commit_level):
+		return false
+	if generation != _runtime_generation:
+		return false
+	source_level_changed.emit(source_id, next_level)
+	if generation != _runtime_generation:
+		return false
 	income_changed.emit()
-	return true
+	return generation == _runtime_generation
 
 
 # 특정 source의 multiplier를 변경
@@ -349,51 +415,32 @@ func _get_source_payout(source: IncomeSourceData) -> Variant:
 func _get_source_payout_at_level(source: IncomeSourceData, level: int) -> Variant:
 	var upgrades := level - 1
 	if upgrades <= 0:
-		return source.base_income
+		return source.get_base_income()
 	if not _validate_upgrade_balance(source):
 		return 0.0
-	var parameters := [source.base_income, source.upgrade_first_income_ratio, source.upgrade_income_decay]
+	# Keep the override text in the key: parsing creates a new BigNumber object.
+	var parameters := [source.base_income, source.large_base_income, source.upgrade_income_growth_levels, source.upgrade_income_growth_multiplier]
 	var cache: Dictionary = source_upgrade_income_cache.get(source.id, {})
-	if cache.is_empty() or cache.parameters != parameters or level < int(cache.level):
-		cache = {"parameters": parameters, "level": 1, "payout": source.base_income}
-	var exact_end := mini(level, int(cache.level) + 2048)
-	for upgrade_level in range(int(cache.level), exact_end):
-		var income_ratio := source.upgrade_first_income_ratio / (1.0 + source.upgrade_income_decay * float(upgrade_level - 1))
-		var gain: Variant = BIG.multiply(cache.payout, income_ratio)
-		var payout: Variant = BIG.add(cache.payout, gain)
-		if not BIG.valid(payout):
-			return payout
-		cache.payout = payout
-		cache.level = upgrade_level + 1
-	if exact_end < level:
-		# Approximate only the distant tail; work stays bounded for huge saved levels.
-		var first := float(exact_end - 1)
-		var last := float(level - 1)
-		var ratio := source.upgrade_first_income_ratio
-		var decay := source.upgrade_income_decay
-		var logarithmic_growth: float
-		if decay == 0.0:
-			logarithmic_growth = (last - first) * log(1.0 + ratio)
-		else:
-			var start_y := 1.0 + decay * first
-			var end_y := 1.0 + decay * last
-			var start_integral := start_y * log(1.0 + ratio / start_y) + ratio * log(start_y + ratio)
-			var end_integral := end_y * log(1.0 + ratio / end_y) + ratio * log(end_y + ratio)
-			logarithmic_growth = (end_integral - start_integral) / decay
-			logarithmic_growth += (log(1.0 + ratio / start_y) - log(1.0 + ratio / end_y)) * 0.5
-			var start_derivative := -decay * (ratio / start_y) / (start_y + ratio)
-			var end_derivative := -decay * (ratio / end_y) / (end_y + ratio)
-			logarithmic_growth += (end_derivative - start_derivative) / 12.0
-		cache.payout = BIG.multiply(cache.payout, BIG.power_of_ten(logarithmic_growth / log(10.0)))
-		cache.level = level
-	source_upgrade_income_cache[source.id] = cache
-	return cache.payout
+	if not cache.is_empty() and cache.parameters == parameters and int(cache.level) == level:
+		return cache.payout
+	# Compute from the base directly: loading a distant level takes constant work,
+	# and previewing levels in any order cannot accumulate rounding errors.
+	var growth_power := float(upgrades) / float(source.upgrade_income_growth_levels) * log(source.upgrade_income_growth_multiplier) / log(10.0)
+	var payout: Variant = BIG.multiply(source.get_base_income(), BIG.power_of_ten(growth_power))
+	if BIG.valid(payout):
+		source_upgrade_income_cache[source.id] = {"parameters": parameters, "level": level, "payout": payout}
+	return payout
 
 
 func _validate_upgrade_balance(source: IncomeSourceData) -> bool:
 	var context := "IncomeSourceData:" + source.id
-	return ErrorManager.validate_number(source.upgrade_first_income_ratio, context + ".upgrade_first_income_ratio", false) \
-		and ErrorManager.validate_number(source.upgrade_income_decay, context + ".upgrade_income_decay")
+	if not ErrorManager.validate_number(source.upgrade_income_growth_levels, context + ".upgrade_income_growth_levels", false) \
+		or not ErrorManager.validate_number(source.upgrade_income_growth_multiplier, context + ".upgrade_income_growth_multiplier", false):
+		return false
+	if source.upgrade_income_growth_multiplier <= 1.0:
+		ErrorManager.report_error("INVALID_UPGRADE_BALANCE", "수입 성장 배율은 1보다 커야 합니다.", context + ".upgrade_income_growth_multiplier")
+		return false
+	return true
 
 
 func get_source(source_id: String) -> IncomeSourceData:
@@ -481,6 +528,6 @@ func _flush_source_payout(source_id: String) -> void:
 	# Commit before callbacks; a prestige/reset must not resurrect pending earnings.
 	source_pending_payouts[source_id] = remainder
 	source_pending_corrections[source_id] = remainder_correction
-	if not EconomyManager.add_money(amount, correction) and generation == _runtime_generation:
+	if not EconomyManager.add_income(amount, correction) and generation == _runtime_generation:
 		source_pending_payouts[source_id] = pending
 		source_pending_corrections[source_id] = pending_correction

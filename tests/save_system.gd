@@ -237,7 +237,7 @@ func _test_empty_loads(main: Node, ui: Control, initial_progress: Dictionary, sa
 	ui.confirmation.confirmed.emit()
 	_check(SaveManager._capture_progress() == initial_progress, "An empty slot did not reset purchases, permanent purchases, money, prestige, upgrades, multipliers and production timers.")
 	_check(ui.status_label.text.contains("새 게임을 시작"), "Empty-slot loading did not show new-game feedback.")
-	_check(main.get_node("HUD/Panel/VBoxContainer/MoneyLabel").text == "자금: 0.0000원", "The HUD did not return to zero money.")
+	_check(main.get_node("HUD/Panel/VBoxContainer/MoneyLabel").text == "자금: 0원", "The HUD did not return to zero money.")
 	var vending_view := main.get_node("World/IncomeSourceViews/vending_machine_PurchaseView") as WorldPurchaseButton
 	_check(vending_view.is_visible_in_tree() and vending_view.texture_button.visible and not vending_view.texture_button.disabled, "A new game must show the available vending-machine purchase button.")
 	for visual in vending_view.purchased_visuals:

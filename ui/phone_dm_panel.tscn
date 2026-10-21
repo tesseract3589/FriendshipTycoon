@@ -1,0 +1,126 @@
+[gd_scene format=3 uid="uid://d0dkn6j0mmh"]
+
+[ext_resource type="Script" uid="uid://dp4f8ab4n55pg" path="res://ui/PhoneDMPanel.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://b4ns5xsvqghgj" path="res://assets/sprites/Interfaces/Phone.png" id="2_phone"]
+
+[sub_resource type="StyleBoxFlat" id="Style_screen"]
+content_margin_left = 16.0
+content_margin_top = 14.0
+content_margin_right = 16.0
+content_margin_bottom = 14.0
+bg_color = Color(0.85, 0.9, 0.8, 0)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[node name="PhoneDMPanel" type="Control" unique_id=1726348305]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_script")
+
+[node name="Phone" type="Control" parent="." unique_id=332147574]
+visible = false
+anchors_preset = 0
+offset_right = 576.0
+offset_bottom = 1040.0
+mouse_force_pass_scroll_events = false
+
+[node name="Texture" type="TextureRect" parent="Phone" unique_id=1154095920]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_phone")
+expand_mode = 1
+
+[node name="Screen" type="PanelContainer" parent="Phone" unique_id=461574675]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 96.0
+offset_right = -24.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("Style_screen")
+
+[node name="VBox" type="VBoxContainer" parent="Phone/Screen" unique_id=2055178889]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DMLabel" type="Label" parent="Phone/Screen/VBox" unique_id=1944741454]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.23, 0.36, 0.25, 1)
+theme_override_font_sizes/font_size = 20
+text = "우정 DM · 부식 거래"
+
+[node name="Contact" type="Label" parent="Phone/Screen/VBox" unique_id=265829429]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.06, 0.13, 0.09, 1)
+theme_override_font_sizes/font_size = 32
+text = "부식 구매자"
+autowrap_mode = 3
+
+[node name="Separator" type="HSeparator" parent="Phone/Screen/VBox" unique_id=333423013]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Phone/Screen/VBox" unique_id=984588908]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="Messages" type="VBoxContainer" parent="Phone/Screen/VBox/Scroll" unique_id=698720872]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="Status" type="Label" parent="Phone/Screen/VBox" unique_id=1267290178]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.12, 0.23, 0.15, 1)
+theme_override_font_sizes/font_size = 22
+text = "메시지가 도착했어요"
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Choices" type="HBoxContainer" parent="Phone/Screen/VBox" unique_id=1864680198]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Accept" type="Button" parent="Phone/Screen/VBox/Choices" unique_id=170197110]
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+text = "수락"
+
+[node name="Bargain" type="Button" parent="Phone/Screen/VBox/Choices" unique_id=714810739]
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+text = "흥정"
+
+[node name="Reject" type="Button" parent="Phone/Screen/VBox/Choices" unique_id=433310253]
+custom_minimum_size = Vector2(0, 68)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 26
+text = "거절"

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="PhoneDMDialogueData" format=3 uid="uid://d0ln23vxomce4"]
+
+[ext_resource type="Script" uid="uid://d20v4ti23htw" path="res://scripts/ResourceInit/PhoneDMDialogueData.gd" id="1_lg0js"]
+
+[resource]
+script = ExtResource("1_lg0js")
+contact_name = "[국제발신]"
+greeting = "[국제발신] yo bro"
+introduction = "i want some fresh busik"
+offer_1 = "howbout {amount}won"
+refusal_1 = "yo man dont be so hard"
+offer_2 = "{amount}won is gonna make ya feel good alright?"
+refusal_2 = ":( im seriouuuus Xb"
+offer_3 = "{amount}won is ffffinal offffer"
+refusal_3 = "meh im cooked bro"
+final_offer = "truly holy moly finaleus offerius: {amount}won"
+acceptance = "gold"
+breakdown = "bruh."
+player_accept = "then send me money"
+player_bargain = "that makes no sense"
+player_reject = "[안심 차단 서비스 - 스팸 신고가 정상 접수되었습니다. 이용해주셔서 감사합니다.]"

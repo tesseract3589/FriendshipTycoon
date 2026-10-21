@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://vejnx2033qn2"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/spa/vent_windows_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "vent_windows"
+button_name = "환기 설비"
+price = 50000000000.0
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 1
+effect_target = "spa"
+effect_value = 3.0

@@ -5,10 +5,12 @@ const WORLD_CLICK_DIALOGUE_SCENE: PackedScene = preload("res://ui/world_click_di
 const OFFSCREEN_BUTTON_INDICATORS = preload("res://ui/OffscreenButtonIndicators.gd")
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
+const JJAM_PRESENTATION = preload("res://scripts/JjamPrestigePresentation.gd")
 const CAMERA_MIN_ZOOM: float = 0.4
 const CAMERA_MAX_ZOOM: float = 2.5
 const CAMERA_ZOOM_STEP: float = 1.1
 const GROUND_BOTTOM_SCREEN_MARGIN: float = 24.0
+const ENVIRONMENT_EDGE_MARGIN: float = 24.0
 
 @onready var camera := ErrorManager.require_node(self, ^"Camera2D", "Camera2D") as Camera2D
 @onready var wallpaper := ErrorManager.require_node(self, ^"World/WallPaper", "Sprite2D") as Sprite2D
@@ -18,36 +20,44 @@ const GROUND_BOTTOM_SCREEN_MARGIN: float = 24.0
 @onready var income_source_views := ErrorManager.require_node(self, ^"World/IncomeSourceViews", "Node2D") as Node2D
 @onready var world_layout := ErrorManager.require_node(self, ^"World/WorldLayout", "Node2D") as Node2D
 @onready var button_layout := ErrorManager.require_node(self, ^"World/ButtonLayout/Buttons", "Node2D") as Node2D
-@onready var developer_tools := ErrorManager.require_node(self, ^"HUD/DeveloperTools", "Control") as DeveloperToolsPanel
-@onready var camera_tutorial := ErrorManager.require_node(self, ^"HUD/CameraTutorial", "Control") as Control
-@onready var camera_tutorial_label := ErrorManager.require_node(self, ^"HUD/CameraTutorial/Label", "Label") as Label
-@onready var clouds := ErrorManager.require_node(self, ^"World/Clouds", "Node2D") as Node2D
+@onready var developer_tools := ErrorManager.require_node(self, ^"DeveloperHUD/DeveloperTools", "Control") as DeveloperToolsPanel
+@onready var clouds := ErrorManager.require_node(self, ^"World/Clouds", "Node2D") as CloudLayer
 @onready var ground_layer := ErrorManager.require_node(self, ^"World/Ground", "Node2D") as Node2D
 @onready var hud := ErrorManager.require_node(self, ^"HUD", "CanvasLayer") as CanvasLayer
+@onready var developer_hud := ErrorManager.require_node(self, ^"DeveloperHUD", "CanvasLayer") as CanvasLayer
+@onready var phone_dm_panel := ErrorManager.require_node(self, ^"HUD/PhoneDMPanel", "Control") as PhoneDMPanel
+@onready var cat_watching_event := ErrorManager.require_node(self, ^"CatWatchingEvent", "CanvasLayer") as CatWatchingEvent
 
 var _dragging_camera: bool = false
 var _touch_points: Dictionary = {}
 var _pinch_zoom_enabled: bool = false
 var _last_pinch_distance: float = 0.0
-var _camera_tutorial_dismissed: bool = false
 var _world_hover_areas: Dictionary = {}
 var _layout_elements: Dictionary = {}
 var _button_layout_elements: Dictionary = {}
 var _world_purchase_buttons: Dictionary = {}
 var _offscreen_button_indicators := OFFSCREEN_BUTTON_INDICATORS.new()
+var _camera_input_locked: bool = false
+var _initial_camera_position := Vector2.ZERO
+var _initial_camera_zoom := Vector2.ONE
+var _camera_drag_distance: float = 0.0
+var _jjam_click_candidate: bool = false
 
 
 func _ready() -> void:
-	if [camera, wallpaper, ground, money_label, income_label, income_source_views, world_layout, button_layout, developer_tools, camera_tutorial, camera_tutorial_label, clouds, ground_layer, hud].has(null):
+	if [camera, wallpaper, ground, money_label, income_label, income_source_views, world_layout, button_layout, developer_tools, clouds, ground_layer, hud, developer_hud, phone_dm_panel, cat_watching_event].has(null):
 		ErrorManager.report_error("SCENE_INITIALIZATION", "메인 장면을 구성할 수 없어 실행을 중단했습니다.", "Main")
 		process_mode = Node.PROCESS_MODE_DISABLED
 		return
 	SaveManager.initialize()
+	get_viewport().physics_object_picking_sort = true
+	get_viewport().physics_object_picking_first_only = true
 	camera.make_current()
 	RENDER_ORDER.apply_world_layer(wallpaper, RENDER_ORDER.WorldLayer.SKY)
 	RENDER_ORDER.apply_world_layer(clouds, RENDER_ORDER.WorldLayer.CLOUDS)
 	RENDER_ORDER.apply_world_layer(ground_layer, RENDER_ORDER.WorldLayer.GROUND)
 	hud.layer = RENDER_ORDER.ScreenLayer.HUD
+	developer_hud.layer = RENDER_ORDER.ScreenLayer.DEVELOPER
 	_offscreen_button_indicators.name = "OffscreenButtonIndicators"
 	hud.add_child(_offscreen_button_indicators)
 	ErrorManager.validate_visuals(wallpaper, "Main.WallPaper")
@@ -56,7 +66,6 @@ func _ready() -> void:
 	IncomeManager.source_activation_changed.connect(_on_source_activation_changed)
 	EconomyManager.money_changed.connect(_refresh_finances)
 	IncomeManager.income_changed.connect(_refresh_finances)
-	ButtonManager.button_purchased.connect(_on_button_purchased)
 	ButtonManager.button_unlocked_by_purchase.connect(_on_button_unlocked_by_purchase)
 	world_layout.visible = true
 	_validate_world_layout()
@@ -67,13 +76,33 @@ func _ready() -> void:
 	_create_world_click_dialogues()
 	_refresh_finances()
 	_clamp_camera_position()
+	_initial_camera_position = camera.global_position
+	_initial_camera_zoom = camera.zoom
+	clouds.configure_world_bounds(_get_camera_horizontal_world_bounds(true))
+	var presentation := JJAM_PRESENTATION.new()
+	presentation.name = "JjamPrestigePresentation"
+	presentation.setup(self, camera)
+	add_child(presentation)
+	SaveManager.progress_loaded.connect(_on_progress_loaded)
 
 
 func _on_viewport_size_changed() -> void:
 	_clamp_camera_position()
+	clouds.configure_world_bounds(_get_camera_horizontal_world_bounds(true))
 
 
 func _input(event: InputEvent) -> void:
+	if _camera_input_locked:
+		get_viewport().set_input_as_handled()
+		return
+	if event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag:
+		if developer_tools.is_visible_in_tree() or cat_watching_event.is_blocking_input() or phone_dm_panel.blocks_pointer(event.position):
+			_dragging_camera = false
+			_pinch_zoom_enabled = false
+			if event is InputEventScreenTouch or event is InputEventScreenDrag:
+				_touch_points.erase(event.index)
+			# Let the topmost GUI handle clicks and scroll without moving the world camera.
+			return
 	if event is InputEventScreenTouch:
 		_handle_screen_touch(event as InputEventScreenTouch)
 		return
@@ -91,6 +120,11 @@ func _input(event: InputEvent) -> void:
 		if mouse_button.button_index == MOUSE_BUTTON_LEFT:
 			var was_dragging := _dragging_camera
 			_dragging_camera = mouse_button.pressed and _is_pointer_over_world()
+			if mouse_button.pressed:
+				_camera_drag_distance = 0.0
+				_jjam_click_candidate = _dragging_camera and _is_pointer_on_jjamtong()
+			elif was_dragging and _jjam_click_candidate and _camera_drag_distance < 8.0 and _is_pointer_on_jjamtong():
+				get_tree().call_group("jjam_prestige_panel", "open_panel")
 			# Let world Area2D click handlers receive presses; consume only the drag release.
 			if not mouse_button.pressed and was_dragging:
 				get_viewport().set_input_as_handled()
@@ -100,8 +134,9 @@ func _input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and _dragging_camera:
 		var mouse_motion := event as InputEventMouseMotion
+		_camera_drag_distance += mouse_motion.relative.length()
 		if not mouse_motion.relative.is_zero_approx():
-			_dismiss_camera_tutorial()
+			EventManager.notify_camera_interaction()
 		camera.global_position -= mouse_motion.relative / camera.zoom
 		_clamp_camera_position()
 		get_viewport().set_input_as_handled()
@@ -109,9 +144,10 @@ func _input(event: InputEvent) -> void:
 
 func _handle_screen_touch(event: InputEventScreenTouch) -> void:
 	if event.pressed:
-		_dismiss_camera_tutorial()
+		EventManager.notify_camera_interaction()
 		_touch_points[event.index] = event.position
 		if _touch_points.size() == 2:
+			_jjam_click_candidate = false
 			_pinch_zoom_enabled = _is_pointer_over_world()
 			_last_pinch_distance = _get_pinch_distance()
 			_dragging_camera = false
@@ -131,10 +167,11 @@ func _handle_screen_drag(event: InputEventScreenDrag) -> void:
 
 	var pinch_distance := _get_pinch_distance()
 	if _last_pinch_distance > 0.0 and pinch_distance > 0.0:
+		var minimum_zoom := _get_camera_minimum_zoom()
 		var new_zoom := clampf(
 			camera.zoom.x * pinch_distance / _last_pinch_distance,
-			CAMERA_MIN_ZOOM,
-			CAMERA_MAX_ZOOM
+			minimum_zoom,
+			maxf(CAMERA_MAX_ZOOM, minimum_zoom)
 		)
 		camera.zoom = Vector2.ONE * new_zoom
 		_clamp_camera_position()
@@ -163,22 +200,18 @@ func _is_pointer_over_world() -> bool:
 
 func _zoom_camera(zoom_in: bool) -> void:
 	var old_zoom := camera.zoom.x
+	var minimum_zoom := _get_camera_minimum_zoom()
 	var new_zoom := clampf(
 		old_zoom * CAMERA_ZOOM_STEP if zoom_in else old_zoom / CAMERA_ZOOM_STEP,
-		CAMERA_MIN_ZOOM,
-		CAMERA_MAX_ZOOM
+		minimum_zoom,
+		maxf(CAMERA_MAX_ZOOM, minimum_zoom)
 	)
 	if is_equal_approx(old_zoom, new_zoom):
 		return
 
-	_dismiss_camera_tutorial()
+	EventManager.notify_camera_interaction()
 	camera.zoom = Vector2.ONE * new_zoom
 	_clamp_camera_position()
-
-
-func _on_button_purchased(button_data: ButtonData) -> void:
-	if button_data != null and button_data.id == "hall_foundation":
-		_show_camera_tutorial()
 
 
 func _on_button_unlocked_by_purchase(button_data: ButtonData) -> void:
@@ -187,62 +220,133 @@ func _on_button_unlocked_by_purchase(button_data: ButtonData) -> void:
 		_offscreen_button_indicators.point_to_button(world_button.texture_button)
 
 
-func _show_camera_tutorial() -> void:
-	_camera_tutorial_dismissed = false
-	TooltipManager.hide_tooltip()
-	camera_tutorial_label.text = (
-		"터치 및 드래그로 카메라 조정"
-		if OS.has_feature("mobile")
-		else "마우스 드래그/휠로 카메라 조정"
-	)
-	camera_tutorial.modulate = Color.WHITE
-	camera_tutorial.visible = true
-
-
-func _dismiss_camera_tutorial() -> void:
-	if _camera_tutorial_dismissed or not camera_tutorial.visible:
-		return
-	_camera_tutorial_dismissed = true
-	var fade := create_tween()
-	fade.tween_property(camera_tutorial, "modulate:a", 0.0, 1.5)
-	fade.tween_callback(camera_tutorial.hide)
-
-
 func _clamp_camera_position() -> void:
+	if _camera_input_locked:
+		return
+	_apply_camera_bounds()
+
+
+func _apply_camera_bounds() -> void:
+	# Even a wide/tall resized window must fit entirely inside the environment.
+	var minimum_zoom := _get_camera_minimum_zoom()
+	camera.zoom = Vector2.ONE * clampf(camera.zoom.x, minimum_zoom, maxf(CAMERA_MAX_ZOOM, minimum_zoom))
 	# Preserve the outer visible edges reached at max zoom-out, rather than camera centers.
-	var max_zoom_out_half_width := get_viewport_rect().size.x * 0.5 / CAMERA_MIN_ZOOM
 	var viewport_half_width := get_viewport_rect().size.x * 0.5 / camera.zoom.x
-	var horizontal_bounds := _get_unlocked_source_horizontal_bounds()
-	var world_left := horizontal_bounds.x - 2.0 * max_zoom_out_half_width
-	var world_right := horizontal_bounds.y + 2.0 * max_zoom_out_half_width
-	camera.global_position.x = clampf(
-		camera.global_position.x,
-		world_left + viewport_half_width,
-		world_right - viewport_half_width
-	)
+	var world_bounds := _get_camera_horizontal_world_bounds()
+	var environment := _get_environment_world_bounds()
+	var min_camera_x := world_bounds.x + viewport_half_width
+	var max_camera_x := world_bounds.y - viewport_half_width
+	if min_camera_x <= max_camera_x:
+		camera.global_position.x = clampf(camera.global_position.x, min_camera_x, max_camera_x)
+	else:
+		# A source near an outer edge can leave a smaller interval than the viewport.
+		camera.global_position.x = clampf(camera.global_position.x, environment.position.x + viewport_half_width, environment.end.x - viewport_half_width)
 	# Godot's positive Y axis points down. Let the camera descend far enough to show the
 	# ground's top, while keeping the ground's lower edge outside the viewport.
 	var viewport_half_height := get_viewport_rect().size.y * 0.5 / camera.zoom.y
-	var ground_bottom := ground.global_position.y
-	if ground.texture != null:
-		ground_bottom += ground.texture.get_size().y * absf(ground.global_scale.y) * 0.5
-	var max_camera_y := ground_bottom - viewport_half_height - GROUND_BOTTOM_SCREEN_MARGIN
-	camera.global_position.y = minf(camera.global_position.y, max_camera_y)
-	if wallpaper.texture != null:
-		var wallpaper_top := (
-			wallpaper.global_position.y
-			- wallpaper.texture.get_size().y * absf(wallpaper.global_scale.y) * 0.5
-		)
-		var min_camera_y := wallpaper_top + viewport_half_height
-		camera.global_position.y = maxf(camera.global_position.y, min_camera_y)
+	var min_camera_y := environment.position.y + viewport_half_height
+	var max_camera_y := environment.end.y - viewport_half_height
+	if min_camera_y <= max_camera_y:
+		camera.global_position.y = clampf(camera.global_position.y, min_camera_y, max_camera_y)
+	else:
+		camera.global_position.y = environment.get_center().y
 
 
-func _get_unlocked_source_horizontal_bounds() -> Vector2:
+func _get_environment_world_bounds() -> Rect2:
+	# Ground is a container of tiles; use their world-space union, not Ground1's width.
+	var ground_bounds: Rect2 = ground.global_transform * ground.get_rect()
+	for node in ground_layer.find_children("*", "Sprite2D", true, false):
+		var sprite := node as Sprite2D
+		if sprite.texture != null and sprite.is_visible_in_tree():
+			var sprite_bounds: Rect2 = sprite.global_transform * sprite.get_rect()
+			ground_bounds = ground_bounds.merge(sprite_bounds)
+	var sky_bounds: Rect2 = wallpaper.global_transform * wallpaper.get_rect()
+	var ground_surface_bounds: Rect2 = ground.global_transform * ground.get_rect()
+	var left := maxf(ground_bounds.position.x, sky_bounds.position.x) + ENVIRONMENT_EDGE_MARGIN
+	var right := minf(ground_bounds.end.x, sky_bounds.end.x) - ENVIRONMENT_EDGE_MARGIN
+	var top := sky_bounds.position.y + ENVIRONMENT_EDGE_MARGIN
+	var bottom := ground_surface_bounds.end.y - GROUND_BOTTOM_SCREEN_MARGIN
+	return Rect2(Vector2(left, top), Vector2(maxf(1.0, right - left), maxf(1.0, bottom - top)))
+
+
+func _get_camera_minimum_zoom() -> float:
+	var environment := _get_environment_world_bounds()
+	var viewport_size := get_viewport_rect().size
+	return maxf(CAMERA_MIN_ZOOM, maxf(viewport_size.x / environment.size.x, viewport_size.y / environment.size.y))
+
+
+func clamp_camera_after_presentation() -> void:
+	_apply_camera_bounds()
+
+
+func set_camera_input_locked(locked: bool) -> void:
+	_camera_input_locked = locked
+	_dragging_camera = false
+	_pinch_zoom_enabled = false
+	_jjam_click_candidate = false
+	_touch_points.clear()
+	get_viewport().physics_object_picking = not locked
+
+
+func reset_camera_to_initial() -> void:
+	camera.zoom = _initial_camera_zoom
+	camera.global_position = _initial_camera_position
+	_apply_camera_bounds()
+	clouds.configure_world_bounds(_get_camera_horizontal_world_bounds(true))
+
+
+func _on_progress_loaded(_slot: int) -> void:
+	reset_camera_to_initial()
+
+
+func get_jjamtong_visual() -> Node2D:
+	var button := _world_purchase_buttons.get("jjamtong") as WorldPurchaseButton
+	if is_instance_valid(button):
+		for visual in button.purchased_visuals:
+			if visual is HoverPeekSprite:
+				return visual
+	return null
+
+
+func _is_pointer_on_jjamtong() -> bool:
+	var bin := ButtonManager.get_button("jjamtong")
+	if not PrestigeManager.jjam_unlocked or bin == null or not bin.bought:
+		return false
+	var query := PhysicsPointQueryParameters2D.new()
+	query.position = get_global_mouse_position()
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	query.collision_mask = 1
+	var areas := _get_world_hover_areas("jjamtong")
+	for hit in get_world_2d().direct_space_state.intersect_point(query, 64):
+		if areas.has(hit.collider):
+			return true
+	return false
+
+
+func _get_camera_horizontal_world_bounds(include_locked_sources: bool = false) -> Vector2:
+	var max_zoom_out_half_width := get_viewport_rect().size.x * 0.5 / CAMERA_MIN_ZOOM
+	var source_bounds := _get_source_horizontal_bounds(include_locked_sources)
+	if include_locked_sources:
+		# Also cover the initial camera range before any source is purchased.
+		source_bounds.x = minf(source_bounds.x, 0.0)
+		source_bounds.y = maxf(source_bounds.y, 0.0)
+	var source_limits := source_bounds + Vector2(-2.0 * max_zoom_out_half_width, 2.0 * max_zoom_out_half_width)
+	var environment := _get_environment_world_bounds()
+	var limited := Vector2(maxf(source_limits.x, environment.position.x), minf(source_limits.y, environment.end.x))
+	if limited.x < limited.y:
+		return limited
+	return Vector2(environment.position.x, environment.end.x)
+
+
+func _get_source_horizontal_bounds(include_locked_sources: bool = false) -> Vector2:
 	var min_x := 0.0
 	var max_x := 0.0
 	var has_unlocked_source := false
 	for source_data in IncomeManager.sources:
-		if source_data == null or not IncomeManager.source_active.get(source_data.id, false):
+		if source_data == null:
+			continue
+		if not include_locked_sources and not IncomeManager.source_active.get(source_data.id, false):
 			continue
 		var layout_sprite := _get_layout_sprite(source_data.id)
 		if layout_sprite == null or layout_sprite.texture == null:
@@ -382,6 +486,7 @@ func _get_world_hover_areas(button_id: String) -> Array[Area2D]:
 
 func _prepare_world_hover_areas() -> void:
 	_world_hover_areas.clear()
+	var ordered_areas: Array[Area2D] = []
 	for button_data in ButtonManager.buttons:
 		if button_data == null:
 			continue
@@ -391,14 +496,20 @@ func _prepare_world_hover_areas() -> void:
 		var hover_areas: Array[Area2D] = []
 		for area_node in layout_element.find_children("HoverArea", "Area2D", true, false):
 			var hover_area := area_node as Area2D
-			var original_transform := hover_area.global_transform
-			hover_area.reparent(world_layout, true)
-			hover_area.global_transform = original_transform
-			hover_area.input_pickable = false
-			hover_area.collision_layer = 1
+			ordered_areas.append(hover_area)
 			hover_areas.append(hover_area)
 		if not hover_areas.is_empty():
 			_world_hover_areas[button_data.id] = hover_areas
+	# Keep visual depth and layout tree order when detaching the input areas.
+	ordered_areas.sort_custom(func(a: Area2D, b: Area2D) -> bool: return b.is_greater_than(a))
+	for hover_area in ordered_areas:
+		var original_transform := hover_area.global_transform
+		var original_depth := RENDER_ORDER.get_effective_z_index(hover_area)
+		hover_area.reparent(world_layout, true)
+		hover_area.global_transform = original_transform
+		RENDER_ORDER.apply_world_layer(hover_area, original_depth)
+		hover_area.input_pickable = false
+		hover_area.collision_layer = 1
 
 
 func _hide_world_layout_sprites() -> void:

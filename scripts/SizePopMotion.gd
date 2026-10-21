@@ -4,6 +4,8 @@ extends RefCounted
 const DEFAULT_OVERSHOOT: float = 1.1
 const DEFAULT_POP_DURATION: float = 0.1
 const DEFAULT_SETTLE_DURATION: float = 0.05
+const PULSE_RISE_DURATION: float = 0.1
+const PULSE_SETTLE_DURATION: float = 0.2
 const SCALE_METADATA: StringName = &"_size_pop_scale"
 const TWEEN_METADATA: StringName = &"_size_pop_tween"
 
@@ -13,6 +15,34 @@ static func play(
 	overshoot: float = DEFAULT_OVERSHOOT,
 	pop_duration: float = DEFAULT_POP_DURATION,
 	settle_duration: float = DEFAULT_SETTLE_DURATION
+) -> void:
+	_animate(visuals, overshoot, pop_duration, settle_duration, true)
+
+
+static func pulse(visuals: Array[Node2D]) -> void:
+	_animate(visuals, DEFAULT_OVERSHOOT, PULSE_RISE_DURATION, PULSE_SETTLE_DURATION, false)
+
+
+static func stop(visuals: Array[Node2D]) -> void:
+	for visual in visuals:
+		if not is_instance_valid(visual):
+			continue
+		var tween: Tween
+		if visual.has_meta(TWEEN_METADATA):
+			tween = visual.get_meta(TWEEN_METADATA) as Tween
+		if tween != null and tween.is_valid():
+			tween.kill()
+		if visual.has_meta(SCALE_METADATA):
+			visual.scale = visual.get_meta(SCALE_METADATA)
+			_clear_motion_metadata(visual)
+
+
+static func _animate(
+	visuals: Array[Node2D],
+	overshoot: float,
+	pop_duration: float,
+	settle_duration: float,
+	from_zero: bool
 ) -> void:
 	for visual in visuals:
 		if not ErrorManager.validate_instance(visual, "SizePopMotion.play"):
@@ -24,7 +54,9 @@ static func play(
 		if previous_tween != null and previous_tween.is_valid():
 			previous_tween.kill()
 		visual.set_meta(SCALE_METADATA, final_scale)
-		visual.scale = Vector2.ZERO
+		# An interrupted pulse keeps the original target and the current visible size.
+		if from_zero:
+			visual.scale = Vector2.ZERO
 		var tween := visual.create_tween()
 		visual.set_meta(TWEEN_METADATA, tween)
 		tween.set_trans(Tween.TRANS_BACK)

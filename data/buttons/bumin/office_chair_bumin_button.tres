@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://b7tqrqcv8hfgl"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/bumin/office_chair_bumin_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "office_chair_bumin"
+button_name = "사무용 의자"
+large_price = "5e13"
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 3
+effect_target = "bumin"
+effect_value = 2.0

@@ -2,6 +2,7 @@ extends Control
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const AUTO_COLOR := Color(1.0, 0.58, 0.18)
+const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 
 enum PendingAction { NONE, SAVE, LOAD, RESET }
 
@@ -15,6 +16,7 @@ enum PendingAction { NONE, SAVE, LOAD, RESET }
 @onready var reset_button: Button = $Overlay/Panel/Margin/VBox/Actions/Reset
 @onready var close_button: Button = $Overlay/Panel/Margin/VBox/Actions/Close
 @onready var confirmation: ConfirmationDialog = $Confirmation
+@onready var slot_scroll: ScrollContainer = $Overlay/Panel/Margin/VBox/Scroll
 
 var _selected_slot: int = 1
 var _slot_buttons: Array[Button] = []
@@ -25,6 +27,13 @@ var _pending_action: PendingAction = PendingAction.NONE
 
 
 func _ready() -> void:
+	open_button.add_to_group("panel_top_obstacle")
+	# Saving sits above the right sidebar while developer tools retain their layer.
+	var save_layer := CanvasLayer.new()
+	save_layer.name = "SaveLayer"
+	save_layer.layer = RENDER_ORDER.ScreenLayer.SAVE
+	add_child(save_layer)
+	overlay.reparent(save_layer, false)
 	open_button.pressed.connect(_open)
 	close_button.pressed.connect(overlay.hide)
 	save_button.pressed.connect(_request_save)
@@ -95,6 +104,7 @@ func _fit_panel() -> void:
 func _open() -> void:
 	if not SaveManager.initialized and not SaveManager.initialize():
 		return
+	RightPanelManager.close_all()
 	TooltipManager.hide_tooltip()
 	status_label.text = "슬롯을 선택한 뒤 저장하거나 불러오세요."
 	_refresh_slots()
@@ -103,7 +113,7 @@ func _open() -> void:
 	_slot_buttons[_selected_slot].grab_focus()
 	_fit_panel.call_deferred()
 	# Keep the automatic slot visible while the initially selected manual slot gains focus.
-	get_node("Overlay/Panel/Margin/VBox/Scroll").set_deferred("scroll_vertical", 0)
+	slot_scroll.set_deferred("scroll_vertical", 0)
 
 
 func _refresh_slots() -> void:

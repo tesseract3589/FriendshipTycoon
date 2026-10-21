@@ -14,6 +14,7 @@ config/name="FriendshipHouseTycoon"
 run/main_scene="uid://du3of3w2rc627"
 config/features=PackedStringArray("4.7", "Mobile")
 config/icon="uid://50a8kaq5wchw"
+config/windows_native_icon="res://icon.ico"
 
 [autoload]
 
@@ -24,6 +25,8 @@ IncomeManager="*res://autoload/IncomeManager.gd"
 PrestigeManager="*res://autoload/PrestigeManager.gd"
 ButtonManager="*res://autoload/ButtonManager.gd"
 TooltipManager="*res://autoload/TooltipManager.gd"
+RightPanelManager="*res://autoload/RightPanelManager.gd"
+EventManager="*res://autoload/EventManager.gd"
 SaveManager="*res://autoload/SaveManager.gd"
 
 [display]

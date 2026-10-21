@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="JjamCatEffectData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ResourceInit/JjamCatEffectData.gd" id="1"]
+[ext_resource type="PackedScene" path="res://ui/effects/jjam_cat_effect.tscn" id="2"]
+
+[resource]
+resource_name = "짬 환생 고양이 흡수"
+script = ExtResource("1")
+effect_scene = ExtResource("2")
+count = 30
+spawn_duration = 0.3
+pop_duration = 0.12
+absorption_duration = 1.0
+size_range = Vector2(48, 88)

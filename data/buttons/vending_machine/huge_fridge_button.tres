@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://btxx7se6d7yfh"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/vending_machine/huge_fridge_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "huge_fridge"
+button_name = "초대형 냉장고"
+large_price = "1.990e11"
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 1
+effect_target = "vending_machine"
+effect_value = 3.0

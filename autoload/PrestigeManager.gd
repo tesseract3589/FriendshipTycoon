@@ -1,58 +1,151 @@
 extends Node
+
 const BIG = preload("res://scripts/BigNumber.gd")
-
-
-signal prestige_changed()
-
-
-const JAM_MULTIPLIER_PER_POINT: float = 0.01
+const INITIAL_JJAM: int = 400
 const MAX_JJAM: int = 9223372036854775807
 
-@export var money_per_jjam: float = 1000000.0
+signal prestige_changed()
+signal jjam_changed()
+signal jjam_unlocked_changed()
+signal prestige_animation_requested()
 
+@export_range(1.0, 1000000000000.0, 1.0, "or_greater") var money_per_jjam: float = 3300000000000.0
+## Banked jjam only: each point adds this percentage to all income.
+@export_range(0.0, 100.0, 0.01, "or_greater") var boost_per_jjam: float = 1.0
+
+var jjam_unlocked: bool = false
+var banked_jjam: Variant = 0
+var live_jjam: Variant = 0
 var total_jjam: Variant = 0
-var current_jjam: Variant = 0
+var initial_jjam_pending: bool = false
+var prestige_count: int = 0
+var transition_in_progress: bool = false
+# Compatibility for callers using the former name of the unbanked amount.
+var current_jjam: Variant:
+	get:
+		return get_current_jjam()
+	set(value):
+		live_jjam = value
+		total_jjam = _add_counts(banked_jjam, live_jjam)
+
+
+func _ready() -> void:
+	IncomeManager.cumulative_income_changed.connect(refresh_jjam)
+
+
+func on_button_purchased(button: ButtonData) -> void:
+	if button.id == "jjamtong":
+		unlock_jjam()
+
+
+func unlock_jjam() -> void:
+	if jjam_unlocked:
+		return
+	jjam_unlocked = true
+	initial_jjam_pending = true
+	IncomeManager.reset_jjam_income()
+	refresh_jjam()
+	jjam_unlocked_changed.emit()
+
+
+func refresh_jjam() -> void:
+	var earned: Variant = 0
+	if jjam_unlocked:
+		earned = BIG.whole_count(BIG.divide(IncomeManager.get_jjam_earned_income(), money_per_jjam))
+		if initial_jjam_pending:
+			earned = _add_counts(earned, INITIAL_JJAM)
+	live_jjam = earned
+	total_jjam = _add_counts(banked_jjam, live_jjam)
+	jjam_changed.emit()
 
 
 func get_prestige_multiplier() -> Variant:
-	return BIG.add(1.0, BIG.multiply(get_total_jjam(), JAM_MULTIPLIER_PER_POINT))
+	if not has_prestiged():
+		return 1.0
+	return BIG.add(1.0, BIG.multiply(banked_jjam, boost_per_jjam * 0.01))
 
 
 func get_total_jjam() -> Variant:
-	if not BIG.valid(total_jjam):
-		ErrorManager.report_error("INVALID_JJAM", "누적 짬이 음수입니다.", "PrestigeManager.total_jjam")
-		return 0
 	return total_jjam
 
 
 func get_current_jjam() -> Variant:
-	if not ErrorManager.validate_number(money_per_jjam, "PrestigeManager.money_per_jjam", false):
-		return 0
-	if not ErrorManager.validate_number(EconomyManager.money, "EconomyManager.money"):
-		return 0
-	var earned: Variant = BIG.square_root(BIG.divide(EconomyManager.money, money_per_jjam))
-	if not ErrorManager.validate_number(earned, "PrestigeManager.current_jjam"):
-		return 0
-	return BIG.whole_count(earned)
+	return live_jjam
 
 
-func prestige() -> bool:
-	if not BIG.valid(total_jjam):
-		get_total_jjam()
+func has_prestiged() -> bool:
+	return prestige_count > 0
+
+
+func can_prestige() -> bool:
+	return jjam_unlocked and BIG.compare(live_jjam, 0) > 0 and not transition_in_progress
+
+
+func request_prestige() -> bool:
+	if not can_prestige():
 		return false
-	current_jjam = get_current_jjam()
-	if BIG.compare(current_jjam, 0) <= 0:
+	transition_in_progress = true
+	prestige_animation_requested.emit()
+	return true
+
+
+## The presentation calls this only when the screen has faded to black.
+func jjam_prestige() -> bool:
+	if not jjam_unlocked or BIG.compare(live_jjam, 0) <= 0:
 		return false
-	if total_jjam is int and current_jjam is int and total_jjam <= MAX_JJAM - current_jjam:
-		total_jjam += current_jjam
-	else:
-		var accumulated: Variant = BIG.add(total_jjam, current_jjam)
-		if not ErrorManager.validate_number(accumulated, "PrestigeManager.total_jjam"):
-			return false
-		total_jjam = BIG.whole_count(accumulated)
-	current_jjam = 0
+	EventManager.prepare_for_prestige()
+	banked_jjam = _add_counts(banked_jjam, live_jjam)
+	initial_jjam_pending = false
+	prestige_count += 1
+	IncomeManager.reset_jjam_income()
+	refresh_jjam()
 	EconomyManager.reset_money()
-	EconomyManager.set_global_multiplier(get_prestige_multiplier())
+	EconomyManager.set_global_multiplier(1.0)
 	ButtonManager.reset_for_prestige()
 	prestige_changed.emit()
 	return true
+
+
+func prestige() -> bool:
+	return jjam_prestige()
+
+
+func _add_counts(first: Variant, second: Variant) -> Variant:
+	if first is int and second is int and first <= MAX_JJAM - second:
+		return first + second
+	return BIG.whole_count(BIG.add(first, second))
+
+
+func get_save_state() -> Dictionary:
+	return {
+		"jjam_system_version": 1,
+		"jjam_unlocked": jjam_unlocked,
+		"banked_jjam": BIG.serialize_count(banked_jjam),
+		"live_jjam": BIG.serialize_count(live_jjam),
+		"total_jjam": BIG.serialize_count(total_jjam),
+		"initial_jjam_pending": initial_jjam_pending,
+		"prestige_count": prestige_count,
+	}
+
+
+func restore_save_state(state: Dictionary) -> void:
+	transition_in_progress = false
+	if state.has("jjam_system_version"):
+		jjam_unlocked = state.jjam_unlocked
+		banked_jjam = BIG.deserialize(state.banked_jjam)
+		initial_jjam_pending = state.initial_jjam_pending
+		prestige_count = state.prestige_count
+		if prestige_count == 0:
+			banked_jjam = 0
+	else:
+		# Discard both kinds of old jjam and remove the old embedded 1% income bonus.
+		var old_banked: Variant = BIG.deserialize(state.total_jjam)
+		var old_boost: Variant = BIG.add(1.0, BIG.multiply(old_banked, 0.01))
+		EconomyManager.global_multiplier = BIG.divide(EconomyManager.global_multiplier, old_boost)
+		banked_jjam = 0
+		prestige_count = 0
+		var bin := ButtonManager.get_button("jjamtong")
+		jjam_unlocked = bin != null and bin.bought
+		initial_jjam_pending = jjam_unlocked
+	refresh_jjam()
+	jjam_unlocked_changed.emit()

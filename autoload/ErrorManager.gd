@@ -128,20 +128,23 @@ func validate_income_source(source: IncomeSourceData) -> bool:
 	var context := "IncomeSourceData:" + source.id
 	var valid := validate_id(source.id, context)
 	var values := {
-		"base_income": source.base_income,
+		"base_income": source.get_base_income(),
 		"multiplier": source.multiplier,
 		"upgrade_base_cost": source.upgrade_base_cost,
 		"upgrade_cost_linear_growth": source.upgrade_cost_linear_growth,
 		"upgrade_cost_doubling_levels": source.upgrade_cost_doubling_levels,
-		"upgrade_first_income_ratio": source.upgrade_first_income_ratio,
-		"upgrade_income_decay": source.upgrade_income_decay,
+		"upgrade_income_growth_levels": source.upgrade_income_growth_levels,
+		"upgrade_income_growth_multiplier": source.upgrade_income_growth_multiplier,
 		"base_time": source.base_time, "time_multiplier": source.time_multiplier
 	}
 	for property_name: String in values:
-		var allow_zero := property_name in ["base_income", "upgrade_cost_linear_growth", "upgrade_income_decay"]
+		var allow_zero := property_name in ["base_income", "upgrade_cost_linear_growth"]
 		if not validate_number(values[property_name], context + "." + property_name, allow_zero):
 			valid = false
 	if not validate_number(source.base_time * source.time_multiplier, context + ".production_time", false):
+		valid = false
+	if is_finite(source.upgrade_income_growth_multiplier) and source.upgrade_income_growth_multiplier <= 1.0:
+		report_error("INVALID_UPGRADE_BALANCE", "수입 성장 배율은 1보다 커야 합니다.", context + ".upgrade_income_growth_multiplier")
 		valid = false
 	return valid
 

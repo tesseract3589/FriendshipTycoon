@@ -2,6 +2,7 @@ class_name IncomeUpgradePanel
 extends Control
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+const BIG = preload("res://scripts/BigNumber.gd")
 const UPGRADE_TEXTURE: Texture2D = preload("res://assets/sprites/Interfaces/Button_Upgrade.png")
 const UPGRADE_BUTTON_TEXTURE: Texture2D = preload("res://assets/sprites/Interfaces/Button_UI_Upgrade.png")
 const UPGRADE_REPEAT_INITIAL_DELAY: float = 0.4
@@ -12,10 +13,15 @@ const PRICE_COLUMN_BASE_WIDTH: float = 85.0
 const SCREEN_MARGIN: float = 12.0
 const PANEL_RIGHT_INSET: float = 135.0
 const ROW_SEPARATION: int = 20
+const SIDE_BUTTON_GAP: float = 16.0
+const PRESTIGE_LOCKED_TEXTURE: Texture2D = preload("res://assets/sprites/Interfaces/Button_jjamtiger_locked.png")
+const PRESTIGE_TEXTURE: Texture2D = preload("res://assets/sprites/Interfaces/Button_jjamtiger.png")
+const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 
 @onready var list := ErrorManager.require_node(self, ^"Panel/Margin/VBox/Scroll/List", "VBoxContainer") as VBoxContainer
 @onready var panel := ErrorManager.require_node(self, ^"Panel", "PanelContainer") as PanelContainer
 @onready var open_button := ErrorManager.require_node(self, ^"OpenButton", "TextureButton") as TextureButton
+@onready var prestige_preview: TextureButton = $JjamPrestigePreview
 @onready var close_button := ErrorManager.require_node(self, ^"Panel/Margin/VBox/CloseButton", "Button") as Button
 @onready var scroll: ScrollContainer = $Panel/Margin/VBox/Scroll
 @onready var panel_margin: MarginContainer = $Panel/Margin
@@ -23,20 +29,103 @@ const ROW_SEPARATION: int = 20
 var _held_source_id: String = ""
 var _repeat_timer: float = 0.0
 var _repeat_interval: float = UPGRADE_REPEAT_INITIAL_DELAY
+var _cat_tween: Tween
+var _upgrade_click_mask: BitMap
 
 
 func _ready() -> void:
-	if not ErrorManager.initialize_component(self, [list, panel, open_button, close_button]):
+	if not ErrorManager.initialize_component(self, [list, panel, open_button, close_button, prestige_preview]):
 		return
+	_upgrade_click_mask = BitMap.new()
+	_upgrade_click_mask.create_from_image_alpha(UPGRADE_TEXTURE.get_image())
 	open_button.texture_normal = UPGRADE_BUTTON_TEXTURE
+	# Sidebar entries stay accessible above any registered panel's input backdrop.
+	var sidebar_layer := CanvasLayer.new()
+	sidebar_layer.name = "SidebarLayer"
+	sidebar_layer.layer = RENDER_ORDER.ScreenLayer.SIDEBAR
+	add_child(sidebar_layer)
+	var sidebar := Control.new()
+	sidebar.name = "Sidebar"
+	sidebar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	sidebar_layer.add_child(sidebar)
+	sidebar.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	open_button.reparent(sidebar, false)
+	prestige_preview.reparent(sidebar, false)
+	open_button.add_to_group("panel_right_obstacle")
+	prestige_preview.add_to_group("panel_right_obstacle")
+	prestige_preview.add_to_group("jjam_prestige_entry")
 	open_button.pressed.connect(_toggle_panel)
 	close_button.pressed.connect(_toggle_panel)
+	RightPanelManager.register_panel(panel)
+	panel.visibility_changed.connect(_on_panel_visibility_changed)
+	prestige_preview.pressed.connect(_open_prestige)
+	prestige_preview.mouse_entered.connect(_animate_cat.bind(true))
+	prestige_preview.mouse_exited.connect(_animate_cat.bind(false))
+	PrestigeManager.jjam_unlocked_changed.connect(_refresh_prestige_preview)
 	IncomeManager.source_activation_changed.connect(_on_sources_changed)
 	IncomeManager.income_changed.connect(_refresh_rows)
 	EconomyManager.money_changed.connect(_refresh_rows)
 	resized.connect(_fit_panel_to_viewport)
+	resized.connect(_layout_side_buttons)
+	EventManager.event_finished.connect(_on_event_finished)
+	EventManager.event_state_restored.connect(_refresh_prestige_preview)
+	SaveManager.progress_loaded.connect(_refresh_prestige_preview)
+	SaveManager.progress_loaded.connect(func(_slot: int) -> void: RightPanelManager.close_all())
+	_refresh_prestige_preview()
 	_rebuild_rows()
 	_fit_panel_to_viewport()
+
+
+func _on_event_finished(event_id: String, _result: String) -> void:
+	if event_id == EventManager.CAT_WATCHING_ID:
+		_refresh_prestige_preview()
+
+
+func _refresh_prestige_preview(_slot: int = -1) -> void:
+	var unlocked := PrestigeManager.jjam_unlocked
+	prestige_preview.visible = unlocked or EventManager.get_event_result(EventManager.CAT_WATCHING_ID) == "acknowledged"
+	prestige_preview.texture_normal = PRESTIGE_TEXTURE if unlocked else PRESTIGE_LOCKED_TEXTURE
+	prestige_preview.disabled = not unlocked
+	prestige_preview.focus_mode = Control.FOCUS_ALL if unlocked else Control.FOCUS_NONE
+	if _cat_tween != null:
+		_cat_tween.kill()
+	prestige_preview.scale = Vector2.ONE
+	_layout_side_buttons()
+
+
+func _open_prestige() -> void:
+	if PrestigeManager.jjam_unlocked:
+		get_tree().call_group("jjam_prestige_panel", "toggle_panel")
+
+
+func _animate_cat(hovered: bool) -> void:
+	if prestige_preview.disabled:
+		return
+	if _cat_tween != null:
+		_cat_tween.kill()
+	# Every target comes from an immutable unit scale, never the interrupted scale.
+	prestige_preview.pivot_offset = prestige_preview.size * 0.5
+	var target := Vector2.ONE * (1.08 if hovered else 1.0)
+	var bounce := Vector2(0.94, 1.15) if hovered else Vector2(1.04, 0.89)
+	_cat_tween = create_tween()
+	_cat_tween.tween_property(prestige_preview, "scale", target * bounce, 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_cat_tween.tween_property(prestige_preview, "scale", target, 0.28).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+
+func _layout_side_buttons() -> void:
+	if not is_instance_valid(open_button) or not is_instance_valid(prestige_preview):
+		return
+	var button_height := open_button.size.y
+	var group_height := button_height * 2.0 + SIDE_BUTTON_GAP if prestige_preview.visible else button_height
+	var top := -group_height * 0.5
+	# Both controls share the same right/vertical-center anchors.
+	open_button.offset_top = top
+	open_button.offset_bottom = top + button_height
+	prestige_preview.offset_left = open_button.offset_left
+	prestige_preview.offset_right = open_button.offset_right
+	prestige_preview.offset_top = top + button_height + SIDE_BUTTON_GAP
+	prestige_preview.offset_bottom = prestige_preview.offset_top + button_height
+	prestige_preview.pivot_offset = prestige_preview.size * 0.5
 
 
 func _fit_panel_to_viewport() -> void:
@@ -84,7 +173,10 @@ func _process(delta: float) -> void:
 func _toggle_panel() -> void:
 	if process_mode == Node.PROCESS_MODE_DISABLED:
 		return
-	panel.visible = not panel.visible
+	RightPanelManager.toggle_panel(panel)
+
+
+func _on_panel_visibility_changed() -> void:
 	if panel.visible:
 		_rebuild_rows()
 		_fit_panel_to_viewport()
@@ -129,6 +221,8 @@ func _rebuild_rows() -> void:
 		var upgrade := TextureButton.new()
 		upgrade.name = "Upgrade"
 		upgrade.texture_normal = UPGRADE_TEXTURE
+		# Match the rendered texture, excluding transparent pixels and aspect-fit padding.
+		upgrade.texture_click_mask = _upgrade_click_mask
 		upgrade.custom_minimum_size = Vector2(67.2, 67.2)
 		upgrade.ignore_texture_size = true
 		upgrade.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
@@ -162,7 +256,7 @@ func _refresh_row(row: HBoxContainer, source: IncomeSourceData) -> void:
 	row.get_node("Info").text = "%s Lv.%d\n%s원/회\n다음 레벨 +%s원/회\n초당 %s원" % [source.source_name, level, NUMBER_FORMATTER.format_number(payout), NUMBER_FORMATTER.format_number(payout_gain), NUMBER_FORMATTER.format_income_per_second(income_per_second)]
 	row.get_node("Purchase/Price").text = "%s원" % NUMBER_FORMATTER.format_number(cost)
 	var upgrade_button := row.get_node("Purchase/Upgrade") as TextureButton
-	upgrade_button.disabled = cost <= 0.0 or not EconomyManager.can_afford(cost)
+	upgrade_button.disabled = BIG.compare(cost, 0.0) <= 0 or not EconomyManager.can_afford(cost)
 	upgrade_button.modulate = Color(0.65, 0.65, 0.65) if upgrade_button.disabled else Color.WHITE
 
 
