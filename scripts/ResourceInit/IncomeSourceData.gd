@@ -22,6 +22,8 @@ const BIG = preload("res://scripts/BigNumber.gd")
 @export var large_base_income: String = ""
 @export var multiplier: float = 1.0
 @export var upgrade_base_cost: float = 10.0
+## 큰 수 업그레이드 기본 비용. 예: "1.25e500". 비워 두면 upgrade_base_cost를 사용합니다.
+@export var large_upgrade_base_cost: String = ""
 ## 가격 = 초기 가격 * (1 + linear_growth * 업그레이드 횟수) * 2^(업그레이드 횟수 / doubling_levels).
 @export var upgrade_cost_linear_growth: float = 0.96
 @export var upgrade_cost_doubling_levels: float = 3.0
@@ -40,6 +42,10 @@ const BIG = preload("res://scripts/BigNumber.gd")
 
 func get_base_income() -> Variant:
 	return base_income if large_base_income.strip_edges().is_empty() else BIG.parse(large_base_income)
+
+
+func get_upgrade_base_cost() -> Variant:
+	return upgrade_base_cost if large_upgrade_base_cost.strip_edges().is_empty() else BIG.parse(large_upgrade_base_cost)
 
 
 func get_tooltip_text(template_override: String = "") -> String:

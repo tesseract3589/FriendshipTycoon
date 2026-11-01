@@ -5,15 +5,17 @@
 [ext_resource type="Texture2D" uid="uid://h05jvecmk4ak" path="res://assets/sprites/Ground.png" id="4_tbgi4"]
 [ext_resource type="Script" uid="uid://dubpdfstf6y8g" path="res://scenes/cloud_layer.gd" id="5_clouds"]
 [ext_resource type="PackedScene" path="res://ui/developer_tools.tscn" id="6_developer_tools"]
-[ext_resource type="PackedScene" uid="uid://dvctb8k52oj67" path="res://ui/income_upgrade_panel.tscn" id="7_income_upgrade"]
+[ext_resource type="PackedScene" uid="uid://dvctb8k52oj67" path="res://ui/batch_upgrade_panel.tscn" id="7_batch_upgrade"]
 [ext_resource type="PackedScene" uid="uid://dtvh8n4u7xuir" path="res://scenes/world_layout.tscn" id="8_world_layout"]
 [ext_resource type="PackedScene" uid="uid://cndgmkkn4cxlg" path="res://scenes/button_layout.tscn" id="9_button_layout"]
 [ext_resource type="PackedScene" path="res://ui/save_slots_panel.tscn" id="10_save_slots"]
 [ext_resource type="PackedScene" uid="uid://d0dkn6j0mmh" path="res://ui/phone_dm_panel.tscn" id="11_phone_dm"]
-[ext_resource type="PackedScene" path="res://ui/event_reward_deposit.tscn" id="12_event_reward"]
+[ext_resource type="PackedScene" uid="uid://vd4rqogjifvl" path="res://ui/event_reward_deposit.tscn" id="12_event_reward"]
 [ext_resource type="Script" uid="uid://b66qgx3re7m7r" path="res://ui/CameraTutorial.gd" id="13_camera_tutorial"]
 [ext_resource type="PackedScene" path="res://ui/cat_watching_event.tscn" id="14_cat_event"]
 [ext_resource type="PackedScene" path="res://ui/jjam_prestige_panel.tscn" id="15_jjam_prestige"]
+[ext_resource type="Script" uid="uid://dypvyij2le4vf" path="res://ui/IncomeUpgradeTutorial.gd" id="16_income_tutorial"]
+[ext_resource type="Script" path="res://ui/JjamShopTutorial.gd" id="17_shop_tutorial"]
 
 [node name="Main" type="Node2D" unique_id=1474638925]
 script = ExtResource("2_game_ui")
@@ -98,25 +100,40 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.88, 0.4, 1)
 theme_override_font_sizes/font_size = 38
-text = "자금: 0원"
+text = "0원"
 
 [node name="IncomeLabel" type="Label" parent="HUD/Panel/VBoxContainer" unique_id=819494443]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "수입: 0원 / 초"
+text = "0원 / 초"
 
 [node name="PhoneDMPanel" parent="HUD" unique_id=162818714 instance=ExtResource("11_phone_dm")]
 
-[node name="IncomeUpgradePanel" parent="HUD" unique_id=1836911926 instance=ExtResource("7_income_upgrade")]
-
-[node name="jjam_prestige_panel" parent="HUD" unique_id=1328254666 instance=ExtResource("15_jjam_prestige")]
+[node name="EventRewardDeposit" parent="HUD" unique_id=429058265 instance=ExtResource("12_event_reward")]
 
 [node name="SaveSlotsPanel" parent="HUD" unique_id=1784676476 instance=ExtResource("10_save_slots")]
 
-[node name="EventRewardDeposit" parent="HUD" unique_id=429058265 instance=ExtResource("12_event_reward")]
+[node name="RightPanel" type="CanvasLayer" parent="." unique_id=1865052531]
+layer = 2
 
-[node name="CameraTutorial" type="CenterContainer" parent="HUD" unique_id=1807127713]
+[node name="BatchUpgradePanel" parent="RightPanel" unique_id=1836911926 instance=ExtResource("7_batch_upgrade")]
+
+[node name="jjam_prestige_panel" parent="RightPanel" unique_id=1328254666 instance=ExtResource("15_jjam_prestige")]
+
+[node name="Tutorials" type="Node" parent="." unique_id=525819812]
+
+[node name="World" type="Node2D" parent="Tutorials" unique_id=1033924593]
+
+[node name="IncomeUpgradeTutorial" type="Label" parent="Tutorials/World" unique_id=1104462229]
+visible = false
+text = "클릭하여 업그레이드 패널 열기"
+script = ExtResource("16_income_tutorial")
+
+[node name="Screen" type="CanvasLayer" parent="Tutorials" unique_id=80996540]
+layer = 2
+
+[node name="CameraTutorial" type="CenterContainer" parent="Tutorials/Screen" unique_id=1807127713]
 visible = false
 z_index = 100
 anchors_preset = 15
@@ -127,7 +144,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("13_camera_tutorial")
 
-[node name="Label" type="Label" parent="HUD/CameraTutorial" unique_id=851752071]
+[node name="Label" type="Label" parent="Tutorials/Screen/CameraTutorial" unique_id=851752071]
 custom_minimum_size = Vector2(900, 100)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
@@ -137,6 +154,10 @@ theme_override_font_sizes/font_size = 48
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
+
+[node name="JjamShopTutorial" type="CanvasLayer" parent="Tutorials"]
+layer = 3
+script = ExtResource("17_shop_tutorial")
 
 [node name="CatWatchingEvent" parent="." unique_id=592080937 instance=ExtResource("14_cat_event")]
 

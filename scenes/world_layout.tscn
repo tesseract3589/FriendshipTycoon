@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://cpahtndme3aqm" path="res://assets/sprites/VendingMachine/huge_fridge_vault.png" id="9_hu5cb"]
 [ext_resource type="Texture2D" uid="uid://7c835e56n0mn" path="res://assets/sprites/Restaurant/dining_seats.png" id="9_jxslf"]
 [ext_resource type="Texture2D" uid="uid://dwyybcyrfa3et" path="res://assets/sprites/Restaurant/serving_desk.png" id="9_yyjay"]
+[ext_resource type="Texture2D" uid="uid://ceuv5ckh5ju6f" path="res://assets/sprites/VendingMachine/huge_tank.png" id="10_g47lk"]
 [ext_resource type="Texture2D" uid="uid://bt1ri5kouub8p" path="res://assets/sprites/Restaurant/window_modern.png" id="11_03k8n"]
 [ext_resource type="Texture2D" uid="uid://btrww8di0eqvs" path="res://assets/sprites/Structures/BaseStone.png" id="12_03k8n"]
 [ext_resource type="Script" uid="uid://5wsclbk23smg" path="res://scripts/SceneRenderLayer.gd" id="13_render_layer"]
@@ -36,7 +37,20 @@
 [ext_resource type="SpriteFrames" uid="uid://i1ucxcli5tt3" path="res://data/animations/jjamtong_cat_frames.tres" id="32_cat_frames"]
 [ext_resource type="Texture2D" uid="uid://cjotd6e4xlaxx" path="res://assets/sprites/Bumin/Monitor_with_desk.png" id="35_yuoe5"]
 [ext_resource type="Texture2D" uid="uid://d0vvrj6phudne" path="res://assets/sprites/Bumin/Chair_with_wheel_Friendship.png" id="36_n8ajw"]
+[ext_resource type="Texture2D" uid="uid://bvxpql4t4x0fj" path="res://assets/sprites/Bumin/bumin_truck.png" id="37_e4mm3"]
 [ext_resource type="Texture2D" uid="uid://dr3obsvhulllo" path="res://assets/sprites/Structures/iron_bar_titanium.png" id="37_vm6d4"]
+[ext_resource type="Texture2D" uid="uid://dxytfngaoal5e" path="res://assets/sprites/Lab/Wall_White_Concrete.png" id="38_2j4hr"]
+[ext_resource type="Texture2D" uid="uid://mus73nnf5w4g" path="res://assets/sprites/Lab/lab_board.png" id="38_qv4kt"]
+[ext_resource type="Texture2D" uid="uid://ktr6wkcw8vqk" path="res://assets/sprites/Lab/Banner_restricted_area.png" id="39_aaeum"]
+[ext_resource type="SpriteFrames" uid="uid://lvdpxt4g6hqe" path="res://data/animations/busik_server_frames.tres" id="39_busik_server_frames"]
+[ext_resource type="Texture2D" uid="uid://dd4mgl5l7qc71" path="res://assets/sprites/Bumin/Monitor_with_desk_internet.png" id="40_8fgvk"]
+[ext_resource type="SpriteFrames" uid="uid://c2126olqcon3q" path="res://data/animations/busik_reactor_frames.tres" id="40_busik_reactor_frames"]
+[ext_resource type="Texture2D" uid="uid://bjl4157gmscy3" path="res://assets/sprites/Lab/busik_cloner.png" id="42_wsp5q"]
+[ext_resource type="SpriteFrames" uid="uid://c08h6e2fgcnv8" path="res://data/animations/drink_cycle_frames.tres" id="43_drink_cycle"]
+[ext_resource type="Script" uid="uid://d0b4vqarrorp0" path="res://scripts/FloatingDrinkSprite.gd" id="44_floating_drink"]
+[ext_resource type="Script" uid="uid://d3f0f83s671oa" path="res://scripts/PodBubbles.gd" id="45_pod_bubbles"]
+[ext_resource type="Script" uid="uid://bsmmx41imvvbd" path="res://scripts/DepartureLoopSprite.gd" id="truck_departure"]
+[ext_resource type="Resource" uid="uid://b3tio7nigphai" path="res://data/animations/truck_bumin_motion.tres" id="truck_motion"]
 
 [sub_resource type="RectangleShape2D" id="VendingMachineHoverShape"]
 size = Vector2(367, 585)
@@ -104,14 +118,23 @@ size = Vector2(25.563797, 338.34576)
 [sub_resource type="RectangleShape2D" id="ConduitCenterHoverShape"]
 size = Vector2(25.564026, 284.2105)
 
-[sub_resource type="RectangleShape2D" id="BuminMonitorHoverShape"]
-size = Vector2(680.7671, 388.46155)
-
 [sub_resource type="RectangleShape2D" id="FaucetPlateHoverShape"]
 size = Vector2(550, 292)
 
 [sub_resource type="RectangleShape2D" id="FaucetFlowHoverShape"]
-size = Vector2(110, 550)
+size = Vector2(103.22786, 116.12872)
+
+[sub_resource type="RectangleShape2D" id="BuminMonitorHoverShape"]
+size = Vector2(680.7671, 388.46155)
+
+[sub_resource type="RectangleShape2D" id="LabBoardHoverShape"]
+size = Vector2(657, 403)
+
+[sub_resource type="RectangleShape2D" id="BusikServerHoverShape"]
+size = Vector2(462, 530)
+
+[sub_resource type="RectangleShape2D" id="BusikReactorHoverShape"]
+size = Vector2(550, 500)
 
 [node name="WorldLayout" type="Node2D" unique_id=758915039]
 
@@ -258,6 +281,23 @@ input_pickable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="VendingMachine/huge_fridge/HoverArea" unique_id=1763509102]
 visible = false
 shape = SubResource("HugeFridgeHoverShape")
+
+[node name="giant_jjam_tank" type="Sprite2D" parent="VendingMachine" unique_id=1768498906]
+z_index = -20
+z_as_relative = false
+position = Vector2(-473, -242)
+texture = ExtResource("10_g47lk")
+script = ExtResource("13_render_layer")
+render_layer = -20
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="VendingMachine/giant_jjam_tank" unique_id=1461267125]
+input_pickable = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="VendingMachine/giant_jjam_tank/HoverArea" unique_id=1917021146]
+visible = false
+position = Vector2(2, -1)
+polygon = PackedVector2Array(-252, -355, -225, -410, -150, -470, 0, -495, 150, -470, 225, -410, 250, -350, 250, 129, -253, 130)
 
 [node name="Restaurant" type="Node2D" parent="." unique_id=1674139382]
 
@@ -673,6 +713,7 @@ position = Vector2(728.00006, -602)
 scale = Vector2(0.665, 0.665)
 texture = ExtResource("25_nsk7v")
 script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Spa/conduit" unique_id=1463825101]
 input_pickable = false
@@ -700,6 +741,7 @@ shape = SubResource("ConduitSideHoverShape")
 [node name="faucet" type="Node2D" parent="Spa" unique_id=362419575]
 z_as_relative = false
 script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
 
 [node name="cold" type="Sprite2D" parent="Spa/faucet" unique_id=78777122]
 position = Vector2(178.00002, -422.00003)
@@ -716,7 +758,8 @@ shape = SubResource("FaucetPlateHoverShape")
 
 [node name="FlowCollision" type="CollisionShape2D" parent="Spa/faucet/cold/HoverArea" unique_id=1740625103]
 visible = false
-position = Vector2(1.5, 86)
+position = Vector2(-0.00012207031, -68.69409)
+scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("FaucetFlowHoverShape")
 
 [node name="warm" type="Sprite2D" parent="Spa/faucet" unique_id=97547657]
@@ -734,32 +777,11 @@ shape = SubResource("FaucetPlateHoverShape")
 
 [node name="FlowCollision" type="CollisionShape2D" parent="Spa/faucet/warm/HoverArea" unique_id=1740625106]
 visible = false
-position = Vector2(1.5, 86)
+position = Vector2(0, -6.451416)
+scale = Vector2(0.99999976, 0.99999976)
 shape = SubResource("FaucetFlowHoverShape")
 
 [node name="Bumin" type="Node2D" parent="." unique_id=731745004]
-
-[node name="asphalt" type="Sprite2D" parent="Bumin" unique_id=390078814]
-z_index = 25
-z_as_relative = false
-position = Vector2(2842.0002, 258)
-scale = Vector2(1.6063251, 1)
-texture = ExtResource("30_nlnqt")
-script = ExtResource("13_render_layer")
-render_layer = 25
-metadata/_edit_lock_ = true
-
-[node name="columns" type="Node2D" parent="Bumin" unique_id=462254718]
-
-[node name="column1" type="Sprite2D" parent="Bumin/columns" unique_id=1056837329]
-position = Vector2(1796.9999, -14.50001)
-scale = Vector2(0.45666662, 0.44959122)
-texture = ExtResource("7_vvlob")
-
-[node name="column2" type="Sprite2D" parent="Bumin/columns" unique_id=711533834]
-position = Vector2(2529, -14.5)
-scale = Vector2(0.45666662, 0.44959122)
-texture = ExtResource("7_vvlob")
 
 [node name="bumin" type="Sprite2D" parent="Bumin" unique_id=1953296655]
 z_as_relative = false
@@ -777,12 +799,45 @@ visible = false
 position = Vector2(-1.9204102, -255.76917)
 shape = SubResource("BuminMonitorHoverShape")
 
+[node name="asphalt" type="Sprite2D" parent="Bumin" unique_id=390078814]
+z_index = 25
+z_as_relative = false
+position = Vector2(2842.0002, 258)
+scale = Vector2(1.6063251, 1)
+texture = ExtResource("30_nlnqt")
+script = ExtResource("13_render_layer")
+render_layer = 25
+metadata/_edit_lock_ = true
+
+[node name="depot_columns" type="Node2D" parent="Bumin" unique_id=462254718]
+z_index = 10
+z_as_relative = false
+script = ExtResource("13_render_layer")
+render_layer = 10
+metadata/_edit_lock_ = true
+
+[node name="column1" type="Sprite2D" parent="Bumin/depot_columns" unique_id=1056837329]
+position = Vector2(1796.9999, -14.50001)
+scale = Vector2(0.45666662, 0.44959122)
+texture = ExtResource("7_vvlob")
+
+[node name="column2" type="Sprite2D" parent="Bumin/depot_columns" unique_id=711533834]
+position = Vector2(2529, -14.5)
+scale = Vector2(0.45666662, 0.44959122)
+texture = ExtResource("7_vvlob")
+
+[node name="column3" type="Sprite2D" parent="Bumin/depot_columns" unique_id=580287468]
+position = Vector2(3261, -14.5)
+scale = Vector2(0.45666662, 0.44959122)
+texture = ExtResource("7_vvlob")
+
 [node name="office_chair_bumin" type="Sprite2D" parent="Bumin" unique_id=1736738114]
 z_as_relative = false
 position = Vector2(1992.0001, 151)
 scale = Vector2(0.245, 0.245)
 texture = ExtResource("36_n8ajw")
 script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Bumin/office_chair_bumin" unique_id=1659284101]
 input_pickable = false
@@ -791,7 +846,88 @@ input_pickable = false
 visible = false
 polygon = PackedVector2Array(-68, -318, 78, -318, 77.55029, -212.2449, 110.20361, -212.2449, 130.61182, -200, 142.85693, -179.59186, 144, 153, 25, 153, 25, 235, 157, 280, 167.34619, 297.95917, 159, 316, 140, 319, -0.00048828125, 265.3061, -134.69434, 318.3673, -155.10254, 318.3673, -167.34766, 297.95917, -158, 280, -25, 235, -25, 153, -132, 153, -130.6128, -175.51022, -122.44971, -195.91837, -97.95996, -212.2449, -69.38818, -212.2449)
 
+[node name="truck_bumin" type="Sprite2D" parent="Bumin" unique_id=2110995744]
+z_as_relative = false
+position = Vector2(3017, 114)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("37_e4mm3")
+script = ExtResource("truck_departure")
+motion = ExtResource("truck_motion")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="Bumin/truck_bumin" unique_id=1048075019]
+input_pickable = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Bumin/truck_bumin/HoverArea" unique_id=725208059]
+visible = false
+polygon = PackedVector2Array(-806.25, -359.375, 259.375, -359.375, 287.5, -265.625, 315.625, -300, 357, -307, 508, -307, 565.625, -290.625, 589, -244, 818.75, 159.375, 818.75, 268.75, -806.25, 268.75)
+
+[node name="bumin_internet_com" type="Node2D" parent="Bumin" unique_id=1693860489]
+z_as_relative = false
+script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
+
+[node name="internet_computer" type="Sprite2D" parent="Bumin/bumin_internet_com" unique_id=1290934679]
+position = Vector2(2397, 131)
+scale = Vector2(0.26, 0.26)
+texture = ExtResource("40_8fgvk")
+
+[node name="HoverArea" type="Area2D" parent="Bumin/bumin_internet_com/internet_computer" unique_id=1147002284]
+input_pickable = false
+
+[node name="MonitorCollision" type="CollisionShape2D" parent="Bumin/bumin_internet_com/internet_computer/HoverArea" unique_id=852595078]
+visible = false
+position = Vector2(-1.9204102, -255.76917)
+shape = SubResource("BuminMonitorHoverShape")
+
+[node name="chair" type="Sprite2D" parent="Bumin/bumin_internet_com" unique_id=1360157482]
+position = Vector2(2361.0002, 151)
+scale = Vector2(0.245, 0.245)
+texture = ExtResource("36_n8ajw")
+
+[node name="HoverArea" type="Area2D" parent="Bumin/bumin_internet_com/chair" unique_id=482436931]
+input_pickable = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Bumin/bumin_internet_com/chair/HoverArea" unique_id=200323296]
+visible = false
+polygon = PackedVector2Array(-68, -318, 78, -318, 77.55029, -212.2449, 110.20361, -212.2449, 130.61182, -200, 142.85693, -179.59186, 144, 153, 25, 153, 25, 235, 157, 280, 167.34619, 297.95917, 159, 316, 140, 319, -0.00048828125, 265.3061, -134.69434, 318.3673, -155.10254, 318.3673, -167.34766, 297.95917, -158, 280, -25, 235, -25, 153, -132, 153, -130.6128, -175.51022, -122.44971, -195.91837, -97.95996, -212.2449, -69.38818, -212.2449)
+
+[node name="bumin_soldier" type="Sprite2D" parent="Bumin" unique_id=1040112759]
+z_as_relative = false
+position = Vector2(2688, 174)
+texture = ExtResource("3_soldier")
+script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="Bumin/bumin_soldier" unique_id=1356431623]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Bumin/bumin_soldier/HoverArea" unique_id=1597505782]
+visible = false
+position = Vector2(1, 1)
+shape = SubResource("CapsuleShape2D_gcvix")
+
 [node name="Lab" type="Node2D" parent="." unique_id=883780587]
+
+[node name="lab" type="Sprite2D" parent="Lab" unique_id=930819406]
+z_as_relative = false
+position = Vector2(467.25, -876.16504)
+scale = Vector2(0.26, 0.26)
+texture = ExtResource("38_qv4kt")
+script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="Lab/lab" unique_id=1813527101]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/lab/HoverArea" unique_id=1813527102]
+visible = false
+shape = SubResource("LabBoardHoverShape")
+
+[node name="banner_restricted" type="Sprite2D" parent="Lab" unique_id=418731957]
+position = Vector2(467.98007, -958)
+scale = Vector2(0.185, 0.185)
+texture = ExtResource("39_aaeum")
 
 [node name="titanium_bars" type="Node2D" parent="Lab" unique_id=1659071244]
 z_index = -20
@@ -849,3 +985,110 @@ texture = ExtResource("37_vm6d4")
 position = Vector2(1352, -972)
 scale = Vector2(0.457, 0.395)
 texture = ExtResource("37_vm6d4")
+
+[node name="special_concrete_wall" type="Node2D" parent="Lab" unique_id=797838171]
+z_index = 10
+z_as_relative = false
+script = ExtResource("13_render_layer")
+render_layer = 10
+metadata/_edit_lock_ = true
+
+[node name="wallpaper" type="Sprite2D" parent="Lab/special_concrete_wall" unique_id=212312790]
+z_index = -20
+z_as_relative = false
+position = Vector2(727.625, -971.00006)
+scale = Vector2(0.658, 0.6251095)
+texture = ExtResource("38_2j4hr")
+script = ExtResource("13_render_layer")
+render_layer = -20
+
+[node name="wall_left" type="Sprite2D" parent="Lab/special_concrete_wall" unique_id=289733196]
+position = Vector2(103, -982)
+scale = Vector2(0.457, 0.39482743)
+texture = ExtResource("7_vvlob")
+
+[node name="wall_right" type="Sprite2D" parent="Lab/special_concrete_wall" unique_id=880228009]
+position = Vector2(1352, -982)
+scale = Vector2(0.457, 0.3957357)
+texture = ExtResource("7_vvlob")
+
+[node name="busik_server" type="AnimatedSprite2D" parent="Lab" unique_id=2048173800]
+z_as_relative = false
+position = Vector2(1236, -866.00006)
+scale = Vector2(0.37, 0.37)
+sprite_frames = ExtResource("39_busik_server_frames")
+autoplay = "default"
+script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="Lab/busik_server" unique_id=1767955859]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/busik_server/HoverArea" unique_id=561677252]
+visible = false
+shape = SubResource("BusikServerHoverShape")
+
+[node name="lab_soldier" type="Sprite2D" parent="Lab" unique_id=914434869]
+z_as_relative = false
+position = Vector2(561, -822)
+texture = ExtResource("3_soldier")
+script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
+
+[node name="HoverArea" type="Area2D" parent="Lab/lab_soldier" unique_id=1538680104]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/lab_soldier/HoverArea" unique_id=2012976823]
+visible = false
+position = Vector2(1, 1)
+shape = SubResource("CapsuleShape2D_gcvix")
+
+[node name="busik_reactor" type="AnimatedSprite2D" parent="Lab" unique_id=304937544]
+z_as_relative = false
+position = Vector2(706, -839)
+scale = Vector2(0.28, 0.28)
+sprite_frames = ExtResource("40_busik_reactor_frames")
+autoplay = "default"
+script = ExtResource("13_render_layer")
+
+[node name="HoverArea" type="Area2D" parent="Lab/busik_reactor"]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/busik_reactor/HoverArea"]
+visible = false
+position = Vector2(0, 9)
+shape = SubResource("BusikReactorHoverShape")
+
+[node name="busik_cloner" type="Node2D" parent="Lab" unique_id=1209615801]
+
+[node name="twin_pod" type="Sprite2D" parent="Lab/busik_cloner" unique_id=1446422739]
+position = Vector2(973.00006, -868)
+scale = Vector2(0.41, 0.41)
+texture = ExtResource("42_wsp5q")
+
+[node name="left_bubbles" type="Node2D" parent="Lab/busik_cloner/twin_pod" unique_id=1491241438]
+position = Vector2(-187, 0)
+script = ExtResource("45_pod_bubbles")
+bubble_seed = 17
+
+[node name="right_bubbles" type="Node2D" parent="Lab/busik_cloner/twin_pod" unique_id=1944640179]
+position = Vector2(187, 0)
+script = ExtResource("45_pod_bubbles")
+bubble_seed = 43
+
+[node name="left_drink" type="AnimatedSprite2D" parent="Lab/busik_cloner" unique_id=391414693]
+z_index = 1
+position = Vector2(896.33, -860.88)
+scale = Vector2(0.075, 0.075)
+sprite_frames = ExtResource("43_drink_cycle")
+autoplay = "default"
+script = ExtResource("44_floating_drink")
+
+[node name="right_drink" type="AnimatedSprite2D" parent="Lab/busik_cloner" unique_id=1624793922]
+z_index = 1
+position = Vector2(1049.67, -860.88)
+scale = Vector2(0.075, 0.075)
+sprite_frames = ExtResource("43_drink_cycle")
+autoplay = "default"
+script = ExtResource("44_floating_drink")
+phase_delay = 0.3

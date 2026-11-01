@@ -203,9 +203,10 @@ func _hide_ui() -> void:
 		_hidden_layers[layer_node] = layer_node.visible
 		layer_node.hide()
 	# World-space prices, timers and speech bubbles are also UI.
-	for control in _main.get_node("World/IncomeSourceViews").find_children("*", "Control", true, false):
-		_hidden_controls[control] = control.visibility_layer
-		control.visibility_layer = 0
+	for root_path in [^"World/IncomeSourceViews", ^"Tutorials/World"]:
+		for control in _main.get_node(root_path).find_children("*", "Control", true, false):
+			_hidden_controls[control] = control.visibility_layer
+			control.visibility_layer = 0
 	_hidden_layers[TooltipManager] = TooltipManager.visible
 	TooltipManager.hide()
 

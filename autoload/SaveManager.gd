@@ -285,10 +285,11 @@ func _create_initial_progress() -> Dictionary:
 			"money_correction": 0.0,
 			"global_multiplier": 1.0,
 			"global_time_multiplier": 1.0,
+			"jjamtong_speed_effect_removed": true,
 			"developer_income_multiplier": 1.0,
 			"developer_time_multiplier": 1.0,
 		},
-		"prestige": {"jjam_system_version": 1, "jjam_unlocked": false, "banked_jjam": 0, "live_jjam": 0, "total_jjam": 0, "initial_jjam_pending": false, "prestige_count": 0},
+		"prestige": {"jjam_system_version": 2, "jjam_unlocked": false, "banked_jjam": 0, "live_jjam": 0, "total_jjam": 0, "initial_jjam_pending": false, "prestige_count": 0, "growth_spending": []},
 		"income": {"total_earned_income": 0.0, "total_earned_income_correction": 0.0, "jjam_earned_income": 0.0, "jjam_earned_income_correction": 0.0},
 		"buttons": button_states,
 		"sources": source_states,
@@ -320,6 +321,7 @@ func _capture_progress() -> Dictionary:
 			"money_correction": BIG.serialize(wallet[1]),
 			"global_multiplier": BIG.serialize(EconomyManager.global_multiplier),
 			"global_time_multiplier": EconomyManager.global_time_multiplier,
+			"jjamtong_speed_effect_removed": true,
 			"developer_income_multiplier": BIG.serialize(EconomyManager.developer_income_multiplier),
 			"developer_time_multiplier": EconomyManager.developer_time_multiplier,
 		},
@@ -346,6 +348,8 @@ func _validate_progress(value: Variant) -> bool:
 		if not state.get(key) is Dictionary:
 			return false
 	var economy: Dictionary = state.economy
+	if economy.has("jjamtong_speed_effect_removed") and not economy.jjamtong_speed_effect_removed is bool:
+		return false
 	var correction: Variant = economy.get("money_correction", 0.0)
 	if correction is Dictionary and not BIG.is_serialized(correction, true):
 		return false
@@ -364,8 +368,17 @@ func _validate_progress(value: Variant) -> bool:
 		or not _valid_number(economy.global_time_multiplier * economy.developer_time_multiplier, true):
 		return false
 	var jjam_keys := ["total_jjam", "current_jjam"]
+	var shop_purchases: Variant = state.prestige.get("shop_purchases", {})
+	var upgrade_mode: Variant = state.prestige.get("upgrade_mode", 1)
+	if not upgrade_mode is int or upgrade_mode not in [1, 5, 25]:
+		return false
+	if not shop_purchases is Dictionary:
+		return false
+	for item_id in shop_purchases:
+		if not item_id is String or not shop_purchases[item_id] is bool:
+			return false
 	if state.prestige.has("jjam_system_version"):
-		if state.prestige.jjam_system_version != 1:
+		if state.prestige.jjam_system_version not in [1, 2]:
 			return false
 		for key in ["jjam_unlocked", "initial_jjam_pending"]:
 			if not state.prestige.get(key) is bool:
@@ -384,6 +397,20 @@ func _validate_progress(value: Variant) -> bool:
 			if not BIG.valid_signed(low) or BIG.compare(BIG.add(BIG.deserialize(state.income[key]), low), 0.0) < 0:
 				return false
 		jjam_keys = ["total_jjam", "banked_jjam", "live_jjam"]
+		if state.prestige.jjam_system_version == 2:
+			if not state.prestige.get("growth_spending") is Array:
+				return false
+			var previous_income: Variant = 0.0
+			var run_income: Variant = BIG.add(BIG.deserialize(state.income.jjam_earned_income), BIG.deserialize(state.income.jjam_earned_income_correction, true))
+			for purchase in state.prestige.growth_spending:
+				if not purchase is Dictionary or not _valid_number(purchase.get("income")) or not _valid_number(purchase.get("price"), true):
+					return false
+				var purchase_income: Variant = BIG.deserialize(purchase.income)
+				var purchase_price: Variant = BIG.deserialize(purchase.price)
+				if BIG.compare(purchase_income, previous_income) < 0 or BIG.compare(purchase_income, run_income) > 0 \
+					or BIG.compare(purchase_price, BIG.floored(purchase_price)) != 0:
+					return false
+				previous_income = purchase_income
 	for key in jjam_keys:
 		var count: Variant = state.prestige.get(key)
 		if not ((count is int and count >= 0) or (BIG.is_serialized(count) and count.decimal_exponent >= 18)):
@@ -441,10 +468,13 @@ func _restore_progress(state: Dictionary) -> void:
 	# Loading replaces the pending ledger just like a reset; invalidate in-flight payouts.
 	IncomeManager._runtime_generation += 1
 	var economy: Dictionary = state.economy
+	# Older saves include the removed x3 effect whenever jjamtong is currently bought.
+	var saved_jjamtong: Dictionary = state.buttons.get("jjamtong", {})
+	var legacy_speed_factor := 3.0 if not economy.get("jjamtong_speed_effect_removed", false) and saved_jjamtong.get("bought", false) else 1.0
 	EconomyManager.money = BIG.deserialize(economy.money)
 	EconomyManager.money_correction = BIG.deserialize(economy.get("money_correction", 0.0), true)
 	EconomyManager.global_multiplier = BIG.deserialize(economy.global_multiplier)
-	EconomyManager.global_time_multiplier = economy.global_time_multiplier
+	EconomyManager.global_time_multiplier = economy.global_time_multiplier / legacy_speed_factor
 	EconomyManager.developer_income_multiplier = BIG.deserialize(economy.developer_income_multiplier)
 	EconomyManager.developer_time_multiplier = economy.developer_time_multiplier
 	for button in ButtonManager.buttons:
@@ -467,10 +497,12 @@ func _restore_progress(state: Dictionary) -> void:
 		IncomeManager.source_levels[source.id] = saved.level
 		IncomeManager.source_multipliers[source.id] = BIG.deserialize(saved.multiplier)
 		IncomeManager.source_speed_multipliers[source.id] = saved.speed_multiplier
-		IncomeManager.source_time_remaining[source.id] = saved.time_remaining
+		# Preserve production progress when removing the old speed bonus.
+		var remaining: float = saved.time_remaining * legacy_speed_factor if saved.active else saved.time_remaining
+		IncomeManager.source_time_remaining[source.id] = remaining
 		IncomeManager.source_pending_payouts[source.id] = BIG.deserialize(saved.pending_payout)
 		IncomeManager.source_pending_corrections[source.id] = BIG.deserialize(saved.get("pending_correction", 0.0), true)
-		IncomeManager.source_timer_display_keys[source.id] = IncomeManager._get_timer_display_key(saved.time_remaining)
+		IncomeManager.source_timer_display_keys[source.id] = IncomeManager._get_timer_display_key(remaining)
 	# Notify only after all managers agree. Effects are already saved, so do not replay purchases.
 	EventManager.reconcile_permanent_unlocks()
 	EventManager.reconcile_one_off_history()

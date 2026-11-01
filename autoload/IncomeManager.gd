@@ -19,7 +19,8 @@ signal source_level_changed(source_id: String, level: int)
 	preload("res://data/IncomeSources/vending_machine_income.tres"),
 	preload("res://data/IncomeSources/restaurant_income.tres"),
 	preload("res://data/IncomeSources/spa_income.tres"),
-	preload("res://data/IncomeSources/bumin_income.tres")
+	preload("res://data/IncomeSources/bumin_income.tres"),
+	preload("res://data/IncomeSources/lab_income.tres")
 ]
 
 # 플레이 중 Source multiplier
@@ -207,7 +208,10 @@ func get_upgrade_cost(source_id: String) -> Variant:
 	if source == null:
 		return 0.0
 	var level := get_source_level(source_id)
-	var cost: Variant = BIG.rounded(_get_upgrade_cost_at_level(source, level))
+	var cost: Variant = 0.0
+	# Sum the same rounded prices charged by individual level purchases.
+	for offset in range(PrestigeManager.get_upgrade_mode()):
+		cost = BIG.add(cost, BIG.rounded(_get_upgrade_cost_at_level(source, level + offset)))
 	if not ErrorManager.validate_number(cost, "IncomeSourceData:" + source_id + ".upgrade_cost", false):
 		return 0.0
 	return cost
@@ -215,13 +219,15 @@ func get_upgrade_cost(source_id: String) -> Variant:
 
 func _get_upgrade_cost_at_level(source: IncomeSourceData, level: int) -> Variant:
 	var upgrades := float(level - 1)
-	# Preserve native rounding for existing gameplay, extend only when pow overflows.
+	var base_cost: Variant = source.get_upgrade_base_cost()
+	# Preserve native rounding when the effective base and result fit in a float.
 	var native_growth := pow(2.0, upgrades / source.upgrade_cost_doubling_levels)
-	var native_cost := source.upgrade_base_cost * (1.0 + source.upgrade_cost_linear_growth * upgrades) * native_growth
-	if is_finite(native_cost):
-		return native_cost
+	if not base_cost is BigNumber:
+		var native_cost: float = base_cost * (1.0 + source.upgrade_cost_linear_growth * upgrades) * native_growth
+		if is_finite(native_cost):
+			return native_cost
 	var growth: Variant = native_growth if is_finite(native_growth) else BIG.power_of_ten(upgrades / source.upgrade_cost_doubling_levels * log(2.0) / log(10.0))
-	return BIG.multiply(BIG.multiply(source.upgrade_base_cost, 1.0 + source.upgrade_cost_linear_growth * upgrades), growth)
+	return BIG.multiply(BIG.multiply(base_cost, 1.0 + source.upgrade_cost_linear_growth * upgrades), growth)
 
 
 func get_upgrade_income_per_second_gain(source_id: String) -> Variant:
@@ -248,7 +254,7 @@ func get_next_upgrade_cycle_payout(source_id: String) -> Variant:
 	var source := get_source(source_id)
 	if source == null or not source_active.get(source_id, false) or not _validate_upgrade_balance(source):
 		return 0.0
-	var next_base_payout: Variant = _get_source_payout_at_level(source, get_source_level(source_id) + 1)
+	var next_base_payout: Variant = _get_source_payout_at_level(source, get_source_level(source_id) + PrestigeManager.get_upgrade_mode())
 	return _get_rounded_cycle_payout(source, next_base_payout)
 
 
@@ -289,7 +295,7 @@ func _upgrade_source_locked(source_id: String) -> bool:
 		return false
 	if generation != _runtime_generation:
 		return false
-	var next_level := get_source_level(source_id) + 1
+	var next_level := get_source_level(source_id) + PrestigeManager.get_upgrade_mode()
 	# Wallet observers must see the paid-for level, including when saving mid-signal.
 	var commit_level := func() -> void: source_levels[source_id] = next_level
 	if not EconomyManager.spend_money(cost, commit_level):

@@ -7,7 +7,7 @@
 script = ExtResource("1_button")
 id = "office_chair_bumin"
 button_name = "사무용 의자"
-large_price = "5e13"
+large_price = "5e12"
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
 click_dialogues = PackedStringArray()

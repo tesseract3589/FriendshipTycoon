@@ -9,9 +9,11 @@ func _ready() -> void:
 
 func _run() -> void:
 	IncomeManager.set_process(false)
+	EventManager.set_process(false)
 	_test_formatting()
 	_test_arithmetic()
 	_test_large_base_income()
+	_test_large_upgrade_base_cost()
 	_test_runtime()
 	await _test_save_and_ui()
 	if failures == 0:
@@ -101,6 +103,49 @@ func _test_large_base_income() -> void:
 	EconomyManager.set_global_multiplier(1.0)
 	EconomyManager.reset_money()
 
+func _test_large_upgrade_base_cost() -> void:
+	var source := IncomeSourceData.new()
+	source.id = "test_large_upgrade_base_cost"
+	source.upgrade_base_cost = 10.0
+	source.upgrade_cost_linear_growth = 1.0
+	source.upgrade_cost_doubling_levels = 1.0
+	for empty: String in ["", " \t "]:
+		source.large_upgrade_base_cost = empty
+		_check(source.get_upgrade_base_cost() == 10.0, "Empty cost override preserves native base")
+		_check(IncomeManager._get_upgrade_cost_at_level(source, 2) == 40.0, "Native upgrade cost unchanged")
+	source.large_upgrade_base_cost = "12.5"
+	_check(IncomeManager._get_upgrade_cost_at_level(source, 2) == 50.0, "Ordinary cost override uses native arithmetic")
+	source.large_upgrade_base_cost = " 1.25e500 "
+	_check(BIG.compare(source.get_upgrade_base_cost(), BIG.parse("1.25e500")) == 0, "Huge cost override parsed")
+	_check(ErrorManager.validate_income_source(source), "Huge effective cost passes resource validation")
+	_check(BIG.compare(IncomeManager._get_upgrade_cost_at_level(source, 2), BIG.parse("5e500")) == 0, "Huge base feeds upgrade cost growth")
+	_check(BIG.valid(IncomeManager._get_upgrade_cost_at_level(source, 100000), false), "Huge cost supports overflowing growth")
+	for invalid: String in ["invalid", "0", "-1e500", "1e1000000001"]:
+		source.large_upgrade_base_cost = invalid
+		_check(not ErrorManager.validate_income_source(source), "Invalid cost override rejected: " + invalid)
+	source.large_upgrade_base_cost = "1.25e500"
+	source.upgrade_base_cost = NAN
+	_check(ErrorManager.validate_income_source(source), "Only the overridden effective cost is validated")
+	source.upgrade_base_cost = 10.0
+	IncomeManager.sources.append(source)
+	IncomeManager.reset_runtime_state()
+	IncomeManager.activate_source(source.id)
+	EconomyManager.money = BIG.parse("1e500")
+	_check(not IncomeManager.upgrade_source(source.id), "Insufficient funds reject huge upgrade")
+	_check(IncomeManager.get_source_level(source.id) == 1, "Rejected huge upgrade preserves level")
+	EconomyManager.money = BIG.parse("6.25e500")
+	_check(IncomeManager.upgrade_source(source.id), "Huge override upgrade purchase succeeds")
+	_check(BIG.compare(EconomyManager.money, BIG.parse("5e500")) == 0, "Huge override deducted from wallet")
+	_check(BIG.compare(IncomeManager.get_upgrade_cost(source.id), BIG.parse("5e500")) == 0, "Next level uses huge override")
+	source.large_upgrade_base_cost = "2.5e500"
+	_check(BIG.compare(IncomeManager.get_upgrade_cost(source.id), BIG.parse("1e501")) == 0, "Editing override updates next price")
+	source.large_upgrade_base_cost = ""
+	_check(IncomeManager.get_upgrade_cost(source.id) == 40.0, "Clearing override restores native price")
+	IncomeManager.sources.erase(source)
+	IncomeManager.reset_runtime_state()
+	EconomyManager.reset_money()
+	ErrorManager.clear_errors()
+
 func _test_runtime() -> void:
 	EconomyManager.reset_money()
 	_check(EconomyManager.add_money(BIG.parse("1e500")), "Add huge money")
@@ -118,11 +163,12 @@ func _test_runtime() -> void:
 	ButtonManager.buttons.erase(button)
 	EconomyManager.set_global_multiplier(1.0)
 	_check(EconomyManager.set_developer_multipliers(1.0, BIG.parse("1e500")), "Developer huge income multiplier")
+	PrestigeManager.unlock_jjam()
 	IncomeManager.activate_source("vending_machine")
 	var source := IncomeManager.get_source("vending_machine")
 	var reference: Variant = BIG.multiply(source.get_base_income(), BIG.parse("1e400"))
-	var high_level: Variant = IncomeManager._get_source_payout_at_level(source, 5001)
-	_check(absf(float(BIG.divide(high_level, reference)) - 1.0) < 1e-10, "Level 5001 applies one hundred 10,000-fold growth periods")
+	var high_level: Variant = IncomeManager._get_source_payout_at_level(source, source.upgrade_income_growth_levels * 100 + 1)
+	_check(absf(float(BIG.divide(high_level, reference)) - 1.0) < 1e-10, "One hundred configured 10,000-fold growth periods")
 	IncomeManager._process(IncomeManager.get_source_production_time(source.id))
 	_check(BIG.valid(IncomeManager.get_total_income_per_second(), false), "Huge income remains valid")
 	_check(BIG.compare(EconomyManager.money, BIG.parse("1e500")) > 0, "Huge cycles pay out")
@@ -134,16 +180,22 @@ func _test_runtime() -> void:
 	var cost: Variant = IncomeManager.get_upgrade_cost(source.id)
 	EconomyManager.add_money(BIG.multiply(cost, 2.0))
 	_check(IncomeManager.upgrade_source(source.id), "Huge upgrade purchase")
+	var reward: Variant = PrestigeManager.get_current_jjam()
+	_check(BIG.compare(reward, 9223372036854775807) > 0, "Earned income must produce a reward past int64")
 	_check(PrestigeManager.prestige(), "Prestige past int64 reward range")
+	_check(BIG.compare(PrestigeManager.banked_jjam, reward) == 0 and PrestigeManager.live_jjam == 0, "Prestige banks its reward and clears the live ledger")
 	_check(BIG.valid(PrestigeManager.get_prestige_multiplier(), false), "Huge prestige bonus")
 	_check(BIG.compare(EconomyManager.get_developer_income_multiplier(), BIG.parse("1e500")) == 0, "Prestige retains developer factor")
 
 func _test_save_and_ui() -> void:
 	var directory := ProjectSettings.globalize_path("res://.godot/big_number_saves_%d" % Time.get_ticks_usec())
 	_check(SaveManager.initialize(directory), "Initialize isolated save directory")
+	PrestigeManager.unlock_jjam()
+	IncomeManager.record_income(BIG.multiply(BIG.parse("1e5000"), PrestigeManager.money_per_jjam))
+	_check(PrestigeManager.prestige(), "Bank a real huge reward before saving")
+	var saved_jjam: Variant = PrestigeManager.total_jjam
 	EconomyManager.add_money(BIG.parse("1.234567e10000"))
 	EconomyManager.set_developer_multipliers(1.0, BIG.parse("1e500"))
-	PrestigeManager.total_jjam = BIG.parse("1e5000")
 	IncomeManager.activate_source("vending_machine")
 	var snapshot := SaveManager._capture_progress()
 	_check(SaveManager._validate_progress(snapshot), "Validate extended save")
@@ -151,13 +203,24 @@ func _test_save_and_ui() -> void:
 	EconomyManager.reset_money()
 	_check(SaveManager.load_slot(1), "Load extended save")
 	_check(BIG.compare(EconomyManager.money, BIG.parse("1.234567e10000")) == 0, "Huge balance round trip")
-	_check(BIG.compare(PrestigeManager.total_jjam, BIG.parse("1e5000")) == 0, "Huge prestige round trip")
+	_check(BIG.compare(PrestigeManager.total_jjam, saved_jjam) == 0, "Huge prestige round trip")
+	var exact := SaveManager._create_initial_progress()
+	exact.economy.money = 12345.0
+	exact.prestige.jjam_unlocked = true
+	exact.prestige.prestige_count = 1
+	exact.prestige.banked_jjam = 9007199254740993
+	exact.prestige.total_jjam = 9007199254740993
+	_check(SaveManager._validate_progress(exact), "Current int64 saves accepted")
+	SaveManager._restore_progress(exact)
+	_check(PrestigeManager.total_jjam == 9007199254740993, "Current int64 banked jjam stays exact")
 	var legacy := SaveManager._create_initial_progress()
 	legacy.economy.money = 12345.0
-	legacy.prestige.total_jjam = 9007199254740993
-	_check(SaveManager._validate_progress(legacy), "Old numeric saves accepted")
+	legacy.economy.global_multiplier = BIG.serialize(BIG.multiply(2.0, BIG.add(1.0, BIG.multiply(9007199254740993, 0.01))))
+	legacy.prestige = {"total_jjam": 9007199254740993, "current_jjam": 42}
+	_check(SaveManager._validate_progress(legacy), "Legacy prestige saves remain readable")
 	SaveManager._restore_progress(legacy)
-	_check(PrestigeManager.total_jjam == 9007199254740993, "Old int64 prestige stays exact")
+	_check(PrestigeManager.total_jjam == 0 and PrestigeManager.prestige_count == 0, "Legacy jjam is discarded during migration")
+	_check(absf(float(EconomyManager.global_multiplier) - 2.0) < 1e-12 and EconomyManager.money == 12345.0, "Migration removes only the old embedded jjam bonus")
 	SaveManager._restore_progress(snapshot)
 	var main := preload("res://scenes/main.tscn").instantiate()
 	add_child(main)
@@ -171,6 +234,10 @@ func _test_save_and_ui() -> void:
 	main.free()
 
 func _test_money_hud_digits(main: Node) -> void:
+	# These fixed payment schedules test HUD digits, not live balance tuning.
+	var vending := IncomeManager.get_source("vending_machine")
+	var original_time := vending.base_time
+	vending.base_time = 7.0
 	var label: Label = main.get_node("HUD/Panel/VBoxContainer/MoneyLabel")
 	var state := SaveManager._create_initial_progress()
 	state.economy.money = 84466637.0
@@ -187,7 +254,7 @@ func _test_money_hud_digits(main: Node) -> void:
 	_check(label.text == "자금: 8446.6638만원", "One-won credit immediately updates the fourth HUD decimal")
 	EconomyManager.add_money(9.0)
 	_check(label.text == "자금: 8446.6647만원", "Ten-won carry immediately updates the third HUD decimal")
-	state.economy.money = 1e10
+	state.economy.money = 1e30
 	SaveManager._restore_progress(state)
 	_check(IncomeManager.upgrade_source("vending_machine") and IncomeManager.upgrade_source("vending_machine"), "Upgrade screenshot vending machine twice")
 	# Keep this digit-preservation fixture independent of the gameplay income curve.
@@ -231,6 +298,7 @@ func _test_money_hud_digits(main: Node) -> void:
 	_check(label.text == "자금: 8180.8873만원", "First restaurant payment changes the fourth decimal from one to three")
 	IncomeManager._process(1.5)
 	_check(label.text == "자금: 8683.1805만원", "Second restaurant payment changes the fourth decimal from three to five")
+	vending.base_time = original_time
 
 func _check(condition: bool, message: String) -> void:
 	if not condition:

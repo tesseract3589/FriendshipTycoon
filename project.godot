@@ -31,8 +31,8 @@ SaveManager="*res://autoload/SaveManager.gd"
 
 [display]
 
-window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
+window/stretch/mode.mobile="canvas_items"
 
 [gui]
 

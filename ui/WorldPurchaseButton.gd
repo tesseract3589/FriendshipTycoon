@@ -97,19 +97,26 @@ func _refresh() -> void:
 		if not ErrorManager.validate_instance(purchased_visual, "WorldPurchaseButton:" + button_data.id):
 			continue
 		purchased_visual.visible = button_data.bought
+		if purchased_visual.has_method("set_purchase_active"):
+			purchased_visual.set_purchase_active(button_data.bought)
+	var world_hover_enabled := purchased_visuals.all(func(visual: Node2D) -> bool:
+		return not visual.has_method("is_world_hover_enabled") or visual.is_world_hover_enabled()
+	)
 	for area in hover_areas:
 		if not ErrorManager.validate_instance(area, "WorldPurchaseButton:" + button_data.id + ".HoverArea"):
 			continue
 		area.input_pickable = (
 			has_purchased_visual
+			and world_hover_enabled
 			and (
 				button_data.show_purchased_tooltip
 				or not button_data.click_dialogues.is_empty()
 				or has_hover_animation
 			)
 		)
-	if not button_data.bought:
-		SIZE_POP_MOTION.stop(purchased_visuals)
+	if not button_data.bought or not world_hover_enabled:
+		if not button_data.bought:
+			SIZE_POP_MOTION.stop(purchased_visuals)
 		_pointer_over_areas.clear()
 		TooltipManager.hide_tooltip(button_data.id)
 	_update_hover_visuals()
@@ -195,6 +202,10 @@ func _add_purchased_visual(source_visual: Node2D) -> void:
 		copied_area.input_pickable = false
 		copied_area.monitoring = false
 		copied_area.monitorable = false
+	if purchased_visual.has_method("configure_world_hover_areas"):
+		purchased_visual.configure_world_hover_areas(hover_areas, source_visual.global_transform)
+	if purchased_visual.has_signal("world_hover_availability_changed"):
+		purchased_visual.connect("world_hover_availability_changed", _refresh)
 	if purchased_visual is AnimatedSprite2D:
 		var animated_visual := purchased_visual as AnimatedSprite2D
 		if animated_visual.sprite_frames != null:

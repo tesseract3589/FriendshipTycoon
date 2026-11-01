@@ -10,6 +10,7 @@ const BIG = preload("res://scripts/BigNumber.gd")
 	preload("res://data/buttons/vending_machine/bike_delivery_button.tres"),
 	preload("res://data/buttons/vending_machine/wireless_antenna_button.tres"),
 	preload("res://data/buttons/vending_machine/huge_fridge_button.tres"),
+	preload("res://data/buttons/vending_machine/giant_jjam_tank_button.tres"),
 	preload("res://data/buttons/restaurant/hall_foundation_button.tres"),
 	preload("res://data/buttons/restaurant/first_floor_wall_button.tres"),
 	preload("res://data/buttons/restaurant/restaurant_button.tres"),
@@ -31,10 +32,19 @@ const BIG = preload("res://scripts/BigNumber.gd")
 	preload("res://data/buttons/spa/pool_cold_button.tres"),
 	preload("res://data/buttons/spa/pool_warm_button.tres"),
 	preload("res://data/buttons/bumin/asphalt_button.tres"),
+	preload("res://data/buttons/bumin/depot_columns_button.tres"),
 	preload("res://data/buttons/bumin/bumin_button.tres"),
 	preload("res://data/buttons/bumin/office_chair_bumin_button.tres"),
+	preload("res://data/buttons/bumin/truck_bumin_button.tres"),
+	preload("res://data/buttons/bumin/bumin_internet_com_button.tres"),
+	preload("res://data/buttons/bumin/bumin_soldier_button.tres"),
 	preload("res://data/buttons/restaurant/jjamtong_button.tres"),
-	preload("res://data/buttons/lab/titanium_bars_button.tres")
+	preload("res://data/buttons/lab/titanium_bars_button.tres"),
+	preload("res://data/buttons/lab/special_concrete_wall_button.tres"),
+	preload("res://data/buttons/lab/lab_button.tres"),
+	preload("res://data/buttons/lab/busik_server_button.tres"),
+	preload("res://data/buttons/lab/lab_soldier_button.tres"),
+	preload("res://data/buttons/lab/busik_reactor_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 var _purchases_in_progress: Dictionary = {}

@@ -6,6 +6,7 @@ const OFFSCREEN_BUTTON_INDICATORS = preload("res://ui/OffscreenButtonIndicators.
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 const JJAM_PRESENTATION = preload("res://scripts/JjamPrestigePresentation.gd")
+const WINDOW_LAYOUT = preload("res://scripts/GameWindowLayout.gd")
 const CAMERA_MIN_ZOOM: float = 0.4
 const CAMERA_MAX_ZOOM: float = 2.5
 const CAMERA_ZOOM_STEP: float = 1.1
@@ -25,6 +26,9 @@ const ENVIRONMENT_EDGE_MARGIN: float = 24.0
 @onready var ground_layer := ErrorManager.require_node(self, ^"World/Ground", "Node2D") as Node2D
 @onready var hud := ErrorManager.require_node(self, ^"HUD", "CanvasLayer") as CanvasLayer
 @onready var developer_hud := ErrorManager.require_node(self, ^"DeveloperHUD", "CanvasLayer") as CanvasLayer
+@onready var right_panel := ErrorManager.require_node(self, ^"RightPanel", "CanvasLayer") as CanvasLayer
+@onready var tutorial_screen := ErrorManager.require_node(self, ^"Tutorials/Screen", "CanvasLayer") as CanvasLayer
+@onready var income_upgrade_tutorial := ErrorManager.require_node(self, ^"Tutorials/World/IncomeUpgradeTutorial", "Label") as IncomeUpgradeTutorial
 @onready var phone_dm_panel := ErrorManager.require_node(self, ^"HUD/PhoneDMPanel", "Control") as PhoneDMPanel
 @onready var cat_watching_event := ErrorManager.require_node(self, ^"CatWatchingEvent", "CanvasLayer") as CatWatchingEvent
 
@@ -42,10 +46,16 @@ var _initial_camera_position := Vector2.ZERO
 var _initial_camera_zoom := Vector2.ONE
 var _camera_drag_distance: float = 0.0
 var _jjam_click_candidate: bool = false
+var _source_click_candidate: IncomeSourceView
+var _hovered_income_source: IncomeSourceView
+
+
+func _enter_tree() -> void:
+	WINDOW_LAYOUT.configure_window(get_window())
 
 
 func _ready() -> void:
-	if [camera, wallpaper, ground, money_label, income_label, income_source_views, world_layout, button_layout, developer_tools, clouds, ground_layer, hud, developer_hud, phone_dm_panel, cat_watching_event].has(null):
+	if [camera, wallpaper, ground, money_label, income_label, income_source_views, world_layout, button_layout, developer_tools, clouds, ground_layer, hud, developer_hud, right_panel, tutorial_screen, income_upgrade_tutorial, phone_dm_panel, cat_watching_event].has(null):
 		ErrorManager.report_error("SCENE_INITIALIZATION", "메인 장면을 구성할 수 없어 실행을 중단했습니다.", "Main")
 		process_mode = Node.PROCESS_MODE_DISABLED
 		return
@@ -57,6 +67,8 @@ func _ready() -> void:
 	RENDER_ORDER.apply_world_layer(clouds, RENDER_ORDER.WorldLayer.CLOUDS)
 	RENDER_ORDER.apply_world_layer(ground_layer, RENDER_ORDER.WorldLayer.GROUND)
 	hud.layer = RENDER_ORDER.ScreenLayer.HUD
+	right_panel.layer = RENDER_ORDER.ScreenLayer.HUD
+	tutorial_screen.layer = RENDER_ORDER.ScreenLayer.HUD
 	developer_hud.layer = RENDER_ORDER.ScreenLayer.DEVELOPER
 	_offscreen_button_indicators.name = "OffscreenButtonIndicators"
 	hud.add_child(_offscreen_button_indicators)
@@ -86,6 +98,29 @@ func _ready() -> void:
 	SaveManager.progress_loaded.connect(_on_progress_loaded)
 
 
+func _process(_delta: float) -> void:
+	var hovered_source: IncomeSourceView
+	var pointer := get_viewport().get_mouse_position()
+	if (
+		not _camera_input_locked
+		and not EventManager.presentation_locked
+		and not PrestigeManager.transition_in_progress
+		and not developer_tools.is_visible_in_tree()
+		and not cat_watching_event.is_blocking_input()
+		and not phone_dm_panel.blocks_pointer(pointer)
+		and not (_dragging_camera and _camera_drag_distance >= 8.0)
+		and _touch_points.is_empty()
+		and get_viewport_rect().has_point(pointer)
+		and _is_pointer_over_world()
+	):
+		hovered_source = _get_income_source_at(pointer)
+	if hovered_source != _hovered_income_source and is_instance_valid(_hovered_income_source):
+		_hovered_income_source.set_upgrade_hovered(false)
+	_hovered_income_source = hovered_source
+	if is_instance_valid(_hovered_income_source):
+		_hovered_income_source.set_upgrade_hovered(true)
+
+
 func _on_viewport_size_changed() -> void:
 	_clamp_camera_position()
 	clouds.configure_world_bounds(_get_camera_horizontal_world_bounds(true))
@@ -98,6 +133,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouse or event is InputEventScreenTouch or event is InputEventScreenDrag:
 		if developer_tools.is_visible_in_tree() or cat_watching_event.is_blocking_input() or phone_dm_panel.blocks_pointer(event.position):
 			_dragging_camera = false
+			_source_click_candidate = null
 			_pinch_zoom_enabled = false
 			if event is InputEventScreenTouch or event is InputEventScreenDrag:
 				_touch_points.erase(event.index)
@@ -123,8 +159,14 @@ func _input(event: InputEvent) -> void:
 			if mouse_button.pressed:
 				_camera_drag_distance = 0.0
 				_jjam_click_candidate = _dragging_camera and _is_pointer_on_jjamtong()
-			elif was_dragging and _jjam_click_candidate and _camera_drag_distance < 8.0 and _is_pointer_on_jjamtong():
-				get_tree().call_group("jjam_prestige_panel", "open_panel")
+				_source_click_candidate = _get_income_source_at(mouse_button.position) if _dragging_camera else null
+			elif was_dragging:
+				if _camera_drag_distance < 8.0 and _is_pointer_over_world():
+					if _jjam_click_candidate and _is_pointer_on_jjamtong():
+						get_tree().call_group("jjam_prestige_panel", "open_panel")
+					elif is_instance_valid(_source_click_candidate) and _source_click_candidate == _get_income_source_at(mouse_button.position):
+						_source_click_candidate.toggle_upgrade_panel()
+				_source_click_candidate = null
 			# Let world Area2D click handlers receive presses; consume only the drag release.
 			if not mouse_button.pressed and was_dragging:
 				get_viewport().set_input_as_handled()
@@ -148,6 +190,7 @@ func _handle_screen_touch(event: InputEventScreenTouch) -> void:
 		_touch_points[event.index] = event.position
 		if _touch_points.size() == 2:
 			_jjam_click_candidate = false
+			_source_click_candidate = null
 			_pinch_zoom_enabled = _is_pointer_over_world()
 			_last_pinch_distance = _get_pinch_distance()
 			_dragging_camera = false
@@ -196,6 +239,30 @@ func _unhandled_key_input(event: InputEvent) -> void:
 
 func _is_pointer_over_world() -> bool:
 	return get_viewport().gui_get_hovered_control() == null
+
+
+func _get_income_source_at(screen_point: Vector2) -> IncomeSourceView:
+	# Respect the same front-to-back order as world dialogues and hover areas.
+	# A character in front of a building must keep its own click interaction.
+	var query := PhysicsPointQueryParameters2D.new()
+	query.position = get_canvas_transform().affine_inverse() * screen_point
+	query.collide_with_areas = true
+	query.collide_with_bodies = false
+	query.collision_mask = 1
+	var top_area: Area2D
+	for hit in get_world_2d().direct_space_state.intersect_point(query, 64):
+		var area := hit.collider as Area2D
+		if area == null or not area.input_pickable or not area.is_visible_in_tree():
+			continue
+		if top_area == null or area.is_greater_than(top_area):
+			top_area = area
+	for view in get_tree().get_nodes_in_group("income_source_upgrade_views"):
+		var source_view := view as IncomeSourceView
+		if source_view != null and source_view.contains_screen_point(screen_point):
+			if top_area != null and not _get_world_hover_areas(source_view.source_data.id).has(top_area):
+				continue
+			return source_view
+	return null
 
 
 func _zoom_camera(zoom_in: bool) -> void:
@@ -284,6 +351,7 @@ func set_camera_input_locked(locked: bool) -> void:
 	_dragging_camera = false
 	_pinch_zoom_enabled = false
 	_jjam_click_candidate = false
+	_source_click_candidate = null
 	_touch_points.clear()
 	get_viewport().physics_object_picking = not locked
 
@@ -381,9 +449,12 @@ func _create_income_source_views() -> void:
 		source_view.setup(
 			source_data,
 			income_source_views.to_local(layout_sprite.global_position),
-			layout_sprite.global_scale / income_source_views.global_scale
+			layout_sprite.global_scale / income_source_views.global_scale,
+			income_source_views.global_transform.affine_inverse() * layout_sprite.global_transform * layout_sprite.get_rect()
 		)
 		income_source_views.add_child(source_view)
+		if source_data.id == "vending_machine":
+			income_upgrade_tutorial.setup(source_view.get_upgrade_tutorial_anchor())
 
 
 func _create_world_purchase_buttons() -> void:
@@ -405,6 +476,9 @@ func _create_world_purchase_buttons() -> void:
 		world_button.name = button_data.id + "_PurchaseView"
 		world_button.setup(button_data, layout_node as Node2D, hover_areas, _button_layout_elements[button_data.id])
 		income_source_views.add_child(world_button)
+		for visual in world_button.purchased_visuals:
+			if visual.has_method("set_travel_bounds_provider"):
+				visual.set_travel_bounds_provider(_get_camera_horizontal_world_bounds)
 		_world_purchase_buttons[button_data.id] = world_button
 
 

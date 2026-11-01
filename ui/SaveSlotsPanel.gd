@@ -3,6 +3,7 @@ extends Control
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const AUTO_COLOR := Color(1.0, 0.58, 0.18)
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
+const WINDOW_LAYOUT = preload("res://scripts/GameWindowLayout.gd")
 
 enum PendingAction { NONE, SAVE, LOAD, RESET }
 
@@ -97,7 +98,8 @@ func _ready() -> void:
 func _fit_panel() -> void:
 	if not is_instance_valid(panel):
 		return
-	panel.size = Vector2(minf(520.0, size.x - 24.0), minf(680.0, size.y - 24.0))
+	var layout_size := WINDOW_LAYOUT.get_ui_layout_size(size)
+	panel.size = Vector2(minf(520.0, layout_size.x - 24.0), minf(680.0, layout_size.y - 24.0))
 	panel.position = (size - panel.size) * 0.5
 
 

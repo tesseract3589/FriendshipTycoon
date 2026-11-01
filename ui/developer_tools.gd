@@ -3,6 +3,7 @@ extends Control
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const BIG = preload("res://scripts/BigNumber.gd")
+const WINDOW_LAYOUT = preload("res://scripts/GameWindowLayout.gd")
 
 @onready var amount_input := ErrorManager.require_node(self, ^"Panel/Scroll/MarginContainer/VBoxContainer/AmountInput", "LineEdit") as LineEdit
 @onready var time_multiplier_input := ErrorManager.require_node(self, ^"Panel/Scroll/MarginContainer/VBoxContainer/TimeMultiplierRow/TimeMultiplierInput", "LineEdit") as LineEdit
@@ -35,7 +36,8 @@ func _ready() -> void:
 
 
 func _fit_panel() -> void:
-	panel.size = Vector2(minf(540.0, maxf(1.0, size.x - 32.0)), minf(760.0, maxf(1.0, size.y - 32.0)))
+	var layout_size := WINDOW_LAYOUT.get_ui_layout_size(size)
+	panel.size = Vector2(minf(540.0, maxf(1.0, layout_size.x - 32.0)), minf(760.0, maxf(1.0, layout_size.y - 32.0)))
 	panel.position = (size - panel.size) * 0.5
 
 

@@ -12,19 +12,19 @@
 
 ### 1. 큰 수 업그레이드 가격에서 UI 스크립트 오류 — 수정 완료
 
-- 위치: [IncomeUpgradePanel.gd](../ui/IncomeUpgradePanel.gd), `_refresh_row()`.
+- 위치: [BatchUpgradePanel.gd](../ui/BatchUpgradePanel.gd), `_refresh_row()`.
 - `cost`는 `float` 또는 `BigNumber`인 `Variant`인데, 버튼 비활성화 조건에서 `cost <= 0.0`으로 직접 비교한다.
 - 자판기 레벨을 5,000으로 설정한 뒤 실제 업그레이드 패널을 생성하면 `Invalid operands 'Object' and 'float' in operator '<='`를 재현한다. 이때 가격은 약 `2.2008e381`이다.
 - 계산과 가격 표시는 큰 수를 지원하지만 해당 행의 갱신은 중단된다. `ErrorManager` 이력도 0개라 사용자 오류 창으로 안내되지 않는다. 엔진 스크립트 오류가 자동으로 공통 오류 창에 전달되는 구조는 아니다.
 - 권장: 이 비교를 `BigNumber.compare`로 통일하고, 실제 업그레이드 패널에 큰 수 가격을 넣는 검증을 추가한다.
 
-후속 수정: 비교를 `BIG.compare(cost, 0.0) <= 0`으로 변경했다. `tests/income_upgrade_panel.tscn`에서 일반 가격과 레벨 5,000의 큰 수 가격에 대해 표기, 자금 부족/충족에 따른 활성 상태·음영, 구매 후 레벨·잔액·UI 갱신을 검증했다. headless 실행에서 PASS를 확인했고 엔진 오류·경고는 없었다. 아래 재현 설명은 수정 전 기록이다.
+후속 수정: 비교를 `BIG.compare(cost, 0.0) <= 0`으로 변경했다. `tests/batch_upgrade_panel.tscn`에서 일반 가격과 레벨 5,000의 큰 수 가격에 대해 표기, 자금 부족/충족에 따른 활성 상태·음영, 구매 후 레벨·잔액·UI 갱신을 검증했다. headless 실행에서 PASS를 확인했고 엔진 오류·경고는 없었다. 아래 재현 설명은 수정 전 기록이다.
 
 ### 2. 업그레이드 결제 중 재진입하면 같은 가격으로 두 레벨 구매 — 해결
 
 2026-10-19 후속 수정: 수입원별 잠금을 결제·레벨·수입 신호 처리 완료까지 유지한다. 결제가 성공하면 잔액과 레벨을 함께 반영한 뒤 `money_changed`를 발행하므로, 신호 안에서 저장해도 차감 금액과 레벨이 일치한다. 결제·알림 콜백에서 초기화·환생·불러오기가 발생하면 `_runtime_generation`을 확인해 이전 업그레이드의 후속 알림을 중단한다. 잠금은 호출이 끝날 때 해제하며 다른 수입원의 구매는 허용한다.
 
-`tests/income_upgrade_reentrancy.tscn`에서 결제·레벨·수입 알림의 재호출, 순차 구매의 30원 + 68원 차감, 신호 중 저장·불러오기·초기화·환생, 결제 실패 후 재시도, 다른 수입원과 큰 수 가격을 검증했다. 해당 테스트와 `income_upgrade_panel`, `big_number_payments`가 모두 PASS했다. 아래는 수정 전 재현 기록이다.
+`tests/income_upgrade_reentrancy.tscn`에서 결제·레벨·수입 알림의 재호출, 순차 구매의 30원 + 68원 차감, 신호 중 저장·불러오기·초기화·환생, 결제 실패 후 재시도, 다른 수입원과 큰 수 가격을 검증했다. 해당 테스트와 `batch_upgrade_panel`, `big_number_payments`가 모두 PASS했다. 아래는 수정 전 재현 기록이다.
 
 - 위치: [IncomeManager.gd](../autoload/IncomeManager.gd), `upgrade_source()` 253~272행. [EconomyManager.gd](../autoload/EconomyManager.gd), `_apply_money_delta()` 67행 이후.
 - 업그레이드가 결제 신호를 내보낸 뒤 레벨을 올린다. `money_changed` 구독자가 같은 수입원의 업그레이드를 한 번 더 요청하면 두 요청 모두 이전 레벨의 가격을 사용한다.
@@ -40,7 +40,7 @@
 | `jjamtong_hover` | 통과, 종료 코드 0 | 기존 호버 열기·닫기·구매 초기화 검증. 새 소개 연출 전체의 검증은 아님 |
 | `big_numbers` | 실패, 종료 코드 1 | 139·156·162행의 환생 기대값이 옛 방식의 `total_jjam` 직접 변경·자동 보상 계산을 전제로 함 |
 | `events` | 실패, 종료 코드 1 | 42행부터 `spa` 구매를 DM 해금 조건으로 기대하지만 현재 조건은 `huge_fridge`. 이후 추첨·UI 검사도 연쇄 실패 |
-| `save_system` | 검사 실패 후 스크립트 오류로 중단 | 옛 짬 기대값 실패에 더해 97행의 `Overlay/Panel/Margin/VBox/Scroll`이 현재 씬에 없음. 함수가 중단되어 테스트가 종료되지 않아 실행 세션을 정지함 |
+| `save_system` (현재 폐기·삭제됨) | 검사 당시 실패 후 스크립트 오류로 중단 | 옛 짬 기대값 실패에 더해 97행의 `Overlay/Panel/Margin/VBox/Scroll`이 당시 씬에 없었음. 함수가 중단되어 테스트가 종료되지 않아 실행 세션을 정지함 |
 | `balance_playthrough` | 이번에 실행하지 않음 | 완료 기준은 여전히 1779.6667초 ±5%. 현 콘텐츠 기준 유효성 확인 필요 |
 
 실패가 모두 실제 게임의 저장·환생 고장을 뜻하는 것은 아니다. 새 규칙으로 구성한 별도 검사는 **해금 시 400짬 + 수익 100억의 2짬 → 환생으로 확정 402짬 → 저장·로드 후 확정 402짬, 미확정 0짬**을 유지했다. 메인 구성 검사에서도 공통 오류 이력은 0개였다.
@@ -170,7 +170,7 @@
 이 점검 당시에는 Godot 4.7.2에서 계산·구매·환생 UI, 렌더링 깊이, 잘못된 데이터와 오류 표시를 세 회귀 테스트로 검증했다. 이후 기존 테스트는 모두 삭제하고 최저가 구매 밸런스 테스트로 교체했다. 현재 실행 명령은 다음과 같다.
 
 ```text
-godot --headless --path . --fixed-fps 60 res://tests/balance_playthrough.tscn
+godot --headless --path . --fixed-fps 60 res://tests/balance_playthrough_v2.tscn
 ```
 
 현재 테스트는 해금된 버튼과 활성 수입원의 레벨업 중 가장 싼 항목을 선택해 실제 게임의 생산과 구매를 진행한다. 버튼별 가격과 구매 시간, 전체 구매 경로는 `res://logs/balance_playthrough.txt`에 저장한다. 기존 회귀 테스트의 모든 검증 범위를 포함하지는 않는다. 실제 모바일 터치 입력과 출시용 내보내기는 이 점검에 포함하지 않았다.

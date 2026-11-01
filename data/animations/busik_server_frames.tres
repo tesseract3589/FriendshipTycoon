@@ -1,0 +1,22 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://lvdpxt4g6hqe"]
+
+[ext_resource type="Texture2D" uid="uid://46481jkbrlps" path="res://assets/sprites/Lab/busik_server.png" id="1_frame"]
+[ext_resource type="Texture2D" uid="uid://c5u74nho5tsuy" path="res://assets/sprites/Lab/busik_server2.png" id="2_frame"]
+[ext_resource type="Texture2D" uid="uid://bdao1o3jfxomw" path="res://assets/sprites/Lab/busik_server3.png" id="3_frame"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_frame")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 10.0
+}]

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="GameEventData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ResourceInit/GameEventData.gd" id="1_event"]
+[ext_resource type="Resource" path="res://data/conditions/events/jjam_shop_tutorial_unlock.tres" id="2_condition"]
+
+[resource]
+resource_name = "짬 상점 튜토리얼"
+script = ExtResource("1_event")
+id = "jjam_shop_tutorial"
+unlock_condition = ExtResource("2_condition")
+trigger = 0
+one_off = true
+minimum_prestige_count = 1
+maximum_prestige_count = 1
+chance_per_roll = 0.0
+cooldown_seconds = 0.0

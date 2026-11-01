@@ -19,6 +19,10 @@ enum Trigger { INSTANT = 0, RANDOM = 1 }
 @export var one_off: bool = false
 ## Disallow starting after the first prestige, even if the event has never occurred.
 @export var no_prestige_only: bool = false
+## Require this many jjam prestiges before the unlock condition can trigger.
+@export_range(0, 1000000, 1) var minimum_prestige_count: int = 0
+## -1 leaves the upper limit open; 1 restricts an event to the first prestige run.
+@export_range(-1, 1000000, 1) var maximum_prestige_count: int = -1
 ## Random only: seconds between independent rolls, unrelated to production speed.
 @export_range(0.01, 86400.0, 0.01) var roll_interval_seconds: float = 1.0
 ## Random only: probability per roll. 0.03 means 3%, regardless of interval length.

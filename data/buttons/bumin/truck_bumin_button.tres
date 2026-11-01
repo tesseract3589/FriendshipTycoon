@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/bumin/truck_bumin_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "truck_bumin"
+button_name = "부식 트럭"
+large_price = "2e14"
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 3
+effect_target = "bumin"
+effect_value = 3.0

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="IncomeSourceData" format=3 uid="uid://0w0mm06222k2"]
+
+[ext_resource type="Script" uid="uid://b1edg5qvv4jec" path="res://scripts/ResourceInit/IncomeSourceData.gd" id="1_source"]
+
+[resource]
+script = ExtResource("1_source")
+id = "lab"
+source_name = "부식 연구소"
+display_position = Vector2(467.25, -876.16504)
+display_scale = Vector2(0.26, 0.26)
+timer_offset = Vector2(-60, 65)
+large_base_income = "9e14"
+large_upgrade_base_cost = "5e15"
+base_time = 600.0

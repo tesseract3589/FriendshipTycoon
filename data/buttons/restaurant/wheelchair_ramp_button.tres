@@ -7,7 +7,7 @@
 script = ExtResource("1_button")
 id = "wheelchair_ramp"
 button_name = "휠체어용 경사로"
-price = 3330000.0
+price = 2220000.0
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
 click_dialogues = PackedStringArray()

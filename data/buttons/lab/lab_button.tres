@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/lab/lab_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "lab"
+button_name = "부식 연구소"
+large_price = "1e16"
+description = "수입원"
+tooltip_text = "{payout}원/{time}\n초당 {income_per_second}원"
+type = 0
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 0
+effect_target = "lab"

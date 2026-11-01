@@ -5,16 +5,24 @@
 [ext_resource type="Resource" uid="uid://cb7vo0d2fcs1i" path="res://data/buttons/bumin/asphalt_button.tres" id="data_asphalt"]
 [ext_resource type="Resource" uid="uid://d2c7hs26pkhgu" path="res://data/buttons/vending_machine/bike_delivery_button.tres" id="data_bike_delivery"]
 [ext_resource type="Resource" uid="uid://cygdustp8h5o0" path="res://data/buttons/bumin/bumin_button.tres" id="data_bumin"]
-[ext_resource type="Resource" path="res://data/buttons/spa/conduit_button.tres" id="data_conduit"]
+[ext_resource type="Resource" uid="uid://ctmb8gpcd2lqc" path="res://data/buttons/bumin/bumin_internet_com_button.tres" id="data_bumin_internet_com"]
+[ext_resource type="Resource" uid="uid://dxwx8n4pvyf0x" path="res://data/buttons/bumin/bumin_soldier_button.tres" id="data_bumin_soldier"]
+[ext_resource type="Resource" path="res://data/buttons/lab/busik_reactor_button.tres" id="data_busik_reactor"]
+[ext_resource type="Resource" uid="uid://cattq73lw6flp" path="res://data/buttons/lab/busik_server_button.tres" id="data_busik_server"]
+[ext_resource type="Resource" uid="uid://dyq26dlbxapwr" path="res://data/buttons/spa/conduit_button.tres" id="data_conduit"]
 [ext_resource type="Resource" uid="uid://bcbm8rlatug8v" path="res://data/buttons/restaurant/cook_soldier_button.tres" id="data_cook_soldier"]
+[ext_resource type="Resource" path="res://data/buttons/bumin/depot_columns_button.tres" id="data_depot_columns"]
 [ext_resource type="Resource" uid="uid://dug4kj2n7flm5" path="res://data/buttons/restaurant/dining_seats_button.tres" id="data_dining_seats"]
 [ext_resource type="Resource" path="res://data/buttons/spa/faucet_button.tres" id="data_faucet"]
 [ext_resource type="Resource" uid="uid://c2byb1cpltqqt" path="res://data/buttons/restaurant/first_floor_ceiling_button.tres" id="data_first_floor_ceiling"]
 [ext_resource type="Resource" uid="uid://lgajvojcvnj2" path="res://data/buttons/restaurant/first_floor_wall_button.tres" id="data_first_floor_wall"]
 [ext_resource type="Resource" uid="uid://cygr88jffoqca" path="res://data/buttons/restaurant/front_door_button.tres" id="data_front_door"]
+[ext_resource type="Resource" uid="uid://ch4u1dtr7t68r" path="res://data/buttons/vending_machine/giant_jjam_tank_button.tres" id="data_giant_jjam_tank"]
 [ext_resource type="Resource" uid="uid://cfabjmmgeyypi" path="res://data/buttons/restaurant/hall_foundation_button.tres" id="data_hall_foundation"]
 [ext_resource type="Resource" uid="uid://btxx7se6d7yfh" path="res://data/buttons/vending_machine/huge_fridge_button.tres" id="data_huge_fridge"]
 [ext_resource type="Resource" uid="uid://bpp72kbdlevko" path="res://data/buttons/restaurant/jjamtong_button.tres" id="data_jjamtong"]
+[ext_resource type="Resource" path="res://data/buttons/lab/lab_button.tres" id="data_lab"]
+[ext_resource type="Resource" uid="uid://ba0m2eerxccia" path="res://data/buttons/lab/lab_soldier_button.tres" id="data_lab_soldier"]
 [ext_resource type="Resource" uid="uid://b7tqrqcv8hfgl" path="res://data/buttons/bumin/office_chair_bumin_button.tres" id="data_office_chair_bumin"]
 [ext_resource type="Resource" uid="uid://bs0a641crbops" path="res://data/buttons/spa/pool_cold_button.tres" id="data_pool_cold"]
 [ext_resource type="Resource" uid="uid://c2j7ay0i6fbb6" path="res://data/buttons/spa/pool_warm_button.tres" id="data_pool_warm"]
@@ -26,8 +34,10 @@
 [ext_resource type="Resource" uid="uid://bfl6o8eix7lqb" path="res://data/buttons/restaurant/serving_desk_button.tres" id="data_serving_desk"]
 [ext_resource type="Resource" uid="uid://cfkjuhjvpck4x" path="res://data/buttons/spa/spa_button.tres" id="data_spa"]
 [ext_resource type="Resource" uid="uid://cescg2ficgop5" path="res://data/buttons/spa/spa_soldier_button.tres" id="data_spa_soldier"]
-[ext_resource type="Resource" path="res://data/buttons/lab/titanium_bars_button.tres" id="data_titanium_bars"]
+[ext_resource type="Resource" path="res://data/buttons/lab/special_concrete_wall_button.tres" id="data_special_concrete_wall"]
+[ext_resource type="Resource" uid="uid://do14s3esrti2u" path="res://data/buttons/lab/titanium_bars_button.tres" id="data_titanium_bars"]
 [ext_resource type="Resource" uid="uid://dxlm12ei3ck2w" path="res://data/buttons/vending_machine/trashbin_button.tres" id="data_trashbin"]
+[ext_resource type="Resource" path="res://data/buttons/bumin/truck_bumin_button.tres" id="data_truck_bumin"]
 [ext_resource type="Resource" uid="uid://yu0aa6utf80u" path="res://data/buttons/vending_machine/vending_machine_button.tres" id="data_vending_machine"]
 [ext_resource type="Resource" uid="uid://b4yi0kocgoxha" path="res://data/buttons/vending_machine/vending_machine_soldier_button.tres" id="data_vending_machine_soldier"]
 [ext_resource type="Resource" uid="uid://vejnx2033qn2" path="res://data/buttons/spa/vent_windows_button.tres" id="data_vent_windows"]
@@ -36,6 +46,7 @@
 [ext_resource type="Resource" uid="uid://de0ayi5dfsitg" path="res://data/buttons/vending_machine/wireless_antenna_button.tres" id="data_wireless_antenna"]
 [ext_resource type="Script" uid="uid://coo2d71nb1q32" path="res://scripts/ButtonLayoutEntry.gd" id="entry_script"]
 [ext_resource type="Resource" uid="uid://dynq5q0b3ug6h" path="res://data/IncomeSources/bumin_income.tres" id="source_bumin"]
+[ext_resource type="Resource" uid="uid://0w0mm06222k2" path="res://data/IncomeSources/lab_income.tres" id="source_lab"]
 [ext_resource type="Resource" uid="uid://b6bp13nuscs8p" path="res://data/IncomeSources/restaurant_income.tres" id="source_restaurant"]
 [ext_resource type="Resource" uid="uid://dg3lw0rokj628" path="res://data/IncomeSources/spa_income.tres" id="source_spa"]
 [ext_resource type="Resource" uid="uid://csp1c6tqpt5cy" path="res://data/IncomeSources/vending_machine_income.tres" id="source_vending_machine"]
@@ -272,7 +283,7 @@ theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "무선 구매 송신
-자판기 속도 x 3
+자판기 속도 x 5
 가격: 1200만원"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -310,8 +321,46 @@ theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "초대형 냉장고
-자판기 수입 x 3
+자판기 수입 x 7
 가격: 1990억원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="giant_jjam_tank" type="Node2D" parent="Buttons/VendingMachine" unique_id=118365301]
+position = Vector2(-473, -242)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_giant_jjam_tank")
+income_source = ExtResource("source_vending_machine")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/VendingMachine/giant_jjam_tank" unique_id=1583911844]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 20.0
+offset_right = 555.39014
+offset_bottom = 407.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/VendingMachine/giant_jjam_tank" unique_id=666940368]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -61.0
+offset_right = 90.0
+offset_bottom = 23.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "초거대 짬 탱크
+자판기 속도 x 7
+가격: 37해원"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -686,7 +735,7 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "휠체어용 경사로
 전체 속도 x 2
-가격: 333만원"
+가격: 222만원"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -760,7 +809,7 @@ theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
 theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "짬통
-전체 속도 x 3
+???
 가격: 1조원"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -1065,7 +1114,7 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "수도관
 간부목욕탕 수입 x 2
-가격: 1400조원"
+가격: 140조원"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1146,6 +1195,43 @@ text = "아스팔트 포장
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="depot_columns" type="Node2D" parent="Buttons/Bumin" unique_id=1326847101]
+position = Vector2(2529, 176)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_depot_columns")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Bumin/depot_columns" unique_id=1326847102]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = -24.0
+offset_right = 555.39014
+offset_bottom = 363.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Bumin/depot_columns" unique_id=1326847103]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -105.0
+offset_right = 90.0
+offset_bottom = -21.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "차고지 기둥
+구조물
+가격: 12조원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="bumin" type="Node2D" parent="Buttons/Bumin" unique_id=1528627111]
 position = Vector2(1992, 131)
 script = ExtResource("entry_script")
@@ -1218,7 +1304,121 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "사무용 의자
 부식의민족 속도 x 2
-가격: 50조원"
+가격: 5조원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="truck_bumin" type="Node2D" parent="Buttons/Bumin" unique_id=1442804230]
+position = Vector2(3017, 114)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_truck_bumin")
+income_source = ExtResource("source_bumin")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Bumin/truck_bumin" unique_id=1992394145]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 25.0
+offset_right = 555.39014
+offset_bottom = 412.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Bumin/truck_bumin" unique_id=752953254]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -56.0
+offset_right = 90.0
+offset_bottom = 28.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "부식 트럭
+부식의민족 속도 x 3
+가격: 200조원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="bumin_internet_com" type="Node2D" parent="Buttons/Bumin" unique_id=591997779]
+position = Vector2(2397, 131)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_bumin_internet_com")
+income_source = ExtResource("source_bumin")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Bumin/bumin_internet_com" unique_id=1835291864]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 25.0
+offset_right = 555.39014
+offset_bottom = 412.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Bumin/bumin_internet_com" unique_id=55902459]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -56.0
+offset_right = 90.0
+offset_bottom = 28.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "외부망 컴퓨터
+부식의민족 속도 x 2
+가격: 220경원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="bumin_soldier" type="Node2D" parent="Buttons/Bumin" unique_id=1217319033]
+position = Vector2(2688, 174)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_bumin_soldier")
+income_source = ExtResource("source_bumin")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Bumin/bumin_soldier" unique_id=770334056]
+z_index = 30
+z_as_relative = false
+offset_left = -38.61035
+offset_top = 14.0
+offset_right = 555.38965
+offset_bottom = 401.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Bumin/bumin_soldier" unique_id=44224886]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -67.0
+offset_right = 90.0
+offset_bottom = 17.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "부식 적재병
+부식의민족 속도 x 2
+가격: 540해원"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -1257,6 +1457,195 @@ theme_override_constants/outline_size = 6
 theme_override_font_sizes/font_size = 18
 text = "티타늄 철골
 구조물
-가격: 3200조원"
+가격: 320조원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="special_concrete_wall" type="Node2D" parent="Buttons/Lab" unique_id=1539468101]
+position = Vector2(727.5, -874.275)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_special_concrete_wall")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Lab/special_concrete_wall" unique_id=1539468102]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = -24.0
+offset_right = 555.39014
+offset_bottom = 363.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Lab/special_concrete_wall" unique_id=1539468103]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -105.0
+offset_right = 90.0
+offset_bottom = -21.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "강화 콘크리트 벽
+구조물
+가격: 6000조원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="busik_server" type="Node2D" parent="Buttons/Lab" unique_id=964330956]
+position = Vector2(1236, -866.00006)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_busik_server")
+income_source = ExtResource("source_lab")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Lab/busik_server" unique_id=42567442]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 20.0
+offset_right = 555.39014
+offset_bottom = 407.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Lab/busik_server" unique_id=1509009881]
+z_index = 40
+z_as_relative = false
+offset_left = -110.0
+offset_top = -61.0
+offset_right = 110.0
+offset_bottom = 23.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "연구소 서버
+부식 연구소 속도 x 2
+가격: 75경원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="busik_reactor" type="Node2D" parent="Buttons/Lab" unique_id=971086821]
+position = Vector2(706, -839)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_busik_reactor")
+income_source = ExtResource("source_lab")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Lab/busik_reactor" unique_id=991390351]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 20.0
+offset_right = 555.39014
+offset_bottom = 407.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Lab/busik_reactor" unique_id=1516329829]
+z_index = 40
+z_as_relative = false
+offset_left = -110.0
+offset_top = -61.0
+offset_right = 110.0
+offset_bottom = 23.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "짬역학 반응로
+부식 연구소 속도 x 3
+가격: 7.7해원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lab_soldier" type="Node2D" parent="Buttons/Lab" unique_id=720809870]
+position = Vector2(561, -822)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_lab_soldier")
+income_source = ExtResource("source_lab")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Lab/lab_soldier" unique_id=236996030]
+z_index = 30
+z_as_relative = false
+offset_left = -38.61035
+offset_top = 14.0
+offset_right = 555.38965
+offset_bottom = 401.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Lab/lab_soldier" unique_id=704445821]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -67.0
+offset_right = 90.0
+offset_bottom = 17.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "부식 연구병
+부식 연구소 속도 x 2
+가격: 3500경원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="lab" type="Node2D" parent="Buttons/Lab" unique_id=1813527111]
+position = Vector2(467.25, -876.16504)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_lab")
+income_source = ExtResource("source_lab")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Lab/lab" unique_id=1813527112]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 60.0
+offset_right = 555.39014
+offset_bottom = 447.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Lab/lab" unique_id=1813527113]
+z_index = 40
+z_as_relative = false
+offset_left = -90.0
+offset_top = -21.0
+offset_right = 90.0
+offset_bottom = 63.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
+text = "부식 연구소
+수입원
+가격: 1경원"
 horizontal_alignment = 1
 vertical_alignment = 1

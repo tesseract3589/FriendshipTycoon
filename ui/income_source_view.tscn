@@ -1,8 +1,25 @@
 [gd_scene format=3 uid="uid://b83ajtbaxn1mp"]
 
 [ext_resource type="Script" uid="uid://so4030jbshn0" path="res://ui/IncomeSourceView.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Interfaces/Button_Upgrade.png" id="2_upgrade"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tefeu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_upgrade"]
+content_margin_left = 18.0
+content_margin_top = 12.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.015, 0.015, 0.02, 0.97)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.4, 0.4, 0.45, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_left = 8
+corner_radius_bottom_right = 8
 
 [node name="IncomeSourceView" type="Node2D" unique_id=767859341]
 script = ExtResource("1_script")
@@ -23,4 +40,70 @@ z_index = 40
 offset_right = 120.0
 offset_bottom = 30.0
 theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
+[node name="UpgradeLayer" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="UpgradePanel" type="PanelContainer" parent="UpgradeLayer"]
+visible = false
+custom_minimum_size = Vector2(210, 0)
+mouse_force_pass_scroll_events = false
+theme_override_styles/panel = SubResource("StyleBoxFlat_upgrade")
+
+[node name="UpgradeControls" type="VBoxContainer" parent="UpgradeLayer/UpgradePanel"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Level" type="Label" parent="UpgradeLayer/UpgradePanel/UpgradeControls"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 24
+text = "Lv.1"
+horizontal_alignment = 1
+
+[node name="CycleIncome" type="Label" parent="UpgradeLayer/UpgradePanel/UpgradeControls"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 20
+text = "5초마다 10원"
+horizontal_alignment = 1
+
+[node name="IncomePerSecond" type="Label" parent="UpgradeLayer/UpgradePanel/UpgradeControls"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 20
+text = "초당 2원"
+horizontal_alignment = 1
+
+[node name="NextHeading" type="Label" parent="UpgradeLayer/UpgradePanel/UpgradeControls"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+text = "다음 레벨:"
+horizontal_alignment = 1
+
+[node name="NextLevelGain" type="Label" parent="UpgradeLayer/UpgradePanel/UpgradeControls"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 20
+text = "+0원/회"
+horizontal_alignment = 1
+
+[node name="Upgrade" type="TextureButton" parent="UpgradeLayer/UpgradePanel/UpgradeControls"]
+custom_minimum_size = Vector2(160, 60)
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+mouse_force_pass_scroll_events = false
+texture_normal = ExtResource("2_upgrade")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Price" type="Label" parent="UpgradeLayer/UpgradePanel/UpgradeControls"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 22
+text = "0"
 horizontal_alignment = 1

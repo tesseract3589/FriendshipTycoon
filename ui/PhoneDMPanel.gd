@@ -2,6 +2,7 @@ class_name PhoneDMPanel
 extends Control
 
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
+const WINDOW_LAYOUT = preload("res://scripts/GameWindowLayout.gd")
 const PHONE_BASE_SIZE := Vector2(576.0, 1040.0)
 const SCREEN_MARGIN: float = 16.0
 const MAX_PHONE_HEIGHT: float = 940.0
@@ -58,7 +59,7 @@ func blocks_pointer(viewport_position: Vector2) -> bool:
 func _fit_phone() -> void:
 	if not is_instance_valid(phone):
 		return
-	var available := (size - Vector2.ONE * SCREEN_MARGIN * 2.0).max(Vector2.ONE)
+	var available := (WINDOW_LAYOUT.get_ui_layout_size(size) - Vector2.ONE * SCREEN_MARGIN * 2.0).max(Vector2.ONE)
 	var phone_scale := minf(minf(available.y, MAX_PHONE_HEIGHT) / PHONE_BASE_SIZE.y, available.x / PHONE_BASE_SIZE.x)
 	phone.size = PHONE_BASE_SIZE
 	phone.scale = Vector2.ONE * phone_scale

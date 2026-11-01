@@ -1,0 +1,30 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://c08h6e2fgcnv8"]
+
+[ext_resource type="Texture2D" uid="uid://bd65j3cqwkeja" path="res://assets/sprites/Drinks/Can_Orange.png" id="1_orange"]
+[ext_resource type="Texture2D" uid="uid://bhg28tv3jgh52" path="res://assets/sprites/Drinks/Can_Apple.png" id="2_apple"]
+[ext_resource type="Texture2D" uid="uid://u6apv2jnofhw" path="res://assets/sprites/Drinks/Can_Peach.png" id="3_peach"]
+[ext_resource type="Texture2D" uid="uid://jcb4k2kans66" path="res://assets/sprites/Drinks/Can_Pineapple.png" id="4_pineapple"]
+[ext_resource type="Texture2D" uid="uid://b1a3a3pwscgei" path="res://assets/sprites/Drinks/Can_Grape.png" id="5_grape"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_orange")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_apple")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_peach")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_pineapple")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_grape")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 0.5
+}]

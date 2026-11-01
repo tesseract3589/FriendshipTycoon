@@ -2,6 +2,7 @@ class_name CatWatchingEvent
 extends CanvasLayer
 
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
+const WINDOW_LAYOUT = preload("res://scripts/GameWindowLayout.gd")
 const CONTENT_SIZE := Vector2(1000.0, 880.0)
 const CAT_SIZE: float = 490.0
 const SCREEN_MARGIN: float = 24.0
@@ -71,7 +72,7 @@ func _configure_smoke() -> void:
 
 
 func _fit_content() -> void:
-	var available := (overlay.size - Vector2.ONE * SCREEN_MARGIN * 2.0).max(Vector2.ONE)
+	var available := (WINDOW_LAYOUT.get_ui_layout_size(overlay.size) - Vector2.ONE * SCREEN_MARGIN * 2.0).max(Vector2.ONE)
 	var factor := minf(1.2, minf(available.x / CONTENT_SIZE.x, available.y / CONTENT_SIZE.y))
 	content.scale = Vector2.ONE * factor
 	content.position = (overlay.size - CONTENT_SIZE * factor) * 0.5

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="JjamShopItemData" format=3 uid="uid://dobvaehof4dtq"]
+
+[ext_resource type="Script" uid="uid://l3rbm37p66wy" path="res://scripts/ResourceInit/JjamShopItemData.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://cr0to6xx6aa7a" path="res://assets/sprites/Interfaces/Button_UI_Upgrade.png" id="2_icon"]
+
+[resource]
+resource_name = "batch_upgrade_panel"
+script = ExtResource("1")
+id = "batch_upgrade_panel"
+item_name = "일괄 업그레이드 패널"
+icon = ExtResource("2_icon")
+description = "수입원을 한 자리에서 관리합니다."
+feature_id = &"batch_upgrade_panel"

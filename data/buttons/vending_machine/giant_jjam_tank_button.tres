@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://ch4u1dtr7t68r"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/vending_machine/giant_jjam_tank_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "giant_jjam_tank"
+button_name = "초거대 짬 탱크"
+large_price = "37e20"
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 3
+effect_target = "vending_machine"
+effect_value = 7.0

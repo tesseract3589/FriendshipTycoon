@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="JjamShopItemData" format=3 uid="uid://kj8iijj1fpan"]
+
+[ext_resource type="Script" uid="uid://l3rbm37p66wy" path="res://scripts/ResourceInit/JjamShopItemData.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://dyymmqb4swqop" path="res://assets/sprites/Interfaces/plus_25.png" id="2_icon"]
+
+[resource]
+resource_name = "bulk_upgrade_25"
+script = ExtResource("1")
+id = "bulk_upgrade_25"
+item_name = "25레벨씩 업그레이드"
+icon = ExtResource("2_icon")
+description = "수입원을 한 번에 25레벨씩 업그레이드합니다. 클릭하여 +1 / +5 / +25 모드를 전환할 수 있습니다."
+large_price = "25e16"
+feature_id = &"bulk_upgrade_25"
+prerequisite_item_id = "bulk_upgrade_5"
+upgrade_levels = 25

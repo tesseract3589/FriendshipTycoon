@@ -4,6 +4,8 @@ const BIG = preload("res://scripts/BigNumber.gd")
 const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 const PHONE_DM_ID: String = "phone_dm"
 const CAMERA_TUTORIAL_ID: String = "camera_tutorial"
+const INCOME_UPGRADE_TUTORIAL_ID: String = "income_upgrade_tutorial"
+const JJAM_SHOP_TUTORIAL_ID: String = "jjam_shop_tutorial"
 const CAT_WATCHING_ID: String = "cat_watching"
 const JJAMTONG_INTRO_ID: String = "jjamtong_intro"
 
@@ -22,6 +24,8 @@ enum NextStep { NONE, CHOICES, BARGAIN_RESULT, ACCEPT, REJECT, FINISH }
 @export var events: Array[GameEventData] = [
 	preload("res://data/events/phone_dm_event.tres"),
 	preload("res://data/events/camera_tutorial_event.tres"),
+	preload("res://data/events/income_upgrade_tutorial_event.tres"),
+	preload("res://data/events/jjam_shop_tutorial_event.tres"),
 	preload("res://data/events/cat_watching_event.tres"),
 	preload("res://data/events/jjamtong_intro_event.tres"),
 ]
@@ -53,6 +57,8 @@ var _legacy_one_off_events: Dictionary = {}
 var _permanently_unlocked_events: Dictionary = {}
 var _legacy_permanent_unlock_events: Dictionary = {}
 var _camera_tutorial_ui_available: bool = false
+var _income_upgrade_tutorial_ui_available: bool = false
+var _jjam_shop_tutorial_ui_available: bool = false
 var _cat_watching_ui_available: bool = false
 var _jjamtong_intro_ui_available: bool = false
 var presentation_locked: bool = false
@@ -114,6 +120,10 @@ func _validate_event(data: GameEventData) -> bool:
 		if not is_finite(data.chance_per_roll) or data.chance_per_roll < 0.0 or data.chance_per_roll > 1.0:
 			return false
 	if not is_finite(data.cooldown_seconds) or data.cooldown_seconds < 0.0:
+		return false
+	if data.minimum_prestige_count < 0 or (data.no_prestige_only and data.minimum_prestige_count > 0):
+		return false
+	if data.maximum_prestige_count < -1 or (data.maximum_prestige_count >= 0 and data.maximum_prestige_count < data.minimum_prestige_count):
 		return false
 	if data.unlock_condition != null:
 		if not ErrorManager.validate_condition(data.unlock_condition, ButtonManager.buttons, "Event:" + data.id):
@@ -210,13 +220,15 @@ func is_event_unlocked(event_id: String) -> bool:
 	var data := _definitions.get(event_id) as GameEventData
 	if data == null:
 		return false
+	if PrestigeManager.prestige_count < data.minimum_prestige_count or (data.maximum_prestige_count >= 0 and PrestigeManager.prestige_count > data.maximum_prestige_count):
+		return false
 	return (data.permanent_unlock and _permanently_unlocked_events.get(event_id, false)) or is_condition_met(data.unlock_condition)
 
 
 func _refresh_permanent_unlocks() -> void:
 	for event_id in _definitions:
 		var data: GameEventData = _definitions[event_id]
-		if data.permanent_unlock and not _permanently_unlocked_events.get(event_id, false) and is_condition_met(data.unlock_condition):
+		if data.permanent_unlock and not _permanently_unlocked_events.get(event_id, false) and is_event_unlocked(event_id):
 			_permanently_unlocked_events[event_id] = true
 
 
@@ -235,6 +247,10 @@ func get_event_start_block_reason(event_id: String, ignore_cooldown: bool = fals
 		return "게임 초기화 대기"
 	if not data.enabled:
 		return "이벤트 비활성화"
+	if PrestigeManager.prestige_count < data.minimum_prestige_count:
+		return "짬 환생 %d회 필요" % data.minimum_prestige_count
+	if data.maximum_prestige_count >= 0 and PrestigeManager.prestige_count > data.maximum_prestige_count:
+		return "짬 환생 %d회까지의 이벤트" % data.maximum_prestige_count
 	if data.no_prestige_only and PrestigeManager.has_prestiged():
 		return "첫 환생 전 전용 이벤트"
 	if is_event_active(event_id):
@@ -251,6 +267,10 @@ func get_event_start_block_reason(event_id: String, ignore_cooldown: bool = fals
 		return "해금 조건 미충족"
 	if event_id == CAMERA_TUTORIAL_ID and not _camera_tutorial_ui_available:
 		return "카메라 튜토리얼 화면 대기"
+	if event_id == INCOME_UPGRADE_TUTORIAL_ID and not _income_upgrade_tutorial_ui_available:
+		return "수입원 업그레이드 튜토리얼 화면 대기"
+	if event_id == JJAM_SHOP_TUTORIAL_ID and not _jjam_shop_tutorial_ui_available:
+		return "짬 상점 튜토리얼 화면 대기"
 	if event_id == CAT_WATCHING_ID and not _cat_watching_ui_available:
 		return "짬타이거 예고 이벤트 화면 대기"
 	if event_id == JJAMTONG_INTRO_ID and not _jjamtong_intro_ui_available:
@@ -321,6 +341,25 @@ func set_camera_tutorial_ui_available(available: bool) -> void:
 
 func notify_camera_interaction() -> void:
 	finish_event(CAMERA_TUTORIAL_ID, "dismissed")
+
+
+func set_income_upgrade_tutorial_ui_available(available: bool) -> void:
+	_income_upgrade_tutorial_ui_available = available
+	if not available:
+		finish_event(INCOME_UPGRADE_TUTORIAL_ID, "cancelled")
+
+
+func notify_income_upgrade_panel_opened(source_id: String) -> void:
+	if source_id == "vending_machine":
+		finish_event(INCOME_UPGRADE_TUTORIAL_ID, "dismissed")
+
+
+func set_jjam_shop_tutorial_ui_available(available: bool) -> void:
+	_jjam_shop_tutorial_ui_available = available
+	if not available:
+		finish_event(JJAM_SHOP_TUTORIAL_ID, "guiding")
+	elif not is_event_active(JJAM_SHOP_TUTORIAL_ID) and get_event_result(JJAM_SHOP_TUTORIAL_ID) == "guiding":
+		_consumed_events[JJAM_SHOP_TUTORIAL_ID] = false
 
 
 func set_cat_watching_ui_available(available: bool) -> void:
@@ -405,6 +444,9 @@ func start_event(event_id: String, automatic: bool = false, ignore_cooldown: boo
 		_next_step = NextStep.CHOICES
 		_message_wait = 0.3
 	_active_events[event_id] = data
+	if event_id == JJAM_SHOP_TUTORIAL_ID:
+		# A visual-only guide can be left unfinished while the player saves/quits.
+		_event_results[event_id] = "guiding"
 	if data.permanent_unlock:
 		_permanently_unlocked_events[event_id] = true
 	if data.one_off:
@@ -648,6 +690,9 @@ func restore_save_state(state: Dictionary) -> void:
 		if data.one_off:
 			if saved is Dictionary:
 				_consumed_events[event_id] = saved.consumed
+				if event_id == JJAM_SHOP_TUTORIAL_ID and saved.consumed and saved.get("result", "") == "guiding":
+					# Resume the guide after loading without replaying completed tutorials.
+					_consumed_events[event_id] = false
 				if event_id == CAT_WATCHING_ID and saved.consumed:
 					if not saved.has("result"):
 						# Older saves recorded the encounter without a separate confirmation result.
@@ -696,6 +741,11 @@ func _purchase_requires(purchase_id: String, required_id: String) -> bool:
 func reconcile_one_off_history() -> void:
 	for event_id in _legacy_one_off_events:
 		var data: GameEventData = _definitions[event_id]
+		if PrestigeManager.prestige_count < data.minimum_prestige_count:
+			continue
+		if data.maximum_prestige_count >= 0 and PrestigeManager.prestige_count > data.maximum_prestige_count:
+			_consumed_events[event_id] = true
+			continue
 		if data.no_prestige_only and PrestigeManager.has_prestiged():
 			_consumed_events[event_id] = true
 		var condition := data.unlock_condition

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ButtonData" format=3]
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://do14s3esrti2u"]
 
 [ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
 [ext_resource type="Resource" path="res://data/conditions/lab/titanium_bars_unlock.tres" id="2_condition"]
@@ -7,7 +7,7 @@
 script = ExtResource("1_button")
 id = "titanium_bars"
 button_name = "티타늄 철골"
-large_price = "3.2e15"
+large_price = "3.2e14"
 description = "구조물"
 type = 1
 unlock_condition = ExtResource("2_condition")

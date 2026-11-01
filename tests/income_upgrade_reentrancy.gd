@@ -16,6 +16,10 @@ func _run() -> void:
 	IncomeManager.set_process(false)
 	EventManager.set_process(false)
 	IncomeManager.get_source(SOURCE).upgrade_base_cost = 30.0
+	# Pin the complete price fixture independently of gameplay balance changes.
+	IncomeManager.get_source(SOURCE).upgrade_cost_linear_growth = 1.0
+	IncomeManager.get_source(SOURCE).upgrade_cost_doubling_levels = 1.0
+	IncomeManager.get_source("restaurant").upgrade_base_cost = 50000.0
 	var directory := ProjectSettings.globalize_path("res://.godot/upgrade_reentrancy_%d" % Time.get_ticks_usec())
 	if not SaveManager.initialize(directory):
 		get_tree().quit(1)
@@ -70,7 +74,7 @@ func _test_payment_reentry_and_save() -> void:
 	_check(IncomeManager.get_source_level(SOURCE) == 2 and EconomyManager.money == 99970.0, "Only one upgrade may be charged and applied.")
 	_check(observed.saved, "Saving inside the payment notification must succeed.")
 	_check(IncomeManager.upgrade_source(SOURCE), "A later sequential upgrade must remain available.")
-	_check(IncomeManager.get_source_level(SOURCE) == 3 and EconomyManager.money == 99885.0, "Sequential upgrades must cost 30 + 85 won.")
+	_check(IncomeManager.get_source_level(SOURCE) == 3 and EconomyManager.money == 99850.0, "Sequential fixture upgrades must cost 30 + 120 won.")
 	_check(SaveManager.load_slot(1), "Load the snapshot written during payment.")
 	_check(IncomeManager.get_source_level(SOURCE) == 2 and EconomyManager.money == 99970.0, "The saved wallet and upgraded level must agree.")
 

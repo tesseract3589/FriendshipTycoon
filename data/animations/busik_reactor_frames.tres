@@ -1,0 +1,30 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://c2126olqcon3q"]
+
+[ext_resource type="Texture2D" uid="uid://3vlwgdfi4pnd" path="res://assets/sprites/Lab/busik_reactor.png" id="1_frame"]
+[ext_resource type="Texture2D" uid="uid://dtgfu2p4mhqyf" path="res://assets/sprites/Lab/busik_reactor2.png" id="2_frame"]
+[ext_resource type="Texture2D" uid="uid://c7j0ms2sbeqk7" path="res://assets/sprites/Lab/busik_reactor3.png" id="3_frame"]
+[ext_resource type="Texture2D" uid="uid://6je383n7jmjf" path="res://assets/sprites/Lab/busik_reactor4.png" id="4_frame"]
+[ext_resource type="Texture2D" uid="uid://cnnwqgeih3xa5" path="res://assets/sprites/Lab/busik_reactor5.png" id="5_frame"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_frame")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 60.0
+}]

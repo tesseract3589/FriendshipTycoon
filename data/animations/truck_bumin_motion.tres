@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DepartureMotionData" format=3 uid="uid://b3tio7nigphai"]
+
+[ext_resource type="Script" uid="uid://casudbusr376n" path="res://scripts/ResourceInit/DepartureMotionData.gd" id="1_motion"]
+
+[resource]
+script = ExtResource("1_motion")
+speed_source_id = "bumin"
+source_speed_baseline = 6.0
+global_speed_baseline = 2.0
+maximum_speed_multiplier = 8.0

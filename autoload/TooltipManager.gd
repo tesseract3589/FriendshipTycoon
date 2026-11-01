@@ -22,6 +22,7 @@ func _ready() -> void:
 	_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_label.add_theme_color_override("font_outline_color", Color(0.05, 0.08, 0.12, 1.0))
 	_label.add_theme_constant_override("outline_size", 4)
 	_panel.add_child(_label)
@@ -32,11 +33,12 @@ func _process(_delta: float) -> void:
 		_position_near_pointer()
 
 
-func show_tooltip(content: String, owner_id: String) -> void:
+func show_tooltip(content: String, owner_id: String, screen_layer: int = RENDER_ORDER.ScreenLayer.WORLD_DESCRIPTION) -> void:
 	if content.is_empty():
 		hide_tooltip(owner_id)
 		return
 	_owner_id = owner_id
+	layer = screen_layer
 	_label.text = content
 	_panel.reset_size()
 	_panel.size = _panel.get_combined_minimum_size()

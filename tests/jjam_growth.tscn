@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/jjam_growth.gd" id="1_test"]
+
+[node name="JjamGrowth" type="Node"]
+script = ExtResource("1_test")

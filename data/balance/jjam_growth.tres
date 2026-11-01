@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="JjamGrowthData" format=3 uid="uid://b6c6au6icremv"]
+
+[ext_resource type="Script" uid="uid://ho2862thxsf8" path="res://scripts/ResourceInit/JjamGrowthData.gd" id="1_growth"]
+
+[resource]
+script = ExtResource("1_growth")
+difficulty_multiplier = 2.5

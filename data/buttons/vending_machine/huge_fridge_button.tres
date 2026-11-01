@@ -13,4 +13,4 @@ show_world_purchase_button = true
 click_dialogues = PackedStringArray()
 effect_type = 1
 effect_target = "vending_machine"
-effect_value = 3.0
+effect_value = 7.0

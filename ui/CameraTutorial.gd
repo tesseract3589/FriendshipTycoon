@@ -1,7 +1,7 @@
 extends CenterContainer
 
 @export_multiline var desktop_text: String = "마우스 드래그/휠로 카메라 조정"
-@export_multiline var mobile_text: String = "터치 및 드래그로 카메라 조정"
+@export_multiline var mobile_text: String = "터치로 화면 이동/확대/축소"
 @export_range(0.0, 5.0, 0.1) var fade_duration: float = 1.5
 
 @onready var tutorial_label: Label = $Label

@@ -130,7 +130,7 @@ func validate_income_source(source: IncomeSourceData) -> bool:
 	var values := {
 		"base_income": source.get_base_income(),
 		"multiplier": source.multiplier,
-		"upgrade_base_cost": source.upgrade_base_cost,
+		"upgrade_base_cost": source.get_upgrade_base_cost(),
 		"upgrade_cost_linear_growth": source.upgrade_cost_linear_growth,
 		"upgrade_cost_doubling_levels": source.upgrade_cost_doubling_levels,
 		"upgrade_income_growth_levels": source.upgrade_income_growth_levels,

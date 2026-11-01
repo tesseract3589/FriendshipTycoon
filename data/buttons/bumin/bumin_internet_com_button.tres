@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://ctmb8gpcd2lqc"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/bumin/bumin_internet_com_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "bumin_internet_com"
+button_name = "외부망 컴퓨터"
+large_price = "2.2e18"
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 3
+effect_target = "bumin"
+effect_value = 2.0
