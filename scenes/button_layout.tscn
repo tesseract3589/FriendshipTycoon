@@ -8,6 +8,7 @@
 [ext_resource type="Resource" uid="uid://ctmb8gpcd2lqc" path="res://data/buttons/bumin/bumin_internet_com_button.tres" id="data_bumin_internet_com"]
 [ext_resource type="Resource" uid="uid://dxwx8n4pvyf0x" path="res://data/buttons/bumin/bumin_soldier_button.tres" id="data_bumin_soldier"]
 [ext_resource type="Resource" path="res://data/buttons/lab/busik_reactor_button.tres" id="data_busik_reactor"]
+[ext_resource type="Resource" path="res://data/buttons/lab/busik_cloner_button.tres" id="data_busik_cloner"]
 [ext_resource type="Resource" uid="uid://cattq73lw6flp" path="res://data/buttons/lab/busik_server_button.tres" id="data_busik_server"]
 [ext_resource type="Resource" uid="uid://dyq26dlbxapwr" path="res://data/buttons/spa/conduit_button.tres" id="data_conduit"]
 [ext_resource type="Resource" uid="uid://bcbm8rlatug8v" path="res://data/buttons/restaurant/cook_soldier_button.tres" id="data_cook_soldier"]
@@ -1533,6 +1534,41 @@ theme_override_font_sizes/font_size = 18
 text = "연구소 서버
 부식 연구소 속도 x 2
 가격: 75경원"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="busik_cloner" type="Node2D" parent="Buttons/Lab"]
+position = Vector2(973.00006, -868)
+script = ExtResource("entry_script")
+button_data = ExtResource("data_busik_cloner")
+income_source = ExtResource("source_lab")
+
+[node name="PurchaseButton" type="TextureButton" parent="Buttons/Lab/busik_cloner"]
+z_index = 30
+z_as_relative = false
+offset_left = -38.609863
+offset_top = 20.0
+offset_right = 555.39014
+offset_bottom = 407.0
+scale = Vector2(0.13, 0.13)
+mouse_filter = 2
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2_1d1cb")
+texture_pressed = ExtResource("2_1d1cb")
+texture_hover = ExtResource("2_1d1cb")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="InfoLabel" type="Label" parent="Buttons/Lab/busik_cloner"]
+z_index = 40
+z_as_relative = false
+offset_left = -110.0
+offset_top = -61.0
+offset_right = 110.0
+offset_bottom = 23.0
+theme_override_colors/font_outline_color = Color(0.05, 0.08, 0.12, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 18
 horizontal_alignment = 1
 vertical_alignment = 1
 

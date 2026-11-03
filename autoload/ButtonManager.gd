@@ -44,7 +44,8 @@ const BIG = preload("res://scripts/BigNumber.gd")
 	preload("res://data/buttons/lab/lab_button.tres"),
 	preload("res://data/buttons/lab/busik_server_button.tres"),
 	preload("res://data/buttons/lab/lab_soldier_button.tres"),
-	preload("res://data/buttons/lab/busik_reactor_button.tres")
+	preload("res://data/buttons/lab/busik_reactor_button.tres"),
+	preload("res://data/buttons/lab/busik_cloner_button.tres")
 ]
 var _unlock_states: Dictionary = {}
 var _purchases_in_progress: Dictionary = {}

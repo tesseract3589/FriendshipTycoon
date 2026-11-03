@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/lab/busik_cloner_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "busik_cloner"
+button_name = "부식 복제 포드"
+large_price = "8700e16"
+type = 2
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+click_dialogues = PackedStringArray()
+effect_type = 1
+effect_target = "lab"
+effect_value = 3.0

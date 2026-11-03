@@ -136,6 +136,12 @@ size = Vector2(462, 530)
 [sub_resource type="RectangleShape2D" id="BusikReactorHoverShape"]
 size = Vector2(550, 500)
 
+[sub_resource type="RectangleShape2D" id="ClonerPodHoverShape"]
+size = Vector2(244, 486)
+
+[sub_resource type="RectangleShape2D" id="ClonerDrinkHoverShape"]
+size = Vector2(1000, 1200)
+
 [node name="WorldLayout" type="Node2D" unique_id=758915039]
 
 [node name="GroundReference" type="Sprite2D" parent="." unique_id=883505403]
@@ -1051,15 +1057,17 @@ sprite_frames = ExtResource("40_busik_reactor_frames")
 autoplay = "default"
 script = ExtResource("13_render_layer")
 
-[node name="HoverArea" type="Area2D" parent="Lab/busik_reactor"]
+[node name="HoverArea" type="Area2D" parent="Lab/busik_reactor" unique_id=915148442]
 input_pickable = false
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/busik_reactor/HoverArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/busik_reactor/HoverArea" unique_id=799830131]
 visible = false
 position = Vector2(0, 9)
 shape = SubResource("BusikReactorHoverShape")
 
 [node name="busik_cloner" type="Node2D" parent="Lab" unique_id=1209615801]
+z_as_relative = false
+script = ExtResource("13_render_layer")
 
 [node name="twin_pod" type="Sprite2D" parent="Lab/busik_cloner" unique_id=1446422739]
 position = Vector2(973.00006, -868)
@@ -1076,6 +1084,19 @@ position = Vector2(187, 0)
 script = ExtResource("45_pod_bubbles")
 bubble_seed = 43
 
+[node name="HoverArea" type="Area2D" parent="Lab/busik_cloner/twin_pod" unique_id=2117657913]
+input_pickable = false
+
+[node name="LeftPodCollision" type="CollisionShape2D" parent="Lab/busik_cloner/twin_pod/HoverArea" unique_id=1181814893]
+visible = false
+position = Vector2(-187, 0)
+shape = SubResource("ClonerPodHoverShape")
+
+[node name="RightPodCollision" type="CollisionShape2D" parent="Lab/busik_cloner/twin_pod/HoverArea" unique_id=77561275]
+visible = false
+position = Vector2(187, 0)
+shape = SubResource("ClonerPodHoverShape")
+
 [node name="left_drink" type="AnimatedSprite2D" parent="Lab/busik_cloner" unique_id=391414693]
 z_index = 1
 position = Vector2(896.33, -860.88)
@@ -1083,6 +1104,13 @@ scale = Vector2(0.075, 0.075)
 sprite_frames = ExtResource("43_drink_cycle")
 autoplay = "default"
 script = ExtResource("44_floating_drink")
+
+[node name="HoverArea" type="Area2D" parent="Lab/busik_cloner/left_drink" unique_id=414312835]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/busik_cloner/left_drink/HoverArea" unique_id=184037674]
+visible = false
+shape = SubResource("ClonerDrinkHoverShape")
 
 [node name="right_drink" type="AnimatedSprite2D" parent="Lab/busik_cloner" unique_id=1624793922]
 z_index = 1
@@ -1092,3 +1120,10 @@ sprite_frames = ExtResource("43_drink_cycle")
 autoplay = "default"
 script = ExtResource("44_floating_drink")
 phase_delay = 0.3
+
+[node name="HoverArea" type="Area2D" parent="Lab/busik_cloner/right_drink" unique_id=325881689]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/busik_cloner/right_drink/HoverArea" unique_id=2107025505]
+visible = false
+shape = SubResource("ClonerDrinkHoverShape")
