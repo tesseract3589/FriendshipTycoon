@@ -21,6 +21,9 @@ func _ready() -> void:
 
 
 func get_default_save_directory() -> String:
+	# Mobile app bundles and packaged resources are read-only, even in debug builds.
+	if OS.has_feature("mobile"):
+		return ProjectSettings.globalize_path("user://saves")
 	var base := ProjectSettings.globalize_path("res://") if OS.is_debug_build() else OS.get_executable_path().get_base_dir()
 	return base.path_join("saves")
 
