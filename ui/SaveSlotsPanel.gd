@@ -35,6 +35,7 @@ func _ready() -> void:
 	save_layer.layer = RENDER_ORDER.ScreenLayer.SAVE
 	add_child(save_layer)
 	overlay.reparent(save_layer, false)
+	RightPanelManager.register_panel(overlay)
 	open_button.pressed.connect(_open)
 	close_button.pressed.connect(overlay.hide)
 	save_button.pressed.connect(_request_save)

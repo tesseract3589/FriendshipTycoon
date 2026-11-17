@@ -41,7 +41,8 @@ func _ready() -> void:
 	_bgm_player = AudioStreamPlayer.new()
 	_bgm_player.name = "BGMPlayer"
 	add_child(_bgm_player)
-	_apply_bgm_volume()
+	SettingsManager.settings_changed.connect(_apply_settings)
+	_apply_settings()
 
 
 func play_bgm(stream: AudioStream, restart: bool = false) -> void:
@@ -62,6 +63,7 @@ func set_bgm_volume(volume: float) -> void:
 	if not ErrorManager.validate_number(volume, "SoundManager.bgm_volume"):
 		return
 	bgm_volume = clampf(volume, 0.0, 1.0)
+	SettingsManager.set_volume("bgm_volume", bgm_volume)
 	_apply_bgm_volume()
 
 
@@ -75,7 +77,7 @@ func play_se(stream: AudioStream, volume_scale: float = 1.0) -> void:
 	player.stream = stream
 	var clamped_volume_scale := clampf(volume_scale, 0.0, 1.0)
 	player.set_meta("volume_scale", clamped_volume_scale)
-	player.volume_db = _volume_to_db(se_volume * clamped_volume_scale)
+	player.volume_db = _volume_to_db(SettingsManager.master_volume * se_volume * clamped_volume_scale)
 	player.finished.connect(_on_se_finished.bind(player))
 	_active_se_players.append(player)
 	add_child(player)
@@ -97,15 +99,27 @@ func set_se_volume(volume: float) -> void:
 	if not ErrorManager.validate_number(volume, "SoundManager.se_volume"):
 		return
 	se_volume = clampf(volume, 0.0, 1.0)
+	SettingsManager.set_volume("se_volume", se_volume)
+	_apply_se_volume()
+
+
+func _apply_settings() -> void:
+	bgm_volume = SettingsManager.bgm_volume
+	se_volume = SettingsManager.se_volume
+	_apply_bgm_volume()
+	_apply_se_volume()
+
+
+func _apply_se_volume() -> void:
 	for player in _active_se_players:
 		if is_instance_valid(player):
 			var volume_scale: float = player.get_meta("volume_scale", 1.0)
-			player.volume_db = _volume_to_db(se_volume * volume_scale)
+			player.volume_db = _volume_to_db(SettingsManager.master_volume * se_volume * volume_scale)
 
 
 func _apply_bgm_volume() -> void:
 	if is_instance_valid(_bgm_player):
-		_bgm_player.volume_db = _volume_to_db(bgm_volume)
+		_bgm_player.volume_db = _volume_to_db(SettingsManager.master_volume * bgm_volume)
 
 
 func _volume_to_db(volume: float) -> float:

@@ -269,7 +269,7 @@ func _refresh_confirmation() -> void:
 		return
 	var earned: Variant = PrestigeManager.live_jjam
 	var current: Variant = PrestigeManager.banked_jjam
-	confirmation_question.text = "%s짬을 얻는 대가로 환생하시겠습니까?" % FORMAT.format_number(earned)
+	confirmation_question.text = "%s짬을 얻는 대가로 환생하시겠습니까?" % FORMAT.format_current_money(earned)
 	confirmation_yes.disabled = not PrestigeManager.can_prestige()
 	confirmation_hint.hide()
 	confirmation_hint.text = ""

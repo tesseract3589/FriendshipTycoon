@@ -5,6 +5,7 @@ extends RefCounted
 enum WorldLayer {
 	SKY = -100,
 	CLOUDS = -90,
+	BACK_OBJECT = -50,
 	BACKGROUND = -20,
 	FOREGROUND = -10,
 	OBJECT = 0,

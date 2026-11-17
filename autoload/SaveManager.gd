@@ -47,6 +47,7 @@ func initialize(directory: String = "") -> bool:
 		if not _write_config(slot, empty_slot):
 			return false
 	initialized = true
+	SettingsManager.initialize(save_directory.path_join("settings.cfg"))
 	get_tree().auto_accept_quit = false
 	# Main calls this before creating world views. Test scenes do not initialize saves.
 	var info := get_slot_info(AUTO_SLOT)

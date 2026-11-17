@@ -1,0 +1,244 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/SettingsPanel.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Interfaces/Button_Settings.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Interfaces/Button_x.png" id="3"]
+[ext_resource type="PackedScene" path="res://ui/animated_switch.tscn" id="4"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Interfaces/slider_grabber.svg" id="5"]
+[ext_resource type="Shader" path="res://ui/settings_icon_outline.gdshader" id="6_outline"]
+
+[sub_resource type="ShaderMaterial" id="SettingsIconOutline"]
+shader = ExtResource("6_outline")
+shader_parameter/outline_width = 1.25
+
+[sub_resource type="StyleBoxFlat" id="Panel"]
+bg_color = Color(0.115, 0.12, 0.115, 0.98)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.71, 0.73, 0.69, 1)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_left = 22
+corner_radius_bottom_right = 22
+shadow_color = Color(0, 0, 0, 0.4)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="Track"]
+bg_color = Color(0.055, 0.065, 0.055, 1)
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="StyleBoxFlat" id="Fill"]
+bg_color = Color(0.64, 0.69, 0.58, 1)
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_left = 5
+corner_radius_bottom_right = 5
+
+[sub_resource type="StyleBoxEmpty" id="Empty"]
+
+[sub_resource type="Theme" id="Theme"]
+default_font_size = 24
+Label/colors/font_color = Color(0.91, 0.92, 0.87, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/constants/outline_size = 4
+HSlider/styles/slider = SubResource("Track")
+HSlider/styles/grabber_area = SubResource("Fill")
+HSlider/styles/grabber_area_highlight = SubResource("Fill")
+HSlider/icons/grabber = ExtResource("5")
+HSlider/icons/grabber_highlight = ExtResource("5")
+
+[node name="SettingsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="OpenButton" type="TextureButton" parent="."]
+material = SubResource("SettingsIconOutline")
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -74.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 74.0
+grow_horizontal = 0
+tooltip_text = "설정"
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("2")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Overlay" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_force_pass_scroll_events = false
+theme = SubResource("Theme")
+
+[node name="Dim" type="ColorRect" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0.55)
+
+[node name="Backdrop" type="Button" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("Empty")
+theme_override_styles/hover = SubResource("Empty")
+theme_override_styles/pressed = SubResource("Empty")
+
+[node name="Panel" type="PanelContainer" parent="Overlay"]
+layout_mode = 0
+theme_override_styles/panel = SubResource("Panel")
+
+[node name="Margin" type="MarginContainer" parent="Overlay/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_bottom = 26
+
+[node name="VBox" type="VBoxContainer" parent="Overlay/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Header" type="HBoxContainer" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Close" type="TextureButton" parent="Overlay/Panel/Margin/VBox/Header"]
+layout_mode = 2
+custom_minimum_size = Vector2(40, 40)
+tooltip_text = "닫기"
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Overlay/Panel/Margin/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "설정"
+
+[node name="master_volume" type="VBoxContainer" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Heading" type="HBoxContainer" parent="Overlay/Panel/Margin/VBox/master_volume"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Overlay/Panel/Margin/VBox/master_volume/Heading"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "전체 볼륨"
+
+[node name="Value" type="Label" parent="Overlay/Panel/Margin/VBox/master_volume/Heading"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 0)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 2
+text = "100%"
+
+[node name="Slider" type="HSlider" parent="Overlay/Panel/Margin/VBox/master_volume"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+mouse_default_cursor_shape = 2
+step = 1.0
+value = 100.0
+
+[node name="bgm_volume" type="VBoxContainer" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Heading" type="HBoxContainer" parent="Overlay/Panel/Margin/VBox/bgm_volume"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Overlay/Panel/Margin/VBox/bgm_volume/Heading"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "BGM"
+
+[node name="Value" type="Label" parent="Overlay/Panel/Margin/VBox/bgm_volume/Heading"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 0)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 2
+text = "100%"
+
+[node name="Slider" type="HSlider" parent="Overlay/Panel/Margin/VBox/bgm_volume"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+mouse_default_cursor_shape = 2
+step = 1.0
+value = 100.0
+
+[node name="Hint" type="Label" parent="Overlay/Panel/Margin/VBox/bgm_volume"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.62, 0.65, 0.59, 1)
+theme_override_font_sizes/font_size = 16
+text = "BGM이 추가되면 적용됩니다."
+
+[node name="se_volume" type="VBoxContainer" parent="Overlay/Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Heading" type="HBoxContainer" parent="Overlay/Panel/Margin/VBox/se_volume"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Overlay/Panel/Margin/VBox/se_volume/Heading"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "효과음"
+
+[node name="Value" type="Label" parent="Overlay/Panel/Margin/VBox/se_volume/Heading"]
+layout_mode = 2
+custom_minimum_size = Vector2(64, 0)
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 2
+text = "100%"
+
+[node name="Slider" type="HSlider" parent="Overlay/Panel/Margin/VBox/se_volume"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 32)
+mouse_default_cursor_shape = 2
+step = 1.0
+value = 100.0
+
+[node name="DM" type="HBoxContainer" parent="Overlay/Panel/Margin/VBox"]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="Overlay/Panel/Margin/VBox/DM"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "부식 DM 연락 받기"
+
+[node name="Switch" parent="Overlay/Panel/Margin/VBox/DM" instance=ExtResource("4")]
+layout_mode = 2
+button_pressed = true

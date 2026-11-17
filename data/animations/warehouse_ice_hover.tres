@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HoverDoorMotionData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ResourceInit/HoverDoorMotionData.gd" id="1_motion"]
+
+[resource]
+script = ExtResource("1_motion")
+animation = &"default"
+closed_frame = 0
+open_frame = 24
+frames_per_second = 20.0

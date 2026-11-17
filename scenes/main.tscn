@@ -16,6 +16,7 @@
 [ext_resource type="PackedScene" path="res://ui/jjam_prestige_panel.tscn" id="15_jjam_prestige"]
 [ext_resource type="Script" uid="uid://dypvyij2le4vf" path="res://ui/IncomeUpgradeTutorial.gd" id="16_income_tutorial"]
 [ext_resource type="Script" path="res://ui/JjamShopTutorial.gd" id="17_shop_tutorial"]
+[ext_resource type="PackedScene" path="res://ui/settings_panel.tscn" id="18_settings"]
 
 [node name="Main" type="Node2D" unique_id=1474638925]
 script = ExtResource("2_game_ui")
@@ -113,6 +114,8 @@ text = "0원 / 초"
 [node name="EventRewardDeposit" parent="HUD" unique_id=429058265 instance=ExtResource("12_event_reward")]
 
 [node name="SaveSlotsPanel" parent="HUD" unique_id=1784676476 instance=ExtResource("10_save_slots")]
+
+[node name="SettingsPanel" parent="HUD" instance=ExtResource("18_settings")]
 
 [node name="RightPanel" type="CanvasLayer" parent="." unique_id=1865052531]
 layer = 2

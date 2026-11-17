@@ -45,6 +45,10 @@ static func format_number(value: Variant) -> String:
 	return _format_money(value, 2, true)
 
 
+static func format_jjam(value: Variant) -> String:
+	return _format_money(value, 4, false)
+
+
 static func format_current_money(value: Variant) -> String:
 	if BIG.compare(BIG.absolute(value), 10000.0) < 0:
 		return "%.0f" % float(BIG.truncated(value))

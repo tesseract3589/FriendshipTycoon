@@ -9,6 +9,7 @@ id = "jjamtong"
 button_name = "짬통"
 large_price = "1e12"
 description = "???"
+tooltip_text = "{current_jjam}짬"
 unlock_condition = ExtResource("2_condition")
 show_world_purchase_button = true
 click_dialogues = PackedStringArray()

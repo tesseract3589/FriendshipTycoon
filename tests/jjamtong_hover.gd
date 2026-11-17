@@ -76,6 +76,25 @@ func _run() -> void:
 		_step(sprite)
 		_check(sprite.peek_frame == expected, "Closing must replay the same three steps in reverse.")
 	_check(not sprite.is_processing(), "A fully closed bin must stop updating.")
+	# Use the real bin template and existing tooltip while keeping animation independent.
+	data.show_purchased_tooltip = true
+	PrestigeManager.live_jjam = 400
+	area.mouse_entered.emit()
+	_check(TooltipManager._panel.visible and TooltipManager._owner_id == "jjamtong", "Hovering the bin must show its current jjam tooltip.")
+	_check(TooltipManager._label.text == "400.0000짬", "Small jjam values must retain four decimal places.")
+	PrestigeManager.live_jjam = 12345
+	PrestigeManager.jjam_changed.emit()
+	_check(TooltipManager._label.text == "1.2345만짬", "The hovered tooltip must update using the existing large-unit format.")
+	PrestigeManager.live_jjam = preload("res://scripts/BigNumber.gd").parse("1e100")
+	PrestigeManager.jjam_changed.emit()
+	_check(TooltipManager._label.text == "1.0000 × 10^100짬", "Huge jjam values must preserve the four-decimal scientific format.")
+	area.mouse_exited.emit()
+	PrestigeManager.live_jjam = 0
+	PrestigeManager.jjam_changed.emit()
+	_check(not TooltipManager._panel.visible, "Jjam updates after hover exit must not reopen the tooltip.")
+	area.mouse_entered.emit()
+	_check(TooltipManager._label.text == "0.0000짬", "Zero jjam must also retain four decimal places.")
+	area.mouse_exited.emit()
 	area.mouse_entered.emit()
 	area.mouse_exited.emit()
 	_check(sprite.peek_frame == 0 and not sprite.is_processing(), "Exiting before the first frame must leave the lid closed.")

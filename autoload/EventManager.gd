@@ -180,6 +180,10 @@ func _process(delta: float) -> void:
 		var data: GameEventData = _definitions[event_id]
 		if _active_events.has(event_id):
 			continue
+		# Pausing incoming DMs preserves both cooldown and partial roll progress.
+		# Active conversations advance above, even when receiving is switched off.
+		if data is PhoneDMEventData and not SettingsManager.receive_busik_dm:
+			continue
 		var cooldown: float = _cooldowns.get(event_id, 0.0)
 		if cooldown > 0.0:
 			_cooldowns[event_id] = maxf(0.0, cooldown - delta)
@@ -276,6 +280,8 @@ func get_event_start_block_reason(event_id: String, ignore_cooldown: bool = fals
 	if event_id == JJAMTONG_INTRO_ID and not _jjamtong_intro_ui_available:
 		return "짬통 소개 화면 대기"
 	if data is PhoneDMEventData:
+		if not SettingsManager.receive_busik_dm:
+			return "설정에서 부식 DM 연락 수신 꺼짐"
 		if not _phone_ui_available:
 			return "폰 DM 화면 대기"
 		if _phone_event != null:

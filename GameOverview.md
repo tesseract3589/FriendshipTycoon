@@ -252,10 +252,16 @@ HUD의 현재 자금은 1만원 미만에서 소수점 없이 표시하고, 1만
 | 짬통 | 고양이 귀→눈→얼굴의 호버 애니메이션, 포인터 이탈 시 현재 프레임에서 역재생 |
 | 부식 복제기 | 과일 음료 캔 5종을 순환하며 위아래로 부유. 좌우 재생 위상 차이와 창 안의 상승 기포 |
 | 부식 서버·반응로 | 반복 프레임 애니메이션 |
+| 짬 변환기 | `Lab/jjam_converter`에서 기본→2→3→4→5→4→3→2 순서를 프레임당 0.1초로 무한 반복. `data/animations/jjam_converter_frames.tres` 사용 |
+| 냉동 창고 | 전자식 양개문이 약 1.2초 동안 좌우로 미끄러져 열리고 닫히는 반복 애니메이션. 얼음 그림은 원본 문과 함께 양분되며 안쪽의 냉동 상자 3개가 드러남 |
 | 짬 환생 | 암전·카메라 복귀·고양이 흡수 |
 | 월드 대사 | 구매된 오브젝트의 클릭 대사와 말풍선 |
 
 일반 구매와 업그레이드에 효과음을 재생하며, 업그레이드는 레벨에 따라 음계를 순환한다. 짬 패널의 고양이는 클릭 시 울음소리를 낸다. 사운드 재생과 음량은 `SoundManager`가 관리한다.
+
+냉동 창고는 `world_layout.tscn`의 `Bumin/warehouse_ice`에 `data/animations/warehouse_ice_frames.tres`를 할당한다. 기존 외벽·간판은 자식 `Facade`가 그대로 표시하고, 문 부분만 25개 포즈의 작은 아틀라스(`assets/sprites/Bumin/Warehouse/warehouse_ice_doors.png`)로 교체한다. 문은 회전 없이 벽 안으로 들어가며 부드럽게 가속·감속하고, 닫힌 상태와 완전히 열린 상태를 잠시 유지한다. 닫기는 같은 포즈의 역순이다. 원본 `warehouse_ice.png`와 `box_frozen.png`는 유지하며 `scripts/tools/BakeWarehouseIce.gd`로 프레임을 다시 만들 수 있다.
+
+안쪽 배경 `assets/sprites/Bumin/Warehouse/warehouse_ice_interior.png`는 내장 imagegen 도구로 만든 열린 창고 이미지에서 출입구만 추출했다. 사용 프롬프트: “Preserve the original green arched freezer warehouse, glowing wing emblem, lettering and gray doorway frame. Remove only the sliding door panels and ice emblem to expose an empty dark blue-gray interior and flat floor. Minimal flat shapes, uniform black outlines; no boxes, handles, frost or added details; transparent exterior.” 외벽은 생성본 대신 원본을 사용하고 상자는 기존 스프라이트를 합성한다.
 
 화면 레이어는 월드 설명·개별 업그레이드(1) → HUD·우측 패널(2) → 우측 버튼(3) → 저장 화면(4) → 이벤트·환생 확인(5) → 환생 연출(6) → 개발자 도구(10) → 오류 메시지(100) 순서다. 월드 깊이는 `RenderOrder.WorldLayer`와 `SceneRenderLayer`에서 관리한다.
 
@@ -289,6 +295,21 @@ Godot 4.7 프로젝트이며 Mobile 렌더러를 사용한다. 시작 장면은 
 | `data/jjam_shop/` | 짬 상점 상품 |
 | `data/animations/`, `data/effects/`, `ui/effects/` | 프레임 애니메이션·환생 이펙트·호버 효과 |
 | `assets/` | 게임 이미지·폰트·사운드 |
+
+설정 버튼 스프라이트는 `assets/sprites/Interfaces/Button_Settings.png`다. 투명 배경의 회색 톱니바퀴에 굵은 검은 테두리를 사용하며 글씨는 없다. 내장 imagegen 도구로 생성한 이미지 자산이며, UI 연결은 별도 작업이다.
+
+<details>
+<summary>설정 버튼 이미지 생성 프롬프트</summary>
+
+최초 생성:
+
+Use case: ui-mockup. Asset type: one transparent PNG settings-button sprite for a simple cute 2D tycoon game. Draw a single centered front-facing eight-tooth gear icon. Use a very simple clean geometric silhouette, short broad evenly spaced teeth with gently rounded corners, one large circular transparent hole in the center, flat light-gray fill, and a bold pure-black outline of exactly the same thickness around both the outer silhouette and the circular hole. Crisp and legible at small UI sizes. Square canvas, icon occupies about 76 percent of the canvas, equal transparent padding on all sides. Minimal colors and details. No text, no letters, no logos, no button plate, no shadow, no shading, no gradients, no highlights, no bevels, no 3D, no extra marks. Truly transparent background and center hole.
+
+테두리·단색 면 보정:
+
+undefined
+
+</details>
 
 ### Autoload
 

@@ -37,6 +37,7 @@
 [ext_resource type="SpriteFrames" uid="uid://i1ucxcli5tt3" path="res://data/animations/jjamtong_cat_frames.tres" id="32_cat_frames"]
 [ext_resource type="Texture2D" uid="uid://cjotd6e4xlaxx" path="res://assets/sprites/Bumin/Monitor_with_desk.png" id="35_yuoe5"]
 [ext_resource type="Texture2D" uid="uid://d0vvrj6phudne" path="res://assets/sprites/Bumin/Chair_with_wheel_Friendship.png" id="36_n8ajw"]
+[ext_resource type="Texture2D" uid="uid://b6m6cy3bnliwo" path="res://assets/sprites/Bumin/slate_roof.png" id="37_besqb"]
 [ext_resource type="Texture2D" uid="uid://bvxpql4t4x0fj" path="res://assets/sprites/Bumin/bumin_truck.png" id="37_e4mm3"]
 [ext_resource type="Texture2D" uid="uid://dr3obsvhulllo" path="res://assets/sprites/Structures/iron_bar_titanium.png" id="37_vm6d4"]
 [ext_resource type="Texture2D" uid="uid://dxytfngaoal5e" path="res://assets/sprites/Lab/Wall_White_Concrete.png" id="38_2j4hr"]
@@ -46,11 +47,19 @@
 [ext_resource type="Texture2D" uid="uid://dd4mgl5l7qc71" path="res://assets/sprites/Bumin/Monitor_with_desk_internet.png" id="40_8fgvk"]
 [ext_resource type="SpriteFrames" uid="uid://c2126olqcon3q" path="res://data/animations/busik_reactor_frames.tres" id="40_busik_reactor_frames"]
 [ext_resource type="Texture2D" uid="uid://bjl4157gmscy3" path="res://assets/sprites/Lab/busik_cloner.png" id="42_wsp5q"]
+[ext_resource type="Texture2D" uid="uid://cphnxv17u7oae" path="res://assets/sprites/Bumin/wallpaper_office_green_luxury.png" id="43_28daf"]
 [ext_resource type="SpriteFrames" uid="uid://c08h6e2fgcnv8" path="res://data/animations/drink_cycle_frames.tres" id="43_drink_cycle"]
 [ext_resource type="Script" uid="uid://d0b4vqarrorp0" path="res://scripts/FloatingDrinkSprite.gd" id="44_floating_drink"]
 [ext_resource type="Script" uid="uid://d3f0f83s671oa" path="res://scripts/PodBubbles.gd" id="45_pod_bubbles"]
+[ext_resource type="PackedScene" path="res://ui/effects/cold_mist.tscn" id="cold_mist_scene"]
+[ext_resource type="Script" uid="uid://daevi32t2vyfp" path="res://scripts/HoverDoorSprite.gd" id="hover_door"]
+[ext_resource type="SpriteFrames" path="res://data/animations/jjam_converter_frames.tres" id="jjam_converter_frames"]
 [ext_resource type="Script" uid="uid://bsmmx41imvvbd" path="res://scripts/DepartureLoopSprite.gd" id="truck_departure"]
 [ext_resource type="Resource" uid="uid://b3tio7nigphai" path="res://data/animations/truck_bumin_motion.tres" id="truck_motion"]
+[ext_resource type="Resource" path="res://data/animations/warehouse_ice_hover.tres" id="warehouse_hover_motion"]
+[ext_resource type="Texture2D" uid="uid://bwpqc4i7fiu8o" path="res://assets/sprites/Bumin/Warehouse/warehouse_ice.png" id="warehouse_ice_facade"]
+[ext_resource type="SpriteFrames" uid="uid://dykt7yl1qler0" path="res://data/animations/warehouse_ice_frames.tres" id="warehouse_ice_frames"]
+[ext_resource type="Resource" path="res://data/effects/warehouse_ice_mist.tres" id="warehouse_mist_data"]
 
 [sub_resource type="RectangleShape2D" id="VendingMachineHoverShape"]
 size = Vector2(367, 585)
@@ -837,6 +846,16 @@ position = Vector2(3261, -14.5)
 scale = Vector2(0.45666662, 0.44959122)
 texture = ExtResource("7_vvlob")
 
+[node name="depot_slate_roof" type="Sprite2D" parent="Bumin" unique_id=914574445]
+z_index = 10
+z_as_relative = false
+position = Vector2(2358.0002, -282.625)
+scale = Vector2(1.3667127, 1.3801367)
+texture = ExtResource("37_besqb")
+script = ExtResource("13_render_layer")
+render_layer = 10
+metadata/_edit_lock_ = true
+
 [node name="office_chair_bumin" type="Sprite2D" parent="Bumin" unique_id=1736738114]
 z_as_relative = false
 position = Vector2(1992.0001, 151)
@@ -912,6 +931,44 @@ input_pickable = false
 visible = false
 position = Vector2(1, 1)
 shape = SubResource("CapsuleShape2D_gcvix")
+
+[node name="office_luxury_wallpaper" type="Sprite2D" parent="Bumin" unique_id=1455927782]
+z_index = -20
+z_as_relative = false
+position = Vector2(2168, 12.000008)
+scale = Vector2(0.755, 0.755)
+texture = ExtResource("43_28daf")
+script = ExtResource("13_render_layer")
+render_layer = -20
+
+[node name="warehouse_ice" type="AnimatedSprite2D" parent="Bumin" unique_id=435505330]
+z_index = -50
+z_as_relative = false
+position = Vector2(2784, -171.68102)
+scale = Vector2(1.355, 1.355)
+sprite_frames = ExtResource("warehouse_ice_frames")
+script = ExtResource("hover_door")
+motion = ExtResource("warehouse_hover_motion")
+render_layer = -50
+
+[node name="Facade" type="Polygon2D" parent="Bumin/warehouse_ice" unique_id=979717169]
+show_behind_parent = true
+position = Vector2(-0.36893773, 0.5025673)
+scale = Vector2(1.0018508, 1.0097777)
+texture = ExtResource("warehouse_ice_facade")
+polygon = PackedVector2Array(-489.5, -305.5, 489.5, -305.5, 489.5, 305.5, -489.5, 305.5)
+uv = PackedVector2Array(0, 0, 979, 0, 979, 611, 0, 611)
+
+[node name="ColdMist" parent="Bumin/warehouse_ice" unique_id=1087931318 instance=ExtResource("cold_mist_scene")]
+z_index = 1
+settings = ExtResource("warehouse_mist_data")
+
+[node name="HoverArea" type="Area2D" parent="Bumin/warehouse_ice" unique_id=1171033668]
+input_pickable = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Bumin/warehouse_ice/HoverArea" unique_id=120439885]
+visible = false
+polygon = PackedVector2Array(-161.5, 18.5, 161.5, 18.5, 161.5, 299.5, -161.5, 299.5)
 
 [node name="Lab" type="Node2D" parent="." unique_id=883780587]
 
@@ -1056,6 +1113,7 @@ scale = Vector2(0.28, 0.28)
 sprite_frames = ExtResource("40_busik_reactor_frames")
 autoplay = "default"
 script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
 
 [node name="HoverArea" type="Area2D" parent="Lab/busik_reactor" unique_id=915148442]
 input_pickable = false
@@ -1068,6 +1126,7 @@ shape = SubResource("BusikReactorHoverShape")
 [node name="busik_cloner" type="Node2D" parent="Lab" unique_id=1209615801]
 z_as_relative = false
 script = ExtResource("13_render_layer")
+metadata/_edit_lock_ = true
 
 [node name="twin_pod" type="Sprite2D" parent="Lab/busik_cloner" unique_id=1446422739]
 position = Vector2(973.00006, -868)
@@ -1127,3 +1186,13 @@ input_pickable = false
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Lab/busik_cloner/right_drink/HoverArea" unique_id=2107025505]
 visible = false
 shape = SubResource("ClonerDrinkHoverShape")
+
+[node name="jjam_converter" type="AnimatedSprite2D" parent="Lab" unique_id=374613133]
+z_as_relative = false
+position = Vector2(250, -854.945)
+scale = Vector2(0.3, 0.3)
+sprite_frames = ExtResource("jjam_converter_frames")
+autoplay = "default"
+frame = 7
+frame_progress = 0.65213484
+script = ExtResource("13_render_layer")

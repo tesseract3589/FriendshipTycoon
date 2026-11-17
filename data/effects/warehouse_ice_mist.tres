@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ColdMistData" format=3]
+
+[ext_resource type="Script" path="res://scripts/ResourceInit/ColdMistData.gd" id="1_mist"]
+
+[resource]
+script = ExtResource("1_mist")
+emission_rect = Rect2(-150, 245, 300, 45)
+wisp_count = 18
+random_seed = 17
+lifetime = 1.8
+horizontal_speed = Vector2(-42, 42)
+downward_speed = Vector2(12, 30)
+radius_range = Vector2(12, 34)
+color = Color(0.82, 0.96, 1, 0.32)

@@ -1,0 +1,305 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://dykt7yl1qler0"]
+
+[ext_resource type="Texture2D" uid="uid://bb40lx46gyui8" path="res://assets/sprites/Bumin/Warehouse/warehouse_ice_doors.png" id="1_doors"]
+
+[sub_resource type="AtlasTexture" id="Door_00"]
+atlas = ExtResource("1_doors")
+region = Rect2(0, 0, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_01"]
+atlas = ExtResource("1_doors")
+region = Rect2(323, 0, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_02"]
+atlas = ExtResource("1_doors")
+region = Rect2(646, 0, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_03"]
+atlas = ExtResource("1_doors")
+region = Rect2(969, 0, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_04"]
+atlas = ExtResource("1_doors")
+region = Rect2(1292, 0, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_05"]
+atlas = ExtResource("1_doors")
+region = Rect2(0, 281, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_06"]
+atlas = ExtResource("1_doors")
+region = Rect2(323, 281, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_07"]
+atlas = ExtResource("1_doors")
+region = Rect2(646, 281, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_08"]
+atlas = ExtResource("1_doors")
+region = Rect2(969, 281, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_09"]
+atlas = ExtResource("1_doors")
+region = Rect2(1292, 281, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_10"]
+atlas = ExtResource("1_doors")
+region = Rect2(0, 562, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_11"]
+atlas = ExtResource("1_doors")
+region = Rect2(323, 562, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_12"]
+atlas = ExtResource("1_doors")
+region = Rect2(646, 562, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_13"]
+atlas = ExtResource("1_doors")
+region = Rect2(969, 562, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_14"]
+atlas = ExtResource("1_doors")
+region = Rect2(1292, 562, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_15"]
+atlas = ExtResource("1_doors")
+region = Rect2(0, 843, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_16"]
+atlas = ExtResource("1_doors")
+region = Rect2(323, 843, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_17"]
+atlas = ExtResource("1_doors")
+region = Rect2(646, 843, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_18"]
+atlas = ExtResource("1_doors")
+region = Rect2(969, 843, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_19"]
+atlas = ExtResource("1_doors")
+region = Rect2(1292, 843, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_20"]
+atlas = ExtResource("1_doors")
+region = Rect2(0, 1124, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_21"]
+atlas = ExtResource("1_doors")
+region = Rect2(323, 1124, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_22"]
+atlas = ExtResource("1_doors")
+region = Rect2(646, 1124, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_23"]
+atlas = ExtResource("1_doors")
+region = Rect2(969, 1124, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="Door_24"]
+atlas = ExtResource("1_doors")
+region = Rect2(1292, 1124, 323, 281)
+margin = Rect2(328, 324, 656, 330)
+filter_clip = true
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 32.0,
+"texture": SubResource("Door_00")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_01")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_02")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_03")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_04")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_05")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_06")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_07")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_08")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_09")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_12")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_13")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_14")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_15")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_16")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_17")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_18")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_19")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_20")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_21")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_22")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_23")
+}, {
+"duration": 32.0,
+"texture": SubResource("Door_24")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_23")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_22")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_21")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_20")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_19")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_18")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_17")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_16")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_15")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_14")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_13")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_12")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_11")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_10")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_09")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_08")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_07")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_06")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_05")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_04")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_03")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_02")
+}, {
+"duration": 1.0,
+"texture": SubResource("Door_01")
+}],
+"loop": 1,
+"name": &"default",
+"speed": 20.0
+}]

@@ -1,0 +1,39 @@
+[gd_resource type="SpriteFrames" load_steps=6 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/Lab/jjam_converter.png" id="1_frame"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Lab/jjam_converter2.png" id="2_frame"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Lab/jjam_converter3.png" id="3_frame"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Lab/jjam_converter4.png" id="4_frame"]
+[ext_resource type="Texture2D" path="res://assets/sprites/Lab/jjam_converter5.png" id="5_frame"]
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("5_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_frame")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_frame")
+}],
+"loop": true,
+"name": &"default",
+"speed": 10.0
+}]

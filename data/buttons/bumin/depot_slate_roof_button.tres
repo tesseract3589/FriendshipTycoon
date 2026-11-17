@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ButtonData" format=3 uid="uid://cbw34io3jodvx"]
+
+[ext_resource type="Script" uid="uid://dwbvmfquxamky" path="res://scripts/ResourceInit/ButtonData.gd" id="1_button"]
+[ext_resource type="Resource" path="res://data/conditions/bumin/depot_slate_roof_unlock.tres" id="2_condition"]
+
+[resource]
+script = ExtResource("1_button")
+id = "depot_slate_roof"
+button_name = "촌스러운 지붕"
+large_price = "31e24"
+description = "구조물"
+type = 1
+unlock_condition = ExtResource("2_condition")
+show_world_purchase_button = true
+show_purchased_tooltip = false
+click_dialogues = PackedStringArray()
+effect_type = 5

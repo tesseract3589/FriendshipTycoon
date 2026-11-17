@@ -19,6 +19,7 @@ config/windows_native_icon="res://icon.ico"
 [autoload]
 
 ErrorManager="*res://autoload/ErrorManager.gd"
+SettingsManager="*res://autoload/SettingsManager.gd"
 SoundManager="*res://autoload/SoundManager.gd"
 EconomyManager="*res://autoload/EconomyManager.gd"
 IncomeManager="*res://autoload/IncomeManager.gd"

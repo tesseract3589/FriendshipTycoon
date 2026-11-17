@@ -4,6 +4,7 @@ extends Node2D
 const SIZE_POP_MOTION = preload("res://scripts/SizePopMotion.gd")
 const RENDER_ORDER = preload("res://scripts/RenderOrder.gd")
 const WORLD_UI_MINIMUM_SCALE = preload("res://scripts/WorldUIMinimumScale.gd")
+const NUMBER_FORMATTER = preload("res://scripts/NumberFormatter.gd")
 
 var purchased_visuals_root: Node2D
 var texture_button: TextureButton
@@ -69,6 +70,8 @@ func _ready() -> void:
 	EconomyManager.money_changed.connect(_on_money_changed)
 	EconomyManager.multiplier_changed.connect(_refresh_purchased_tooltip)
 	IncomeManager.income_changed.connect(_refresh_purchased_tooltip)
+	if button_data.tooltip_text.contains("{current_jjam}"):
+		PrestigeManager.jjam_changed.connect(_refresh_purchased_tooltip)
 	_refresh()
 	WORLD_UI_MINIMUM_SCALE.attach(texture_button, Vector2(0.5, 0.0))
 	WORLD_UI_MINIMUM_SCALE.attach(info_label, Vector2(0.5, 1.0))
@@ -206,7 +209,8 @@ func _add_purchased_visual(source_visual: Node2D) -> void:
 		purchased_visual.configure_world_hover_areas(hover_areas, source_visual.global_transform)
 	if purchased_visual.has_signal("world_hover_availability_changed"):
 		purchased_visual.connect("world_hover_availability_changed", _refresh)
-	if purchased_visual is AnimatedSprite2D:
+	# Hover-controlled sprites own playback and must start closed, without autoplay.
+	if purchased_visual is AnimatedSprite2D and not purchased_visual.has_method("set_hovered"):
 		var animated_visual := purchased_visual as AnimatedSprite2D
 		if animated_visual.sprite_frames != null:
 			animated_visual.play(animated_visual.animation)
@@ -259,4 +263,6 @@ func _refresh_purchased_tooltip() -> void:
 		var source := IncomeManager.get_source(button_data.effect_target)
 		if source != null:
 			tooltip_text = source.get_tooltip_text(button_data.tooltip_text)
+	if tooltip_text.contains("{current_jjam}"):
+		tooltip_text = tooltip_text.replace("{current_jjam}", NUMBER_FORMATTER.format_jjam(PrestigeManager.get_current_jjam()))
 	TooltipManager.show_tooltip(tooltip_text, button_data.id)
